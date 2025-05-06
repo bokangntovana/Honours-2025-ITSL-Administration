@@ -1,0 +1,73 @@
+﻿@model ITSL_Administration.Models.Tutor
+
+@{
+    ViewData["Title"] = "Tutor Details";
+}
+
+<div class="container mt-4">
+    <div class="details-header">
+        <h2 class="form-header">
+            <i class="fas fa-user-graduate me-2"></i>Tutor Details
+        </h2>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+
+    <div class="details-card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="details-list">
+                        <dt>@Html.DisplayNameFor(model => model.Name)</dt>
+                        <dd>@Html.DisplayFor(model => model.Name)</dd>
+
+                        <dt>@Html.DisplayNameFor(model => model.Surname)</dt>
+                        <dd>@Html.DisplayFor(model => model.Surname)</dd>
+
+                        <dt>@Html.DisplayNameFor(model => model.Email)</dt>
+                        <dd>
+                            <a href="mailto:@Model.Email" class="text-link">
+                                @Html.DisplayFor(model => model.Email)
+                            </a>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="details-list">
+                        <dt>@Html.DisplayNameFor(model => model.PhoneNumber)</dt>
+                        <dd>
+                            <a href="tel:@Model.PhoneNumber" class="text-link">
+                                @Html.DisplayFor(model => model.PhoneNumber)
+                            </a>
+                        </dd>
+
+                        <dt>@Html.DisplayNameFor(model => model.Campus)</dt>
+                        <dd>@Html.DisplayFor(model => model.Campus)</dd>
+
+                        <dt>@Html.DisplayNameFor(model => model.IsRegisteredForITSL)</dt>
+                        <dd>
+                            @if (Model.IsRegisteredForITSL)
+                            {
+                                <span class="status-badge status-active">Yes</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-inactive">No</span>
+                            }
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="details-actions">
+                <a asp-action="Edit" asp-route-id="@Model.TutorID" class="btn btn-primary">
+                    <i class="fas fa-edit me-2"></i>Edit
+                </a>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-list me-2"></i>View All Tutors
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

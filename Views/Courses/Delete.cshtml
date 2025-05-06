@@ -1,0 +1,56 @@
+﻿@model ITSL_Administration.Models.Course
+
+@{
+    ViewData["Title"] = "Delete Course";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="form-header text-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>Delete Course
+        </h2>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+
+    <div class="alert alert-danger">
+        <h4 class="alert-heading">
+            <i class="fas fa-exclamation-circle me-2"></i>Warning!
+        </h4>
+        <p>You are about to permanently delete this course. This action cannot be undone.</p>
+    </div>
+
+    <div class="form-card border-danger p-4">
+        <h4 class="mb-4">Course Details</h4>
+        <div class="row">
+            <div class="col-md-6">
+                <dl class="row details-list">
+                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.ModuleID)</dt>
+                    <dd class="col-sm-8">@Html.DisplayFor(model => model.ModuleID)</dd>
+
+                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.ModuleName)</dt>
+                    <dd class="col-sm-8">@Html.DisplayFor(model => model.ModuleName)</dd>
+                </dl>
+            </div>
+            <div class="col-md-6">
+                <dl class="row details-list">
+                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.ModuleCredits)</dt>
+                    <dd class="col-sm-8">@Html.DisplayFor(model => model.ModuleCredits)</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="form-actions mt-4">
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="ModuleID" />
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash-alt me-2"></i>Confirm Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

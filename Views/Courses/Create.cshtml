@@ -1,0 +1,68 @@
+﻿@model ITSL_Administration.Models.Course
+
+@{
+    ViewData["Title"] = "Create Course";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="form-header">
+            <i class="fas fa-book-open me-2"></i>Create Course
+        </h2>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+
+    <div class="form-card p-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="ModuleID" class="form-label fw-bold text-muted"></label>
+                        <input asp-for="ModuleID" class="form-control" />
+                        <span asp-validation-for="ModuleID" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="ModuleName" class="form-label fw-bold text-muted"></label>
+                        <input asp-for="ModuleName" class="form-control" />
+                        <span asp-validation-for="ModuleName" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="ModuleCredits" class="form-label fw-bold text-muted"></label>
+                        <input asp-for="ModuleCredits" class="form-control" />
+                        <span asp-validation-for="ModuleCredits" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="ModuleDescription" class="form-label fw-bold text-muted"></label>
+                        <textarea asp-for="ModuleDescription" class="form-control" rows="1"></textarea>
+                        <span asp-validation-for="ModuleDescription" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Create
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

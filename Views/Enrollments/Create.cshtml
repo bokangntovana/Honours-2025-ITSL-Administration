@@ -1,0 +1,88 @@
+﻿@model ITSL_Administration.Models.Enrollment
+
+@{
+    ViewData["Title"] = "Create Enrollment";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="form-header">
+            <i class="fas fa-user-plus me-2"></i>Create Enrollment
+        </h2>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+
+    <div class="form-card p-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="EnrollmentID" class="form-label fw-bold text-muted"></label>
+                        <input asp-for="EnrollmentID" class="form-control" />
+                        <span asp-validation-for="EnrollmentID" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="ParticipantID" class="form-label fw-bold text-muted"></label>
+                        <select asp-for="ParticipantID" class="form-control" asp-items="ViewBag.ParticipantID"></select>
+                        <span asp-validation-for="ParticipantID" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="ModuleID" class="form-label fw-bold text-muted"></label>
+                        <select asp-for="ModuleID" class="form-control" asp-items="ViewBag.ModuleID"></select>
+                        <span asp-validation-for="ModuleID" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="TutorID" class="form-label fw-bold text-muted"></label>
+                        <select asp-for="TutorID" class="form-control" asp-items="ViewBag.TutorID"></select>
+                        <span asp-validation-for="TutorID" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="LecturerID" class="form-label fw-bold text-muted"></label>
+                        <select asp-for="LecturerID" class="form-control" asp-items="ViewBag.LecturerID"></select>
+                        <span asp-validation-for="LecturerID" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="Grade" class="form-label fw-bold text-muted"></label>
+                        <input asp-for="Grade" class="form-control" />
+                        <span asp-validation-for="Grade" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" asp-for="IsPassed" />
+                    <label class="form-check-label" asp-for="IsPassed"></label>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Create
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

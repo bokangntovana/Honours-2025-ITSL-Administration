@@ -1,0 +1,60 @@
+﻿@model ITSL_Administration.Models.Lecturer
+
+@{
+    ViewData["Title"] = "Lecturer Details";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="form-header">
+            <i class="fas fa-chalkboard-teacher me-2"></i>Lecturer Details
+        </h2>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+
+    <div class="form-card p-4">
+        <div class="row">
+            <div class="col-md-6">
+                <dl class="row details-list">
+                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.LecturerID)</dt>
+                    <dd class="col-sm-8">@Html.DisplayFor(model => model.LecturerID)</dd>
+
+                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.Name)</dt>
+                    <dd class="col-sm-8">@Html.DisplayFor(model => model.Name)</dd>
+                </dl>
+            </div>
+            <div class="col-md-6">
+                <dl class="row details-list">
+                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.Surname)</dt>
+                    <dd class="col-sm-8">@Html.DisplayFor(model => model.Surname)</dd>
+
+                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.Email)</dt>
+                    <dd class="col-sm-8">
+                        <a href="mailto:@Model.Email" class="text-link">@Html.DisplayFor(model => model.Email)</a>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <dl class="row details-list">
+                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.PhoneNumber)</dt>
+                    <dd class="col-sm-8">
+                        <a href="tel:@Model.PhoneNumber" class="text-link">@Html.DisplayFor(model => model.PhoneNumber)</a>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Edit" asp-route-id="@Model.LecturerID" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i>Edit
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="fas fa-list me-2"></i>View All Lecturers
+            </a>
+        </div>
+    </div>
+</div>
