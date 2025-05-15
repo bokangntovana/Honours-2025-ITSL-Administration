@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
+using ITSL_Administration.Models;
 using Microsoft.EntityFrameworkCore;
 using ITSL_Administration.Data;
-using ITSL_Administration.Models;
 
 namespace ITSL_Administration.Controllers
 {
     public class CoursesController : Controller
     {
-        private readonly ITSLAdminDbContext _context;
+        private readonly AppDbContext _context;
 
-        public CoursesController(ITSLAdminDbContext context)
+        public CoursesController(AppDbContext context)
         {
             _context = context;
         }
@@ -29,16 +24,12 @@ namespace ITSL_Administration.Controllers
         public async Task<IActionResult> Details(string id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var course = await _context.Courses
-                .FirstOrDefaultAsync(m => m.ModuleID == id);
+            var course = await _context.Courses.FirstOrDefaultAsync(c => c.CourseID == id);
+
             if (course == null)
-            {
                 return NotFound();
-            }
 
             return View(course);
         }
@@ -50,11 +41,9 @@ namespace ITSL_Administration.Controllers
         }
 
         // POST: Courses/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ModuleID,ModuleName,ModuleCredits,ModuleDescription")] Course course)
+        public async Task<IActionResult> Create([Bind("CourseID,CourseName,CourseCredits,CourseDescription")] Courses course)
         {
             if (ModelState.IsValid)
             {
@@ -69,29 +58,22 @@ namespace ITSL_Administration.Controllers
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var course = await _context.Courses.FindAsync(id);
             if (course == null)
-            {
                 return NotFound();
-            }
+
             return View(course);
         }
 
         // POST: Courses/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("ModuleID,ModuleName,ModuleCredits,ModuleDescription")] Course course)
+        public async Task<IActionResult> Edit(string id, [Bind("CourseID,CourseName,CourseCredits,CourseDescription")] Courses course)
         {
-            if (id != course.ModuleID)
-            {
+            if (id != course.CourseID)
                 return NotFound();
-            }
 
             if (ModelState.IsValid)
             {
@@ -102,14 +84,10 @@ namespace ITSL_Administration.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CourseExists(course.ModuleID))
-                    {
+                    if (!CourseExists(course.CourseID))
                         return NotFound();
-                    }
                     else
-                    {
                         throw;
-                    }
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -120,16 +98,12 @@ namespace ITSL_Administration.Controllers
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var course = await _context.Courses
-                .FirstOrDefaultAsync(m => m.ModuleID == id);
+            var course = await _context.Courses.FirstOrDefaultAsync(c => c.CourseID == id);
+
             if (course == null)
-            {
                 return NotFound();
-            }
 
             return View(course);
         }
@@ -143,15 +117,15 @@ namespace ITSL_Administration.Controllers
             if (course != null)
             {
                 _context.Courses.Remove(course);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool CourseExists(string id)
         {
-            return _context.Courses.Any(e => e.ModuleID == id);
+            return _context.Courses.Any(e => e.CourseID == id);
         }
     }
 }

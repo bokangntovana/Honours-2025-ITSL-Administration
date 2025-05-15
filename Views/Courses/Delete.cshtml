@@ -1,4 +1,4 @@
-﻿@model ITSL_Administration.Models.Course
+﻿@model ITSL_Administration.Models.Courses
 
 @{
     ViewData["Title"] = "Delete Course";
@@ -26,24 +26,24 @@
         <div class="row">
             <div class="col-md-6">
                 <dl class="row details-list">
-                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.ModuleID)</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.ModuleID)</dd>
+                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.CourseID)</dt>
+                    <dd class="col-sm-8">@Html.DisplayFor(model => model.CourseID)</dd>
 
-                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.ModuleName)</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.ModuleName)</dd>
+                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.CourseName)</dt>
+                    <dd class="col-sm-8">@Html.DisplayFor(model => model.CourseName)</dd>
                 </dl>
             </div>
             <div class="col-md-6">
                 <dl class="row details-list">
-                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.ModuleCredits)</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.ModuleCredits)</dd>
+                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.CourseCredits)</dt>
+                    <dd class="col-sm-8">@Html.DisplayFor(model => model.CourseCredits)</dd>
                 </dl>
             </div>
         </div>
 
         <div class="form-actions mt-4">
             <form asp-action="Delete">
-                <input type="hidden" asp-for="ModuleID" />
+                <input type="hidden" asp-for="CourseID" />
                 <a asp-action="Index" class="btn btn-outline-secondary">
                     <i class="fas fa-times me-2"></i>Cancel
                 </a>

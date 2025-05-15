@@ -1,0 +1,46 @@
+﻿@using ITSL_Administration.ViewModels;
+@model IEnumerable<AdminUserViewModel>
+
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<div class="index-header">
+    <h1>User Management</h1>
+    <a asp-action="Create" class="btn btn-primary">Create New User</a>
+</div>
+
+<div class="index-card card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="index-table table">
+                <thead>
+                    <tr>
+                        <th>Full Name</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Registration Date</th>
+                        <th>Role</th>
+                        <th class="action-buttons">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.FullName</td>
+                            <td>@item.UserName</td>
+                            <td>@item.Email</td>
+                            <td>@item.RegistrationDate.ToString("dd/MM/yyyy")</td>
+                            <td>@item.Role</td>
+                            <td class="action-buttons">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Details</a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,4 +1,4 @@
-﻿@model ITSL_Administration.Models.Course
+﻿@model ITSL_Administration.Models.Courses
 
 @{
     ViewData["Title"] = "Course Details";
@@ -18,26 +18,26 @@
         <div class="row">
             <div class="col-md-6">
                 <dl class="row details-list">
-                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.ModuleID)</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.ModuleID)</dd>
+                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.CourseID)</dt>
+                    <dd class="col-sm-8">@Html.DisplayFor(model => model.CourseID)</dd>
 
-                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.ModuleName)</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.ModuleName)</dd>
+                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.CourseName)</dt>
+                    <dd class="col-sm-8">@Html.DisplayFor(model => model.CourseName)</dd>
                 </dl>
             </div>
             <div class="col-md-6">
                 <dl class="row details-list">
-                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.ModuleCredits)</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.ModuleCredits)</dd>
+                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.CourseCredits)</dt>
+                    <dd class="col-sm-8">@Html.DisplayFor(model => model.CourseCredits)</dd>
 
-                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.ModuleDescription)</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.ModuleDescription)</dd>
+                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.CourseDescription)</dt>
+                    <dd class="col-sm-8">@Html.DisplayFor(model => model.CourseDescription)</dd>
                 </dl>
             </div>
         </div>
 
         <div class="form-actions">
-            <a asp-action="Edit" asp-route-id="@Model.ModuleID" class="btn btn-primary">
+            <a asp-action="Edit" asp-route-id="@Model.CourseID" class="btn btn-primary">
                 <i class="fas fa-edit me-2"></i>Edit
             </a>
             <a asp-action="Index" class="btn btn-outline-secondary">

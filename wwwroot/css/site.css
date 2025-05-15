@@ -436,3 +436,22 @@ header {
         display: none;
     }
 }
+
+/* Profile dropdown */
+.navbar .dropdown-menu {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-item {
+    padding: 0.5rem 1.5rem;
+    transition: all 0.2s;
+}
+
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+    }
+
+.navbar .dropdown-toggle::after {
+    vertical-align: middle;
+}

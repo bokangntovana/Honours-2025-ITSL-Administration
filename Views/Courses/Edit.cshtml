@@ -1,4 +1,4 @@
-﻿@model ITSL_Administration.Models.Course
+﻿@model ITSL_Administration.Models.Courses
 
 @{
     ViewData["Title"] = "Edit Course";
@@ -17,27 +17,27 @@
     <div class="form-card p-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
-            <input type="hidden" asp-for="ModuleID" />
+            <input type="hidden" asp-for="CourseID" />
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group mb-3">
-                        <label asp-for="ModuleName" class="form-label fw-bold text-muted"></label>
-                        <input asp-for="ModuleName" class="form-control" />
-                        <span asp-validation-for="ModuleName" class="text-danger small"></span>
+                        <label asp-for="CourseName" class="form-label fw-bold text-muted"></label>
+                        <input asp-for="CourseName" class="form-control" />
+                        <span asp-validation-for="CourseName" class="text-danger small"></span>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group mb-3">
-                        <label asp-for="ModuleCredits" class="form-label fw-bold text-muted"></label>
-                        <input asp-for="ModuleCredits" class="form-control" />
-                        <span asp-validation-for="ModuleCredits" class="text-danger small"></span>
+                        <label asp-for="CourseCredits" class="form-label fw-bold text-muted"></label>
+                        <input asp-for="CourseCredits" class="form-control" />
+                        <span asp-validation-for="CourseCredits" class="text-danger small"></span>
                     </div>
                 </div>
             </div>
             <div class="form-group mb-3">
-                <label asp-for="ModuleDescription" class="form-label fw-bold text-muted"></label>
-                <textarea asp-for="ModuleDescription" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="ModuleDescription" class="text-danger small"></span>
+                <label asp-for="CourseDescription" class="form-label fw-bold text-muted"></label>
+                <textarea asp-for="CourseDescription" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="CourseDescription" class="text-danger small"></span>
             </div>
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
