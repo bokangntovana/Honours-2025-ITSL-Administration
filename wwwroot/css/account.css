@@ -1,16 +1,15 @@
-﻿/* Account Pages Background & Layout */
+﻿
 body.account-layout {
     margin: 0;
     padding: 0;
     min-height: 100vh;
-    background-image: url('../Images/itsl-background.jpg');
+    background-image: url('../Images/itsl-background.webp');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
 
-/* Account Box Styling */
 .account-container {
     display: flex;
     justify-content: center;
@@ -28,7 +27,50 @@ body.account-layout {
     width: 100%;
 }
 
-/* Footer Styling */
+
+.about-content {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.divider {
+    height: 3px;
+    background: linear-gradient(to right, #4e54c8, #8f94fb);
+    width: 100px;
+    margin: 10px auto 20px;
+}
+
+.mission-section {
+    background-color: #f8f9fa;
+    border-left: 4px solid #4e54c8;
+}
+
+.feature-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+    .feature-list li {
+        padding: 5px 0;
+    }
+
+.lms-features {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+    .lms-features li {
+        padding: 8px 0;
+    }
+
+.card {
+    transition: transform 0.3s;
+}
+
+.card:hover {
+        transform: translateY(-5px);
+}
+
 .account-footer {
     text-align: center;
     padding: 1rem 0;

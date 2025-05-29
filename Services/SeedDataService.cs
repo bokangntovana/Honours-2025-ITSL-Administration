@@ -199,19 +199,19 @@ namespace ITSL_Administration.Services
                 var courses = new Courses[]
                 {
                     new Courses {
-                       CourseID="MSDOCX101",
+                       CourseCode="MSDOCX101",
                         CourseName="Introduction to MS Word",
                         CourseCredits=10,
                        CourseDescription="This module will serve to get participants up to speed with the basics of MS Word"
                     },
                     new Courses {
-                        CourseID="MSXLSX101",
+                        CourseCode="MSXLSX101",
                         CourseName="Introduction to MS Excel",
                         CourseCredits=10,
                         CourseDescription="This module will serve to get participants up to speed with the basics of MS Excel"
                     },
                     new Courses {
-                        CourseID="MSPPTX101",
+                        CourseCode="MSPPTX101",
                         CourseName="Introduction to MS PowerPoint",
                         CourseCredits=10,
                         CourseDescription="This module will serve to get participants up to speed with the basics of MS PowerPoint"
@@ -223,6 +223,55 @@ namespace ITSL_Administration.Services
                     context.Courses.Add(_course);
                 }
                 context.SaveChanges();
+
+                // 👇 Add this new section for seeding events
+                logger.LogInformation("Seeding sample events");
+
+                var sampleEvents = new Event[]
+                {
+                    new Event {
+                    Title = "MS Word Orientation",
+                    Start = DateTime.Parse("2025-06-01T09:00:00"),
+                    End = DateTime.Parse("2025-06-01T12:00:00"),
+                    Description = "Introductory session for MS Word course",
+                    BackgroundColor = "#3788d8",
+                    IsAllDay = false
+                    },
+                    new Event {
+                    Title = "MS Excel Orientation",
+                    Start = DateTime.Parse("2025-06-02T09:00:00"),
+                    End = DateTime.Parse("2025-06-02T12:00:00"),
+                    Description = "Introductory session for MS excel course",
+                    BackgroundColor = "#3788d8",
+                    IsAllDay = false
+                    },
+                     new Event {
+                    Title = "MS Access Orientation",
+                    Start = DateTime.Parse("2025-06-01T09:00:00"),
+                    End = DateTime.Parse("2025-06-01T12:00:00"),
+                    Description = "Introductory session for MS Word course",
+                    BackgroundColor = "#3788d8",
+                    IsAllDay = false
+                    },
+                    new Event {
+                    Title = "MS PowerPoint Orientation",
+                    Start = DateTime.Parse("2025-05-28T09:00:00"),
+                    End = DateTime.Parse("2025-05-29T12:00:00"),
+                    Description = "Introductory session for MS Word course",
+                    BackgroundColor = "#3788d8",
+                    IsAllDay = false
+                    }
+                    // ... (other events as shown above)
+                };
+
+                foreach (var evt in sampleEvents)
+                {
+                    if (!context.Events.Any(e => e.Title == evt.Title && e.Start == evt.Start))
+                    {
+                        context.Events.Add(evt);
+                    }
+                }
+                await context.SaveChangesAsync();
             }
             catch (Exception ex)
             { 

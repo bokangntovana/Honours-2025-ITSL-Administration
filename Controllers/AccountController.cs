@@ -44,6 +44,16 @@ namespace ITSL_Administration.Controllers
             ModelState.AddModelError(string.Empty, "Invalid Login Attempt.");
             return View(model);
         }
+        //View About ITSL
+        public IActionResult About()
+        {
+            return View();
+        }
+        //View Donations Page
+        public IActionResult Donations()
+        {
+            return View();
+        }
 
         [HttpGet]
         public IActionResult Register()
@@ -62,11 +72,16 @@ namespace ITSL_Administration.Controllers
 
             var user = new Users
             {
-                FullName = model.Name,
+                FullName = model.Name, 
                 UserName = model.Email,
                 NormalizedUserName = model.Email.ToUpper(),
                 Email = model.Email,
-                NormalizedEmail = model.Email.ToUpper()
+                NormalizedEmail = model.Email.ToUpper(),
+                Age = model.Age,
+                IDNumber = model.IDNumber,
+                City = model.City,
+                isVolunteer = model.isVolunteer,
+                CampusName = model.CampusName
             };
 
             var result = await userManager.CreateAsync(user, model.Password);

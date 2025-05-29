@@ -22,9 +22,20 @@ namespace ITSL_Administration.Controllers
         }
 
         // GET: Admin
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, string roleFilter)
         {
-            var users = _userManager.Users.Select(u => new AdminUserViewModel
+            var usersQuery = _userManager.Users.AsQueryable();
+
+            // Apply search filter (Name, Email, Username)
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                usersQuery = usersQuery.Where(u =>
+                    u.FullName.Contains(searchString) ||
+                    u.Email.Contains(searchString) ||
+                    u.UserName.Contains(searchString));
+            }
+
+            var users = usersQuery.Select(u => new AdminUserViewModel
             {
                 Id = u.Id,
                 FullName = u.FullName,
@@ -33,12 +44,36 @@ namespace ITSL_Administration.Controllers
                 RegistrationDate = u.RegistrationDate
             }).ToList();
 
-            foreach (var user in users)
+            // Apply role filter
+            if (!string.IsNullOrEmpty(roleFilter))
             {
-                var appUser = await _userManager.FindByIdAsync(user.Id);
-                var roles = await _userManager.GetRolesAsync(appUser);
-                user.Role = roles.FirstOrDefault();
+                var filteredUsers = new List<AdminUserViewModel>();
+                foreach (var user in users)
+                {
+                    var appUser = await _userManager.FindByIdAsync(user.Id);
+                    var roles = await _userManager.GetRolesAsync(appUser);
+                    if (roles.Contains(roleFilter))
+                    {
+                        user.Role = roles.FirstOrDefault();
+                        filteredUsers.Add(user);
+                    }
+                }
+                users = filteredUsers;
             }
+            else
+            {
+                foreach (var user in users)
+                {
+                    var appUser = await _userManager.FindByIdAsync(user.Id);
+                    var roles = await _userManager.GetRolesAsync(appUser);
+                    user.Role = roles.FirstOrDefault();
+                }
+            }
+
+            // Pass roles for dropdown
+            ViewBag.Roles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
+            ViewBag.CurrentFilter = searchString;
+            ViewBag.CurrentRoleFilter = roleFilter;
 
             return View(users);
         }

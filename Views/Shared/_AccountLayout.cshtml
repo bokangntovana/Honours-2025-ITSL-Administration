@@ -7,14 +7,32 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/account.css" asp-append-version="true" />
 </head>
-<body class="account-layout">
-    <div>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Account" asp-action="About"><i class="fas fa-info-circle me-1"></i>Learn More About ITSL</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Account" asp-action="Donations"><i class="fas fa-donate me-1"></i>Donate To Our Cause</a>
+                        </li>
+                    </ul>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="account-layout">
         @RenderBody()
     </div>
 
     <footer class="account-footer">
         <div class="container">
-            &copy; @DateTime.Now.Year - ITSL Administration
+            &copy; @DateTime.Now.Year - ITSL Administration Designed By Bokang Ntovana
         </div>
     </footer>
 

@@ -2,22 +2,48 @@
 using ITSL_Administration.Models;
 using Microsoft.EntityFrameworkCore;
 using ITSL_Administration.Data;
+using Microsoft.Extensions.Logging;
 
 namespace ITSL_Administration.Controllers
 {
     public class CoursesController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly ILogger<CoursesController> _logger;
 
-        public CoursesController(AppDbContext context)
+        public CoursesController(AppDbContext context, ILogger<CoursesController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: Courses
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, string filterField)
         {
-            return View(await _context.Courses.ToListAsync());
+            var courses = _context.Courses.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                courses = courses.Where(c =>
+                    c.CourseName.Contains(searchString) ||
+                    c.CourseID.Contains(searchString) ||
+                    c.CourseDescription.Contains(searchString));
+            }
+
+            if (!string.IsNullOrEmpty(filterField))
+            {
+                courses = filterField switch
+                {
+                    "Name" => courses.OrderBy(c => c.CourseName),
+                    "Credits" => courses.OrderBy(c => c.CourseCredits),
+                    _ => courses
+                };
+            }
+
+            ViewBag.CurrentFilter = searchString;
+            ViewBag.FilterField = filterField;
+
+            return View(await courses.ToListAsync());
         }
 
         // GET: Courses/Details/5
@@ -43,14 +69,23 @@ namespace ITSL_Administration.Controllers
         // POST: Courses/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CourseID,CourseName,CourseCredits,CourseDescription")] Courses course)
+        public async Task<IActionResult> Create([Bind("CourseCode,CourseName,CourseCredits,CourseDescription")] Courses course)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(course);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    _context.Add(course);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating course");
+                ModelState.AddModelError("", "An error occurred while saving. Please try again.");
+            }
+
             return View(course);
         }
 
@@ -70,7 +105,7 @@ namespace ITSL_Administration.Controllers
         // POST: Courses/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("CourseID,CourseName,CourseCredits,CourseDescription")] Courses course)
+        public async Task<IActionResult> Edit(string id, [Bind("CourseID,CourseCode,CourseName,CourseCredits,CourseDescription")] Courses course)
         {
             if (id != course.CourseID)
                 return NotFound();
@@ -81,15 +116,23 @@ namespace ITSL_Administration.Controllers
                 {
                     _context.Update(course);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException ex)
                 {
                     if (!CourseExists(course.CourseID))
                         return NotFound();
                     else
-                        throw;
+                    {
+                        _logger.LogError(ex, "Concurrency error updating course");
+                        ModelState.AddModelError("", "The record was modified by another user. Please refresh and try again.");
+                    }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating course");
+                    ModelState.AddModelError("", "An error occurred while saving. Please try again.");
+                }
             }
             return View(course);
         }
@@ -113,14 +156,22 @@ namespace ITSL_Administration.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var course = await _context.Courses.FindAsync(id);
-            if (course != null)
+            try
             {
-                _context.Courses.Remove(course);
-                await _context.SaveChangesAsync();
+                var course = await _context.Courses.FindAsync(id);
+                if (course != null)
+                {
+                    _context.Courses.Remove(course);
+                    await _context.SaveChangesAsync();
+                }
+                return RedirectToAction(nameof(Index));
             }
-
-            return RedirectToAction(nameof(Index));
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting course");
+                ModelState.AddModelError("", "An error occurred while deleting. Please try again.");
+                return View("Delete", await _context.Courses.FindAsync(id));
+            }
         }
 
         private bool CourseExists(string id)

@@ -1,5 +1,194 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Classes & Events";
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h3><i class="fas fa-calendar-alt me-2"></i> Classes & Events</h3>
+        </div>
+        <div class="card-body">
+            <div id="calendar"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Event Details -->
+<div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="eventForm">
+                    <input type="hidden" id="eventId" />
+                    <div class="mb-3">
+                        <label for="eventTitle" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="eventTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventStart" class="form-label">Start</label>
+                        <input type="datetime-local" class="form-control" id="eventStart" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventEnd" class="form-label">End (Optional)</label>
+                        <input type="datetime-local" class="form-control" id="eventEnd">
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="eventDescription" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventColor" class="form-label">Color</label>
+                        <input type="color" class="form-control form-control-color" id="eventColor" value="#3788d8">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="eventAllDay">
+                        <label class="form-check-label" for="eventAllDay">All-day event</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="btnDelete">Delete</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btnSave">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                editable: true,
+                selectable: true,
+                events: '@Url.Action("GetEvents", "ClassesAndEvents")',
+                eventClick: function (info) {
+                    openModal(info.event, false);
+                },
+                select: function (info) {
+                    openModal({
+                        start: info.start,
+                        end: info.end,
+                        allDay: info.allDay
+                    }, true);
+                },
+                eventDrop: function (info) {
+                    updateEvent(info.event);
+                },
+                eventResize: function (info) {
+                    updateEvent(info.event);
+                }
+            });
+            calendar.render();
+
+            // Open modal for adding/editing events
+            function openModal(eventData, isNew) {
+                const modal = new bootstrap.Modal(document.getElementById('eventModal'));
+                const form = document.getElementById('eventForm');
+
+                document.getElementById('eventId').value = eventData.id || '';
+                document.getElementById('eventTitle').value = eventData.title || '';
+                document.getElementById('eventStart').value = eventData.start ? formatDateTime(eventData.start) : '';
+                document.getElementById('eventEnd').value = eventData.end ? formatDateTime(eventData.end) : '';
+                document.getElementById('eventDescription').value = eventData.extendedProps?.description || '';
+                document.getElementById('eventColor').value = eventData.backgroundColor || '#3788d8';
+                document.getElementById('eventAllDay').checked = eventData.allDay || false;
+
+                document.getElementById('btnDelete').style.display = isNew ? 'none' : 'block';
+                document.getElementById('modalTitle').textContent = isNew ? 'Add New Event' : 'Edit Event';
+
+                modal.show();
+
+                document.getElementById('btnSave').onclick = function () {
+                    const event = {
+                        Id: document.getElementById('eventId').value,
+                        Title: document.getElementById('eventTitle').value,
+                        Start: document.getElementById('eventStart').value,
+                        End: document.getElementById('eventEnd').value || null,
+                        Description: document.getElementById('eventDescription').value,
+                        BackgroundColor: document.getElementById('eventColor').value,
+                        IsAllDay: document.getElementById('eventAllDay').checked
+                    };
+
+                    if (isNew) {
+                        createEvent(event);
+                    } else {
+                        updateEvent(event);
+                    }
+                    modal.hide();
+                };
+
+                document.getElementById('btnDelete').onclick = function () {
+                    if (confirm('Are you sure you want to delete this event?')) {
+                        deleteEvent(eventData.id);
+                        modal.hide();
+                    }
+                };
+            }
+
+            // Format date for datetime-local input
+            function formatDateTime(date) {
+                return date.toISOString().slice(0, 16);
+            }
+
+            // AJAX: Create Event
+            function createEvent(event) {
+                fetch('@Url.Action("CreateEvent", "ClassesAndEvents")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify(event)
+                }).then(response => {
+                    if (response.ok) {
+                        calendar.refetchEvents();
+                    }
+                });
+            }
+
+            // AJAX: Update Event
+            function updateEvent(event) {
+                fetch('@Url.Action("UpdateEvent", "ClassesAndEvents")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify(event)
+                }).then(response => {
+                    if (response.ok) {
+                        calendar.refetchEvents();
+                    }
+                });
+            }
+
+            // AJAX: Delete Event
+            function deleteEvent(id) {
+                fetch('@Url.Action("DeleteEvent", "ClassesAndEvents")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({ id: id })
+                }).then(response => {
+                    if (response.ok) {
+                        calendar.refetchEvents();
+                    }
+                });
+            }
+        });
+    </script>
 }

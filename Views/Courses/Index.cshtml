@@ -15,14 +15,38 @@
         </a>
     </div>
 
+    <!-- Search & Filter Form -->
+    <form asp-action="Index" method="get" class="mb-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-6">
+                <input type="text" name="searchString" value="@ViewBag.CurrentFilter"
+                       class="form-control" placeholder="Search by name, ID, or description...">
+            </div>
+            <div class="col-md-4">
+                <select name="filterField" class="form-select">
+                    <option value="">Sort By</option>
+                    <option value="Name">Name (A-Z)</option>
+                    <option value="Credits">Credits (Low-High)</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-2"></i>Apply
+                </button>
+            </div>
+        </div>
+    </form>
+
     <div class="index-card">
         <div class="table-responsive">
             <table class="table index-table">
                 <thead class="table-light">
                     <tr>
                         <th>@Html.DisplayNameFor(model => model.CourseID)</th>
+                        <th>@Html.DisplayNameFor(model => model.CourseCode)</th>
                         <th>@Html.DisplayNameFor(model => model.CourseName)</th>
                         <th>@Html.DisplayNameFor(model => model.CourseCredits)</th>
+                        <th>@Html.DisplayNameFor(model => model.CourseDescription)</th>
                         <th class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -31,8 +55,10 @@
                     {
                         <tr>
                             <td>@Html.DisplayFor(modelItem => item.CourseID)</td>
+                            <td>@Html.DisplayFor(modelItem => item.CourseCode)</td>
                             <td>@Html.DisplayFor(modelItem => item.CourseName)</td>
                             <td>@Html.DisplayFor(modelItem => item.CourseCredits)</td>
+                            <td>@Html.DisplayFor(modelItem => item.CourseDescription)</td>
                             <td class="text-end action-buttons">
                                 <a asp-action="Details" asp-route-id="@item.CourseID" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-info-circle"></i>

@@ -13,6 +13,9 @@ namespace ITSL_Administration.Data
         //Entity Sets
         public DbSet<Users> Users { get; set; }
         public DbSet<Courses> Courses { get; set; }
+        public DbSet<Event> Events { get; set; }
+
+        
     }
     
 }

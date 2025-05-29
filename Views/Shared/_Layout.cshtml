@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using ITSL_Administration.ViewModels
 @inject SignInManager<Users> SignInManager
 @{
     ViewData["Title"] = "ITSL Admin";
@@ -9,7 +10,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ITSL Admin</title>
+    <title>@ViewData["Title"] - ITSL Administration</title>
 
     <!-- Added Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -17,10 +18,9 @@
     <!-- Existing styles -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    
+
 </head>
 <body>
-    <!-- Header with updated profile dropdown -->
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-header-red border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -32,22 +32,14 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">
-                                <i class="fas fa-gauge me-1"></i> Dashboard
-                            </a>
-                        </li>
-                    </ul>
-
                     <!-- Replaced _LoginPartial with enhanced dropdown -->
                     <ul class="navbar-nav ms-auto align-items-center">
                         @if (SignInManager.IsSignedIn(User))
                         {
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                                   data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle me-1"></i> Profile
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-circle me-1"></i> @User.Identity.Name
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                     <li>
@@ -88,78 +80,93 @@
     <nav class="sidebar">
         <div class="container-fluid">
             <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Home" asp-action="Index">
-                        <i class="fa-solid fa-gauge"></i>
-                        Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Admin" asp-action="Index">
-                        <i class="fas fa-user-shield me-2"></i>
-                        Admin
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Lecturer" asp-action="Index">
-                        <i class="fas fa-chalkboard-teacher me-2"></i>
-                        Lecturer
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Enrollment" asp-action="Index">
-                        <i class="fas fa-user-plus me-2"></i>
-                        Enrollments
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Tutor" asp-action="Index">
-                        <i class="fas fa-user-graduate me-2"></i>
-                        Tutor
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Participant" asp-action="Index">
-                        <i class="fas fa-users me-2"></i>
-                        Participant
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Courses" asp-action="Index">
-                        <i class="fas fa-book-open me-2"></i>
-                        Courses
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Grades" asp-action="Index">
-                        <i class="fa-solid fa-clipboard-check"></i>
-                        Grades
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Messages" asp-action="Index">
-                        <i class="fa-solid fa-envelope"></i>
-                        Messages
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="ClassesAndEvents" asp-action="Index">
-                        <i class="fas fa-calendar-alt me-2"></i>
-                        Classes and Events
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Account" asp-action="Login">
-                        <i class="fas fa-sign-out-alt me-2"></i>
-                        Logout
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Home" asp-action="About">
-                        <i class="fa-solid fa-lock"></i>
-                        Privacy Policy
-                    </a>
-                </li>
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Index">
+                            <i class="fa-solid fa-gauge"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                }
+                @if(User.IsInRole("Admin"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Admin" asp-action="Index">
+                            <i class="fas fa-user-shield me-2"></i>
+                            Admin
+                        </a>
+                    </li>
+                }
+                @if (User.IsInRole("Admin") || User.IsInRole("Lecturer"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Lecturer" asp-action="Index">
+                            <i class="fas fa-chalkboard-teacher me-2"></i>
+                            Lecturer
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Enrollment" asp-action="Index">
+                            <i class="fas fa-user-plus me-2"></i>
+                            Enrollments
+                        </a>
+                    </li>
+                }
+                @if (User.IsInRole("Admin") || User.IsInRole("Lecturer")|| User.IsInRole("Tutor"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Tutor" asp-action="Index">
+                            <i class="fas fa-user-graduate me-2"></i>
+                            Tutor
+                        </a>
+                    </li>
+                }
+                @if (User.IsInRole("Admin")|| User.IsInRole("Tutor") || User.IsInRole("Lecturer") || User.IsInRole("Participant"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Participant" asp-action="Index">
+                            <i class="fas fa-users me-2"></i>
+                            Participant
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Courses" asp-action="Index">
+                            <i class="fas fa-book-open me-2"></i>
+                            Courses
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Grades" asp-action="Index">
+                            <i class="fa-solid fa-clipboard-check"></i>
+                            Grades
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="ClassesAndEvents" asp-action="Index">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            Classes and Events
+                        </a>
+                    </li>
+                }
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Messages" asp-action="Index">
+                            <i class="fa-solid fa-envelope"></i>
+                            Messages
+                        </a>
+                    </li>
+
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="nav-item nav-link btn btn-link text-decoration-none">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </button>
+                    </form>
+                }
+               
             </ul>
         </div>
     </nav>
@@ -169,7 +176,12 @@
             @RenderBody()
         </main>
     </div>
-
+    <!--Full Calendar Scripts-->
+    <script src="~/lib/fullcalendar/core/index.global.min.js"></script>
+    <script src="~/lib/fullcalendar/daygrid/index.global.min.js"></script>
+    <script src="~/lib/fullcalendar/timegrid/index.global.min.js"></script>
+    <script src="~/lib/fullcalendar/interaction/index.global.min.js"></script>
+    <!--Main JS scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

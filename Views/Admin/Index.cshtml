@@ -7,8 +7,30 @@
 
 <div class="index-header">
     <h1>User Management</h1>
-    <a asp-action="Create" class="btn btn-primary">Create New User</a>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="fas fa-user-plus me-2"></i>Create New User
+    </a>
 </div>
+
+<!-- Search & Filter Form -->
+<form asp-action="Index" method="get" class="mb-4">
+    <div class="row g-3 align-items-center">
+        <div class="col-md-6">
+            <input type="text" name="searchString" value="@ViewBag.CurrentFilter"
+                   class="form-control" placeholder="Search by name, email, or username...">
+        </div>
+        <div class="col-md-4">
+            <select name="roleFilter" class="form-select" asp-items="@(new SelectList(ViewBag.Roles))">
+                <option value="">All Roles</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-search me-2"></i>Filter
+            </button>
+        </div>
+    </div>
+</form>
 
 <div class="index-card card">
     <div class="card-body">
@@ -34,8 +56,12 @@
                             <td>@item.RegistrationDate.ToString("dd/MM/yyyy")</td>
                             <td>@item.Role</td>
                             <td class="action-buttons">
-                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Details</a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-info-circle"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger ms-1">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
                             </td>
                         </tr>
                     }

@@ -28,6 +28,7 @@ builder.Services.AddIdentity<Users, IdentityRole>(options=>
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
+
 var app = builder.Build();
 
 //seed the database with users, roles and models
@@ -41,6 +42,9 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+//needed for Full Calendar to work with static files
+app.UseStaticFiles();
 app.UseRouting();
 
 //Role based Authentication and Authorisation

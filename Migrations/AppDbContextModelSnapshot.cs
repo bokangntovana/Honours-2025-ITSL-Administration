@@ -29,7 +29,8 @@ namespace ITSL_Administration.Migrations
 
                     b.Property<string>("CourseCode")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<int>("CourseCredits")
                         .HasColumnType("int");
@@ -46,6 +47,42 @@ namespace ITSL_Administration.Migrations
                     b.HasKey("CourseID");
 
                     b.ToTable("Courses");
+                });
+
+            modelBuilder.Entity("ITSL_Administration.Models.Event", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BackgroundColor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("End")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsAllDay")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("Start")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Events");
                 });
 
             modelBuilder.Entity("ITSL_Administration.Models.Users", b =>

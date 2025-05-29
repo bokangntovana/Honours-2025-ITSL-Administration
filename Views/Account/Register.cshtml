@@ -6,7 +6,7 @@
     Layout = "~/Views/Shared/_AccountLayout.cshtml";
 
     // Define the roles list here
-    var roles = new List<string> { "Participant", "Lecturer", "Tutor", "Donor" };
+    var roles = new List<string> { "Participant", "Lecturer", "Tutor" };
 }
 
 <div class="account-container">
@@ -15,6 +15,7 @@
         <form asp-action="Register" method="post">
             @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="mb-3">
                 <label asp-for="Name" class="form-label"></label>
                 <input asp-for="Name" class="form-control" />
@@ -46,6 +47,33 @@
                 </select>
                 <span asp-validation-for="Role" class="text-danger"></span>
             </div>
+
+            <div class="mb-3">
+                <label asp-for="Age" class="form-label">Age (Optional)</label>
+                <input asp-for="Age" class="form-control" />
+                <span asp-validation-for="Age" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="IDNumber" class="form-label">ID Number (Optional)</label>
+                <input asp-for="IDNumber" class="form-control" />
+                <span asp-validation-for="IDNumber" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="City" class="form-label">City (Optional)</label>
+                <input asp-for="City" class="form-control" />
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" asp-for="isVolunteer" class="form-check-input" />
+                <label asp-for="isVolunteer" class="form-check-label">Volunteer? (Optional)</label>
+                <span asp-validation-for="isVolunteer" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="CampusName" class="form-label">Campus Name (Optional)</label>
+                <input asp-for="CampusName" class="form-control" />
+                <span asp-validation-for="CampusName" class="text-danger"></span>
+            </div>
+
             <input type="submit" value="Register" class="btn btn-success w-100 p-2" />
             <p class="text-center mt-2">
                 Already have an account? <a asp-controller="Account" asp-action="Login" class="text-decoration-none">Login</a>
