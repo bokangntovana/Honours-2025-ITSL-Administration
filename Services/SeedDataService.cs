@@ -218,13 +218,17 @@ namespace ITSL_Administration.Services
                     },
                 };
                 logger.LogInformation("Seeding courses");
+                //Check if courses already exist before seeding
                 foreach (Courses _course in courses)
                 {
-                    context.Courses.Add(_course);
+                    if(!context.Courses.Any(c => c.CourseID == _course.CourseID))
+                    {
+                        context.Courses.Add(_course);
+                    }
                 }
                 context.SaveChanges();
 
-                // 👇 Add this new section for seeding events
+                //seeding events
                 logger.LogInformation("Seeding sample events");
 
                 var sampleEvents = new Event[]
@@ -261,7 +265,7 @@ namespace ITSL_Administration.Services
                     BackgroundColor = "#3788d8",
                     IsAllDay = false
                     }
-                    // ... (other events as shown above)
+                
                 };
 
                 foreach (var evt in sampleEvents)

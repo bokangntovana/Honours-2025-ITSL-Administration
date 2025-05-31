@@ -3,6 +3,7 @@ using ITSL_Administration.Models;
 using ITSL_Administration.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +47,9 @@ app.UseHttpsRedirection();
 //needed for Full Calendar to work with static files
 app.UseStaticFiles();
 app.UseRouting();
+
+//For Stripe Payment Gateway
+StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
 //Role based Authentication and Authorisation
 app.UseAuthentication();

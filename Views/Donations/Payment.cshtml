@@ -1,0 +1,114 @@
+﻿@model ITSL_Administration.ViewModels.PaymentViewModel
+@{
+    ViewData["Title"] = "Make a Donation";
+    Layout = "~/Views/Shared/_AccountLayout.cshtml";
+    var publishableKey = ViewBag.StripePublishableKey;
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card mt-5">
+                <div class="card-header bg-success text-white">
+                    <h2 class="text-center"><i class="fas fa-donate me-2"></i>Make a Donation</h2>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-heart fa-5x text-danger mb-3"></i>
+                        <h3>Thank you for supporting our cause!</h3>
+                        <p class="lead">Your contribution makes a difference.</p>
+                    </div>
+
+                    <form id="payment-form" asp-action="ProcessPayment" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Name" class="form-label">Full Name</label>
+                            <input asp-for="Name" class="form-control" readonly />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" class="form-control" readonly />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Amount" class="form-label">Donation Amount (ZAR)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">R</span>
+                                <input asp-for="Amount" class="form-control" placeholder="Enter amount" min="1" step="0.01" />
+                            </div>
+                            <span asp-validation-for="Amount" class="text-danger"></span>
+                        </div>
+
+                        <input type="hidden" asp-for="Currency" value="zar" />
+
+                        <!-- Stripe Card Element -->
+                        <div class="form-group mb-4">
+                            <label class="form-label">Credit Card Details</label>
+                            <div id="card-element" class="form-control p-2"></div>
+                            <div id="card-errors" role="alert" class="text-danger mt-2"></div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button id="submit-button" type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-credit-card me-2"></i>Donate R<span id="amount-display">@Model.Amount.ToString("0.00")</span>
+                            </button>
+                        </div>
+
+                        <input type="hidden" id="StripeToken" name="StripeToken" />
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <p>Secure credit card payments processed by <img src="https://stripe.com/img/v3/home/social.png" alt="Stripe" width="80" class="align-middle ms-1"></p>
+                    <p class="mt-2">Need help? <a asp-controller="Account" asp-action="About">Contact support</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        var stripe = Stripe('@publishableKey');
+        var elements = stripe.elements();
+        var cardElement = elements.create('card');
+        cardElement.mount('#card-element');
+
+        var form = document.getElementById('payment-form');
+        var submitButton = document.getElementById('submit-button');
+        var amountInput = document.getElementById('Amount');
+        var amountDisplay = document.getElementById('amount-display');
+
+        amountInput.addEventListener('input', function() {
+            amountDisplay.textContent = parseFloat(this.value || 0).toFixed(2);
+        });
+
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            submitButton.disabled = true;
+
+            const { paymentMethod, error } = await stripe.createPaymentMethod({
+                type: 'card',
+                card: cardElement,
+                billing_details: {
+                    name: document.getElementById('Name').value,
+                    email: document.getElementById('Email').value
+                }
+            });
+
+            if (error) {
+                document.getElementById('card-errors').textContent = error.message;
+                submitButton.disabled = false;
+            } else {
+                document.getElementById('StripeToken').value = paymentMethod.id;
+                form.submit();
+            }
+        });
+    </script>
+}

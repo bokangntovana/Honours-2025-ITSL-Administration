@@ -14,8 +14,8 @@ namespace ITSL_Administration.Data
         public DbSet<Users> Users { get; set; }
         public DbSet<Courses> Courses { get; set; }
         public DbSet<Event> Events { get; set; }
+        public DbSet<Donation> Donations { get; set; }
 
-        
     }
     
 }

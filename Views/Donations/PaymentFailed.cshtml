@@ -1,0 +1,39 @@
+﻿@model ITSL_Administration.Models.Donation
+@{
+    ViewData["Title"] = "Payment Failed";
+    Layout = "~/Views/Shared/_AccountLayout.cshtml";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="card mt-5">
+                <div class="card-header bg-danger text-white">
+                    <h2><i class="fas fa-times-circle me-2"></i>Payment Failed</h2>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <i class="fas fa-times-circle fa-5x text-danger mb-3"></i>
+                        <h3>Your donation of R@Model.Amount.ToString("0.00") was not processed</h3>
+                        <p class="lead">No funds have been deducted from your account.</p>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <h4><i class="fas fa-info-circle me-2"></i>What happened?</h4>
+                        <p>The payment processor reported that your payment could not be completed.</p>
+                        <p>Reference: @Model.StripePaymentIntentId</p>
+                    </div>
+
+                    <div class="d-grid gap-3 col-md-6 mx-auto mt-4">
+                        <a asp-controller="Donations" asp-action="Payment" class="btn btn-primary">
+                            <i class="fas fa-credit-card me-2"></i>Try Again
+                        </a>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-home me-2"></i>Return to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
