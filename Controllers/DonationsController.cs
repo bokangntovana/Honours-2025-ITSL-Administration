@@ -101,7 +101,7 @@ namespace ITSL_Administration.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "Donor")]
+        //[Authorize(Roles = "Donor")]
         [HttpGet]
         public async Task<IActionResult> Payment()
         {
@@ -127,7 +127,7 @@ namespace ITSL_Administration.Controllers
         }
 
         //Payment Processing
-        [Authorize(Roles = "Donor")]
+       // [Authorize(Roles = "Donor")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ProcessPayment(PaymentViewModel model)
@@ -204,7 +204,7 @@ namespace ITSL_Administration.Controllers
             }
         }
 
-        [Authorize(Roles = "Donor")]
+        //[Authorize(Roles = "Donor")]
         public async Task<IActionResult> PaymentConfirmation(int donationId)
         {
             var donation = await _context.Donations.FindAsync(donationId);
@@ -280,7 +280,7 @@ namespace ITSL_Administration.Controllers
             }
         }
 
-        [Authorize(Roles = "Donor")]
+       // [Authorize(Roles = "Donor")]
         public async Task<IActionResult> PaymentSuccess(int donationId)
         {
             var donation = await _context.Donations
@@ -295,7 +295,7 @@ namespace ITSL_Administration.Controllers
             return View(donation);
         }
 
-        [Authorize(Roles = "Donor")]
+      //  [Authorize(Roles = "Donor")]
         public async Task<IActionResult> PaymentFailed(int donationId)
         {
             var donation = await _context.Donations
@@ -310,7 +310,7 @@ namespace ITSL_Administration.Controllers
             return View(donation);
         }
 
-        [Authorize(Roles = "Donor")]
+       // [Authorize(Roles = "Donor")]
         public async Task<IActionResult> PaymentProcessing(int donationId)
         {
             var donation = await _context.Donations

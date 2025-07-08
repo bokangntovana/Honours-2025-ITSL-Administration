@@ -4,6 +4,7 @@ using ITSL_Administration.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITSL_Administration.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250705141511_UploadContent")]
+    partial class UploadContent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -123,51 +126,6 @@ namespace ITSL_Administration.Migrations
                     b.HasIndex("DonorId");
 
                     b.ToTable("Donations");
-                });
-
-            modelBuilder.Entity("ITSL_Administration.Models.Enrollment", b =>
-                {
-                    b.Property<int>("EnrollmentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EnrollmentId"));
-
-                    b.Property<string>("CourseId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("EnrollmentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal?>("Grade")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("GradeDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("GradeFeedback")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("GradeSymbol")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ParticipantId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("EnrollmentId");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("ParticipantId");
-
-                    b.ToTable("Enrollments");
                 });
 
             modelBuilder.Entity("ITSL_Administration.Models.Event", b =>
@@ -451,25 +409,6 @@ namespace ITSL_Administration.Migrations
                     b.Navigation("Donor");
                 });
 
-            modelBuilder.Entity("ITSL_Administration.Models.Enrollment", b =>
-                {
-                    b.HasOne("ITSL_Administration.Models.Courses", "Course")
-                        .WithMany("Enrollments")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ITSL_Administration.Models.Users", "Participant")
-                        .WithMany("Enrollments")
-                        .HasForeignKey("ParticipantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("Participant");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -524,13 +463,6 @@ namespace ITSL_Administration.Migrations
             modelBuilder.Entity("ITSL_Administration.Models.Courses", b =>
                 {
                     b.Navigation("Contents");
-
-                    b.Navigation("Enrollments");
-                });
-
-            modelBuilder.Entity("ITSL_Administration.Models.Users", b =>
-                {
-                    b.Navigation("Enrollments");
                 });
 #pragma warning restore 612, 618
         }

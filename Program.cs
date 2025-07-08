@@ -10,6 +10,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Register the Email Service using Dependency Injection
+builder.Services.AddTransient<IEmailService, EmailService>();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -51,7 +54,7 @@ app.UseRouting();
 //For Stripe Payment Gateway
 StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
-//Role based Authentication and Authorisation
+//Role based Authentication and Authorisation using Identity
 app.UseAuthentication();
 app.UseAuthorization();
 

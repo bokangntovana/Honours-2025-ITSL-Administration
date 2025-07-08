@@ -26,5 +26,9 @@ namespace ITSL_Administration.Models
         [StringLength(200, ErrorMessage = "Course Description cannot be longer than 200 characters.")]
         [Display(Name = "Course Description")]
         public string? CourseDescription { get; set; }
+
+        //Navigation properties
+        public ICollection<CourseContent> Contents { get; set; }
+        public ICollection<Enrollment> Enrollments { get; set; }
     }
 }

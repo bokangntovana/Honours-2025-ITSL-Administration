@@ -63,7 +63,7 @@ namespace ITSL_Administration.Services
                     else
                     {
                         logger.LogError("Failed to create admin user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description )));
-                      
+
                     }
                 }
 
@@ -105,7 +105,7 @@ namespace ITSL_Administration.Services
                     {
                         FullName = "Kate Murphy",
                         IDNumber = "0210215140846",
-                        UserName = tutorEmail,              
+                        UserName = tutorEmail,
                         CampusName="Bloemfontein Campus",
                         NormalizedUserName = tutorEmail.ToUpper(),
                         Email = tutorEmail,
@@ -221,12 +221,12 @@ namespace ITSL_Administration.Services
                 //Check if courses already exist before seeding
                 foreach (Courses _course in courses)
                 {
-                    if(!context.Courses.Any(c => c.CourseID == _course.CourseID))
+                    if(!context.Courses.Any(c => c.CourseID == _course.CourseID || c.CourseCode == _course.CourseCode))
                     {
                         context.Courses.Add(_course);
                     }
                 }
-                context.SaveChanges();
+               await context.SaveChangesAsync();
 
                 //seeding events
                 logger.LogInformation("Seeding sample events");
@@ -265,7 +265,7 @@ namespace ITSL_Administration.Services
                     BackgroundColor = "#3788d8",
                     IsAllDay = false
                     }
-                
+
                 };
 
                 foreach (var evt in sampleEvents)
@@ -278,7 +278,7 @@ namespace ITSL_Administration.Services
                 await context.SaveChangesAsync();
             }
             catch (Exception ex)
-            { 
+            {
                 logger.LogError(ex, "An error occurred while seeding the database");
             }
         }

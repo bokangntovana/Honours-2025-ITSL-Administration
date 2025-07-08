@@ -1,0 +1,106 @@
+﻿@model ITSL_Administration.Models.Courses
+@{
+    ViewData["Title"] = "Content for " + Model.CourseName;
+}
+
+<div class="container mt-4">
+    <div class="index-header mb-4">
+        <h2 class="form-header">
+            <i class="fas fa-file-alt me-2"></i>@Model.CourseName - Course Content
+        </h2>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Courses
+        </a>
+    </div>
+
+    <!-- Upload Form -->
+    @if (User.IsInRole("Lecturer") || User.IsInRole("Admin"))
+    {
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-upload me-2"></i>Upload New Content</h5>
+                <form asp-action="UploadContent" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="courseId" value="@Model.CourseID" />
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Title</label>
+                            <input type="text" name="title" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Description</label>
+                            <input type="text" name="description" class="form-control">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">File</label>
+                            <input type="file" name="file" class="form-control" required>
+                        </div>
+
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-upload"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+
+    <!-- Status Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <!-- Content List -->
+    <div class="index-card">
+        <div class="table-responsive">
+            <table class="table index-table">
+                <thead class="table-light">
+                    <tr>
+                        <th>File Name</th>
+                        <th>Description</th>
+                        <th>Uploaded</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Contents != null && Model.Contents.Any())
+                    {
+                        @foreach (var content in Model.Contents.OrderByDescending(c => c.UploadDate))
+                        {
+                            <tr>
+                                <td>@content.Title</td>
+                                <td>@content.Description</td>
+                                <td>@content.UploadDate.ToString("dd MMM yyyy")</td>
+                                <td class="text-end">
+                                    <a asp-action="DownloadContent" asp-route-id="@content.Id"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center">No content available</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,37 @@
+﻿@using ITSL_Administration;
+@model IEnumerable<Courses>
+
+@{
+    ViewData["Title"] = "Enroll for Available Courses";
+}
+
+<h2>Available Courses</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Course Code</th>
+            <th>Course Name</th>
+            <th>Credits</th>
+            <th>Description</th>
+            <th>Enroll in Course</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.CourseCode</td>
+                <td>@item.CourseName</td>
+                <td>@item.CourseCredits</td>
+                <td>@item.CourseDescription</td>
+                <td>
+                    <form asp-action="Enroll" method="post">
+                        <input type="hidden" name="courseId" value="@item.CourseID" />
+                        <button type="submit" class="btn btn-success">Enroll</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -48,6 +48,7 @@
                         <th>@Html.DisplayNameFor(model => model.CourseCredits)</th>
                         <th>@Html.DisplayNameFor(model => model.CourseDescription)</th>
                         <th class="text-end">Actions</th>
+                        <th>Course Content</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -68,6 +69,11 @@
                                 </a>
                                 <a asp-action="Delete" asp-route-id="@item.CourseID" class="btn btn-sm btn-outline-danger">
                                     <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                            <td class="text-end action-buttons">
+                                <a asp-action="ContentList" asp-route-id="@item.CourseID" class="btn btn-sm btn-outline-info mx-1" title="Course Content">
+                                    <i class="fas fa-file-alt"></i>
                                 </a>
                             </td>
                         </tr>

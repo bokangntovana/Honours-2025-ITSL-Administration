@@ -21,5 +21,8 @@ namespace ITSL_Administration.Models
 
         public string? CampusName { get; set; }
 
+        //Navigation property to link enrollment to participant
+        public ICollection<Enrollment> Enrollments { get; set; }
+
     }
 }

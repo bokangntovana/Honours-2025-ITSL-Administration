@@ -107,7 +107,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Enrollment" asp-action="Index">
+                        <a class="nav-link" asp-controller="Enrollment" asp-action="MyCourses">
                             <i class="fas fa-user-plus me-2"></i>
                             Enrollments
                         </a>
@@ -153,7 +153,7 @@
                 @if (SignInManager.IsSignedIn(User))
                 {
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Messages" asp-action="Index">
+                        <a class="nav-link" asp-controller="Email" asp-action="SendEmail">
                             <i class="fa-solid fa-envelope"></i>
                             Messages
                         </a>
@@ -166,7 +166,7 @@
                         </button>
                     </form>
                 }
-               
+
             </ul>
         </div>
     </nav>

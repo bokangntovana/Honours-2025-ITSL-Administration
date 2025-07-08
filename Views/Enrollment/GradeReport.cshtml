@@ -1,0 +1,36 @@
+﻿@using ITSL_Administration;
+@model IEnumerable<Enrollment>
+
+
+@{
+    ViewData["Title"] = "Grade Report" + (ViewBag.IsAdminOrLecturer ? " for " + ViewBag.ParticipantName : "");
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Course</th>
+            <th>Grade</th>
+            <th>Letter</th>
+            <th>Date Graded</th>
+            <th>Feedback</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Course.CourseName</td>
+                <td>@item.Grade?.ToString("0.00")</td>
+                <td>@item.GradeSymbol</td>
+                <td>@item.GradeDate?.ToString("d")</td>
+                <td>@item.GradeFeedback</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="MyCourses" class="btn btn-secondary">Back to My Courses</a>
+

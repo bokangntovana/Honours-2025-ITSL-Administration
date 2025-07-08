@@ -4,6 +4,7 @@ using ITSL_Administration.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITSL_Administration.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250708114551_AddedEnrollmentFunc")]
+    partial class AddedEnrollmentFunc
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -139,19 +142,6 @@ namespace ITSL_Administration.Migrations
 
                     b.Property<DateTime>("EnrollmentDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<decimal?>("Grade")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("GradeDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("GradeFeedback")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("GradeSymbol")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ParticipantId")
                         .IsRequired()
