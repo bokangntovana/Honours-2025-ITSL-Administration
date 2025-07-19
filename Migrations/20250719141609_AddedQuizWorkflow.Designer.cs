@@ -4,6 +4,7 @@ using ITSL_Administration.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITSL_Administration.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250719141609_AddedQuizWorkflow")]
+    partial class AddedQuizWorkflow
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -680,7 +683,7 @@ namespace ITSL_Administration.Migrations
                     b.HasOne("ITSL_Administration.Models.QuizQuestion", "QuizQuestion")
                         .WithMany("Answers")
                         .HasForeignKey("QuizQuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
                     b.HasOne("ITSL_Administration.Models.QuestionOption", "SelectedOption")
@@ -706,7 +709,7 @@ namespace ITSL_Administration.Migrations
                     b.HasOne("ITSL_Administration.Models.Assignment", "Assignment")
                         .WithMany("QuizQuestions")
                         .HasForeignKey("AssignmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
                     b.Navigation("Assignment");
@@ -717,7 +720,7 @@ namespace ITSL_Administration.Migrations
                     b.HasOne("ITSL_Administration.Models.Assignment", "Assignment")
                         .WithMany("Submissions")
                         .HasForeignKey("AssignmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
                     b.HasOne("ITSL_Administration.Models.Users", "Participant")

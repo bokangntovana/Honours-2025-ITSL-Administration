@@ -46,6 +46,15 @@
             <a asp-action="Index" class="btn btn-outline-secondary">
                 <i class="fas fa-list me-2"></i>View All Courses
             </a>
+            @if (User.IsInRole("Admin") || User.IsInRole("Lecturer"))
+            {
+                <a asp-controller="Assignment" asp-action="CourseAssignments" asp-route-courseId="@Model.CourseID" class="btn btn-primary">Manage Assignments</a>
+            }
+            else
+            {
+                <a asp-controller="Assignment" asp-action="CourseAssignments" asp-route-courseId="@Model.CourseID" class="btn btn-primary">View Assignments</a>
+            }
+            -
         </div>
     </div>
 </div>

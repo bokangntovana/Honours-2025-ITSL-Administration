@@ -1,0 +1,58 @@
+﻿@using ITSL_Administration
+@model Assignment
+@{
+    ViewData["Title"] = "Manage Quiz Questions";
+}
+
+<h2>@Model.Title - Questions</h2>
+<h4>Course: @Model.Course.CourseName</h4>
+
+<p>
+    <a asp-action="CreateQuestion" asp-route-assignmentId="@Model.AssignmentId" class="btn btn-primary">Add Question</a>
+    <a asp-controller="Assignment" asp-action="CourseAssignments" asp-route-courseId="@Model.CourseId" class="btn btn-secondary">Back to Assignments</a>
+</p>
+
+@if (Model.QuizQuestions.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Question</th>
+                <th>Type</th>
+                <th>Points</th>
+                <th>Options</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var question in Model.QuizQuestions.OrderBy(q => q.DisplayOrder))
+            {
+                <tr>
+                    <td>@question.QuestionText</td>
+                    <td>@question.QuestionType</td>
+                    <td>@question.Points</td>
+                    <td>
+                        @if (question.QuestionType == QuestionType.MultipleChoice)
+                        {
+                            <span>@question.Options.Count options</span>
+                            <a asp-action="ManageOptions" asp-route-questionId="@question.QuizQuestionId" class="btn btn-sm btn-info ml-2">Manage</a>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="EditQuestion" asp-route-id="@question.QuizQuestionId" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="DeleteQuestion" asp-route-id="@question.QuizQuestionId" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">No questions added yet.</div>
+}
+
+<div class="mt-4">
+    <a asp-action="ViewResults" asp-route-assignmentId="@Model.AssignmentId" class="btn btn-info">View Quiz Results</a>
+</div>
+

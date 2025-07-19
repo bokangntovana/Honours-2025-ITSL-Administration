@@ -1,0 +1,29 @@
+﻿@using ITSL_Administration
+@{
+    ViewData["Title"] = "Submit Assignment";
+    var assignment = ViewBag.Assignment as Assignment;
+}
+
+<h2>Submit Assignment: @assignment.Title</h2>
+<h4>Course: @assignment.Course.CourseName</h4>
+<h5>Due: @assignment.DueDate.ToString("g")</h5>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="assignmentId" value="@assignment.AssignmentId" />
+
+    <div class="form-group">
+        <label for="notes">Notes (optional)</label>
+        <textarea name="notes" class="form-control" rows="3"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="file">Upload your submission</label>
+        <input type="file" name="file" class="form-control-file" required />
+        <small class="form-text text-muted">Accepted file types: PDF, DOCX, XLSX, PPTX, ZIP, TXT, JPG, PNG</small>
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="Submit" class="btn btn-primary" />
+        <a asp-action="MySubmissions" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>

@@ -4,6 +4,7 @@ using ITSL_Administration.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITSL_Administration.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250718131553_AddedAssignmentsSubmission")]
+    partial class AddedAssignmentsSubmission
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,9 +32,6 @@ namespace ITSL_Administration.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AssignmentId"));
-
-                    b.Property<int>("AssignmentType")
-                        .HasColumnType("int");
 
                     b.Property<string>("CourseId")
                         .IsRequired()
@@ -246,99 +246,6 @@ namespace ITSL_Administration.Migrations
                     b.ToTable("Events");
                 });
 
-            modelBuilder.Entity("ITSL_Administration.Models.QuestionOption", b =>
-                {
-                    b.Property<int>("QuestionOptionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QuestionOptionId"));
-
-                    b.Property<bool>("IsCorrect")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("OptionText")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<int>("QuizQuestionId")
-                        .HasColumnType("int");
-
-                    b.HasKey("QuestionOptionId");
-
-                    b.HasIndex("QuizQuestionId");
-
-                    b.ToTable("QuestionOptions");
-                });
-
-            modelBuilder.Entity("ITSL_Administration.Models.QuizAnswer", b =>
-                {
-                    b.Property<int>("QuizAnswerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QuizAnswerId"));
-
-                    b.Property<string>("AnswerText")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<decimal?>("PointsAwarded")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("QuizQuestionId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SelectedOptionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SubmissionId")
-                        .HasColumnType("int");
-
-                    b.HasKey("QuizAnswerId");
-
-                    b.HasIndex("QuizQuestionId");
-
-                    b.HasIndex("SelectedOptionId");
-
-                    b.HasIndex("SubmissionId");
-
-                    b.ToTable("QuizAnswers");
-                });
-
-            modelBuilder.Entity("ITSL_Administration.Models.QuizQuestion", b =>
-                {
-                    b.Property<int>("QuizQuestionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QuizQuestionId"));
-
-                    b.Property<int>("AssignmentId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Points")
-                        .HasColumnType("int");
-
-                    b.Property<string>("QuestionText")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("QuestionType")
-                        .HasColumnType("int");
-
-                    b.HasKey("QuizQuestionId");
-
-                    b.HasIndex("AssignmentId");
-
-                    b.ToTable("QuizQuestions");
-                });
-
             modelBuilder.Entity("ITSL_Administration.Models.Submission", b =>
                 {
                     b.Property<int>("SubmissionId")
@@ -349,9 +256,6 @@ namespace ITSL_Administration.Migrations
 
                     b.Property<int>("AssignmentId")
                         .HasColumnType("int");
-
-                    b.Property<decimal?>("AutoGradedScore")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Feedback")
                         .HasMaxLength(500)
@@ -664,54 +568,6 @@ namespace ITSL_Administration.Migrations
                     b.Navigation("Participant");
                 });
 
-            modelBuilder.Entity("ITSL_Administration.Models.QuestionOption", b =>
-                {
-                    b.HasOne("ITSL_Administration.Models.QuizQuestion", "QuizQuestion")
-                        .WithMany("Options")
-                        .HasForeignKey("QuizQuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("QuizQuestion");
-                });
-
-            modelBuilder.Entity("ITSL_Administration.Models.QuizAnswer", b =>
-                {
-                    b.HasOne("ITSL_Administration.Models.QuizQuestion", "QuizQuestion")
-                        .WithMany("Answers")
-                        .HasForeignKey("QuizQuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ITSL_Administration.Models.QuestionOption", "SelectedOption")
-                        .WithMany()
-                        .HasForeignKey("SelectedOptionId")
-                        .OnDelete(DeleteBehavior.ClientCascade);
-
-                    b.HasOne("ITSL_Administration.Models.Submission", "Submission")
-                        .WithMany("QuizAnswers")
-                        .HasForeignKey("SubmissionId")
-                        .OnDelete(DeleteBehavior.ClientCascade)
-                        .IsRequired();
-
-                    b.Navigation("QuizQuestion");
-
-                    b.Navigation("SelectedOption");
-
-                    b.Navigation("Submission");
-                });
-
-            modelBuilder.Entity("ITSL_Administration.Models.QuizQuestion", b =>
-                {
-                    b.HasOne("ITSL_Administration.Models.Assignment", "Assignment")
-                        .WithMany("QuizQuestions")
-                        .HasForeignKey("AssignmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Assignment");
-                });
-
             modelBuilder.Entity("ITSL_Administration.Models.Submission", b =>
                 {
                     b.HasOne("ITSL_Administration.Models.Assignment", "Assignment")
@@ -784,8 +640,6 @@ namespace ITSL_Administration.Migrations
 
             modelBuilder.Entity("ITSL_Administration.Models.Assignment", b =>
                 {
-                    b.Navigation("QuizQuestions");
-
                     b.Navigation("Submissions");
                 });
 
@@ -794,18 +648,6 @@ namespace ITSL_Administration.Migrations
                     b.Navigation("Contents");
 
                     b.Navigation("Enrollments");
-                });
-
-            modelBuilder.Entity("ITSL_Administration.Models.QuizQuestion", b =>
-                {
-                    b.Navigation("Answers");
-
-                    b.Navigation("Options");
-                });
-
-            modelBuilder.Entity("ITSL_Administration.Models.Submission", b =>
-                {
-                    b.Navigation("QuizAnswers");
                 });
 
             modelBuilder.Entity("ITSL_Administration.Models.Users", b =>
