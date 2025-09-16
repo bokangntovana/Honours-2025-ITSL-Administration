@@ -1,13 +1,28 @@
-﻿namespace ITSL_Administration.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ITSL_Administration.Models
 {
     public class CourseContent
     {
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public string FilePath { get; set; }
+        [Key]
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+
+        [Required]
+        public string Title { get; set; } = string.Empty;
+
+        public string? Description { get; set; }
+
         public DateTime UploadDate { get; set; } = DateTime.Now;
-        public string CourseID { get; set; }
-        public Courses Course { get; set; }
+
+
+        [Required]
+        public string? FileId { get; set; }
+        public UploadedFile? File { get; set; }
+
+        // Link to course
+        [Required]
+        public string? CourseId { get; set; }
+        public Course? Course { get; set; }
     }
+
 }

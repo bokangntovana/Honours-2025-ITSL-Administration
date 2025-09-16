@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using ITSL_Administration.ViewModels
-@inject SignInManager<Users> SignInManager
+@inject SignInManager<User> SignInManager
 @{
     ViewData["Title"] = "ITSL Admin";
     Layout = null; // Set to null to avoid double layout rendering
@@ -18,6 +18,9 @@
     <!-- Existing styles -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <!-- FullCalendar (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet" />
 
 </head>
 <body>
@@ -137,6 +140,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" asp-controller="Quiz" asp-action="AvailableQuiz">
+                            <i class="fa-solid fa-book me-2"></i>
+                            Quizzes
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" asp-controller="Grades" asp-action="Index">
                             <i class="fa-solid fa-clipboard-check"></i>
                             Grades
@@ -176,11 +185,8 @@
             @RenderBody()
         </main>
     </div>
-    <!--Full Calendar Scripts-->
-    <script src="~/lib/fullcalendar/core/index.global.min.js"></script>
-    <script src="~/lib/fullcalendar/daygrid/index.global.min.js"></script>
-    <script src="~/lib/fullcalendar/timegrid/index.global.min.js"></script>
-    <script src="~/lib/fullcalendar/interaction/index.global.min.js"></script>
+    <!-- FullCalendar (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <!--Main JS scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

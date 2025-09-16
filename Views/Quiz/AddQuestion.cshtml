@@ -1,0 +1,47 @@
+﻿@model ITSL_Administration.Models.QuizQuestion
+
+@{
+    ViewData["Title"] = "Add Question to Quiz";
+    var quizId = ViewBag.QuizId as string ?? Model?.QuizId;
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h3 class="card-title mb-0">
+                <i class="fas fa-question-circle me-2"></i>@ViewData["Title"]
+            </h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="AddQuestion" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <input type="hidden" asp-for="QuestionID" />
+                <input type="hidden" asp-for="QuizId" value="@quizId" />
+
+                <div class="form-group mb-4">
+                    <label asp-for="QuestionText" class="form-label fw-bold">Question Text</label>
+                    <textarea asp-for="QuestionText" class="form-control" rows="5" placeholder="Enter your question here"></textarea>
+                    <span asp-validation-for="QuestionText" class="text-danger small"></span>
+                    <div class="form-text">You'll be able to add options after creating the question.</div>
+                </div>
+
+                <div class="form-group d-flex justify-content-between">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Create Question
+                    </button>
+                    <a asp-action="EditQuiz" asp-route-id="@quizId" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

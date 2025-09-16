@@ -5,40 +5,39 @@ namespace ITSL_Administration.Models
 {
     public class Assignment
     {
-        public int AssignmentId { get; set; }
+        [Key]
+        public string AssignmentID { get; set; } = Guid.NewGuid().ToString();
+        public string? CourseId { get; set; } 
+        [Required(ErrorMessage = "Assignment Title is required.")]
+        [Display(Name = "Assignment Title")]
+        public string? Title { get; set; } 
+        [Required(ErrorMessage = "Assignment Description is required.")]
+        [Display(Name = "Assignment Description")]
+        public string? Description { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Due Date is required.")]
+        [Display(Name = "Assignment Due Date")]
+        public DateTime DueDate { get; set; }
+        [Required(ErrorMessage = "You need to set the total mark for the assignment")]
+        [Range(0, double.MaxValue)]
+        [Display(Name = "Total Mark")]
+        public double SetAssignmentMark { get; set; }
+        [Required(ErrorMessage = "You need to set the weight for the assignment")]
+        [Range(0, 1)]
+        public double Weight { get; set; }
 
-        [Required]
-        [StringLength(100, ErrorMessage = "Title cannot be longer than 100 characters.")]
-        public string Title { get; set; }
-
-        [StringLength(500, ErrorMessage = "Description cannot be longer than 500 characters.")]
-        public string? Description { get; set; }
-
-        [Required]
-        [DataType(DataType.DateTime)]
-        [Display(Name = "Due Date")]
-        public DateTime DueDate { get; set; } = DateTime.Now.AddDays(7);
-
-        [Required]
-        [Display(Name = "Maximum Points")]
-        [Range(1, 100, ErrorMessage = "Points must be between 1 and 100")]
-        public int MaxPoints { get; set; } = 100;
-
-        [Required]
-        public string CourseId { get; set; }
-
-        [DataType(DataType.DateTime)]
-        [Display(Name = "Created Date")]
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
-
+        [Required(ErrorMessage = "You need to determine the type for the assignment")]
         [Display(Name = "Assignment Type")]
-        public AssignmentType AssignmentType { get; set; } = AssignmentType.RegularAssignment;
+        public AssignmentType AssignmentType { get; set; }
 
-        // Navigation properties
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        //Navigation properties
+        //The course this assignment belongs to
         [ForeignKey("CourseId")]
-        public Courses Course { get; set; }
-        public ICollection<Submission> Submissions { get; set; }
-        public ICollection<QuizQuestion> QuizQuestions { get; set; }
-
+        public Course? Course { get; set; } 
+        //The Files for the Assignment instructions
+        public ICollection<UploadedFile> Files { get; set; } = new List<UploadedFile>();
+        //The list of submissions for the Assignment
+        public ICollection<Submission> Submissions { get; set; } = new List<Submission>();
     }
 }

@@ -1,6 +1,7 @@
 using ITSL_Administration.Data;
 using ITSL_Administration.Models;
 using ITSL_Administration.Services;
+using ITSL_Administration.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
@@ -12,11 +13,16 @@ builder.Services.AddControllersWithViews();
 
 // Register the Email Service using Dependency Injection
 builder.Services.AddTransient<IEmailService, EmailService>();
+//File Upload Service
+builder.Services.AddScoped<IFileUploadService, FileUploadService>();
+//PDF Report Service
+builder.Services.AddScoped<PDFReportService>();
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddIdentity<Users, IdentityRole>(options=>
+builder.Services.AddIdentity<User, IdentityRole>(options=>
 {
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;

@@ -1,0 +1,34 @@
+﻿@model ITSL_Administration.Models.Grade
+@{
+    var submission = ViewBag.Submission as ITSL_Administration.Models.Submission;
+    ViewData["Title"] = "Grade Submission";
+}
+
+<div class="container mt-4">
+    <h2 class="text-primary"><i class="fas fa-pen"></i> Grade Submission</h2>
+    <h5>Student: @submission.Participant?.FullName</h5>
+    <h6>Assignment: @submission.Assignment?.Title</h6>
+    <hr />
+
+    <form asp-action="Create" method="post">
+        <input type="hidden" asp-for="SubmissionId" />
+        <input type="hidden" asp-for="AssignmentId" />
+
+        <div class="form-group mb-3">
+            <label asp-for="AssignmentMark"></label>
+            <input asp-for="AssignmentMark" class="form-control" />
+            <span asp-validation-for="AssignmentMark" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="GradesFeedback"></label>
+            <textarea asp-for="GradesFeedback" class="form-control"></textarea>
+            <span asp-validation-for="GradesFeedback" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Save Grade</button>
+        <a asp-controller="Assignment" asp-action="ManageSubmissions" asp-route-id="@submission.AssignmentId" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Cancel
+        </a>
+    </form>
+</div>

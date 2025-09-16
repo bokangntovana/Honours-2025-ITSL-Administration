@@ -1,43 +1,57 @@
-﻿@model Assignment
+﻿@model ITSL_Administration.Models.Assignment
+
 @{
     ViewData["Title"] = "Edit Assignment";
-    var courseName = ViewBag.CourseName;
 }
 
-<h2>Edit Assignment for @courseName</h2>
+<div class="container mt-4">
+    <h2 class="text-primary mb-3"><i class="fas fa-edit"></i> Edit Assignment</h2>
+    <hr class="border-light" />
 
-<form asp-action="Edit">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input type="hidden" asp-for="AssignmentId" />
-    <input type="hidden" asp-for="CourseId" />
-    <input type="hidden" asp-for="AssignmentType" />
+    <form asp-action="Edit" method="post" enctype="multipart/form-data" class="bg-light p-4 rounded shadow-sm">
+        <input type="hidden" asp-for="AssignmentID" />
 
-    <div class="form-group">
-        <label asp-for="Title" class="control-label"></label>
-        <input asp-for="Title" class="form-control" />
-        <span asp-validation-for="Title" class="text-danger"></span>
-    </div>
+        <div class="form-group mb-3">
+            <label asp-for="Title" class="form-label"></label>
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
 
-    <div class="form-group">
-        <label asp-for="Description" class="control-label"></label>
-        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
+        <div class="form-group mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
 
-    <div class="form-group">
-        <label asp-for="DueDate" class="control-label"></label>
-        <input asp-for="DueDate" class="form-control" />
-        <span asp-validation-for="DueDate" class="text-danger"></span>
-    </div>
+        <div class="form-group mb-3">
+            <label asp-for="DueDate" class="form-label"></label>
+            <input asp-for="DueDate" type="date" class="form-control" />
+            <span asp-validation-for="DueDate" class="text-danger"></span>
+        </div>
 
-    <div class="form-group">
-        <label asp-for="MaxPoints" class="control-label"></label>
-        <input asp-for="MaxPoints" class="form-control" />
-        <span asp-validation-for="MaxPoints" class="text-danger"></span>
-    </div>
+        <div class="form-group mb-3">
+            <label asp-for="SetAssignmentMark" class="form-label"></label>
+            <input asp-for="SetAssignmentMark" class="form-control" />
+            <span asp-validation-for="SetAssignmentMark" class="text-danger"></span>
+        </div>
 
-    <div class="form-group">
-        <input type="submit" value="Save" class="btn btn-primary" />
-        <a asp-action="CourseAssignments" asp-route-courseId="@Model.CourseId" class="btn btn-secondary">Cancel</a>
-    </div>
-</form>
+        <div class="form-group mb-3">
+            <label asp-for="Weight" class="form-label"></label>
+            <input asp-for="Weight" class="form-control" />
+            <span asp-validation-for="Weight" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="AssignmentType" class="form-label"></label>
+            <select asp-for="AssignmentType" asp-items="Html.GetEnumSelectList<AssignmentType>()" class="form-control"></select>
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="form-label">Upload New Instruction Files</label>
+            <input type="file" name="files" multiple class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
+    </form>
+</div>

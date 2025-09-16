@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ITSL_Administration.Data;
 using ITSL_Administration.Models;
-using Microsoft.EntityFrameworkCore;
-using ITSL_Administration.Data;
-using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Authorization;
+using ITSL_Administration.Services;
+using ITSL_Administration.Services.Interfaces;
 using ITSL_Administration.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace ITSL_Administration.Controllers
 {
@@ -13,11 +16,19 @@ namespace ITSL_Administration.Controllers
     {
         private readonly AppDbContext _context;
         private readonly ILogger<CoursesController> _logger;
+        private readonly IFileUploadService _fileUploadService;
+        private readonly UserManager<User> _userManager;
 
-        public CoursesController(AppDbContext context, ILogger<CoursesController> logger)
+
+        public CoursesController(AppDbContext context, 
+            ILogger<CoursesController> logger,
+             IFileUploadService fileUploadService, 
+             UserManager<User> userManager)
         {
             _context = context;
             _logger = logger;
+            _fileUploadService = fileUploadService;
+            _userManager = userManager;
         }
 
         // GET: Courses
@@ -72,7 +83,7 @@ namespace ITSL_Administration.Controllers
         // POST: Courses/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CourseCode,CourseName,CourseCredits,CourseDescription")] Courses course)
+        public async Task<IActionResult> Create([Bind("CourseCode,CourseName,CourseCredits,CourseDescription")] Course course)
         {
             try
             {
@@ -108,7 +119,7 @@ namespace ITSL_Administration.Controllers
         // POST: Courses/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("CourseID,CourseCode,CourseName,CourseCredits,CourseDescription")] Courses course)
+        public async Task<IActionResult> Edit(string id, [Bind("CourseID,CourseCode,CourseName,CourseCredits,CourseDescription")] Course course)
         {
             if (id != course.CourseID)
                 return NotFound();
@@ -177,86 +188,12 @@ namespace ITSL_Administration.Controllers
             }
         }
 
-        //Upload Logic Below here
-        // GET: Courses/UploadContent/5
-        public async Task<IActionResult> UploadContent(string id)
-        {
-            if (id == null)
-                return NotFound();
-
-            var course = await _context.Courses.FindAsync(id);
-            if (course == null)
-                return NotFound();
-
-            var model = new UploadContentViewModel
-            {
-                CourseId = course.CourseID,
-                CourseName = course.CourseName
-            };
-
-            return View(model);
-        }
-
-        
-        [HttpPost]
-        [Authorize(Roles = "Lecturer,Admin")]
-        public async Task<IActionResult> UploadContent(string courseId, IFormFile file, string title, string description)
-        {
-            if (file == null || file.Length == 0)
-            {
-                TempData["ErrorMessage"] = "Please select a file to upload.";
-                return RedirectToAction("ContentList", new { id = courseId });
-            }
-
-            try
-            {
-                // Create upload directory if it doesn't exist
-                var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-                if (!Directory.Exists(uploadsDir))
-                    Directory.CreateDirectory(uploadsDir);
-
-                // Generate unique filename
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                var filePath = Path.Combine(uploadsDir, fileName);
-
-                // Save the file
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-
-                // Save to database
-                var content = new CourseContent
-                {
-                    Title = title,
-                    Description = description,
-                    FilePath = Path.Combine("uploads", fileName),
-                    CourseID = courseId,
-                    UploadDate = DateTime.Now
-                };
-
-                _context.Add(content);
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "File uploaded successfully!";
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error uploading file");
-                TempData["ErrorMessage"] = "An error occurred while uploading the file.";
-            }
-
-            return RedirectToAction("ContentList", new { id = courseId });
-        }
-
-        // GET: Courses/ContentList/5
+        // GET: Courses/ContentList/{id}
         public async Task<IActionResult> ContentList(string id)
         {
-            if (id == null)
-                return NotFound();
-
             var course = await _context.Courses
                 .Include(c => c.Contents)
+                .ThenInclude(c => c.File)
                 .FirstOrDefaultAsync(c => c.CourseID == id);
 
             if (course == null)
@@ -265,49 +202,79 @@ namespace ITSL_Administration.Controllers
             return View(course);
         }
 
-        public async Task<IActionResult> DownloadContent(int id)
+        // GET: Courses/UploadContent/{id}
+        public async Task<IActionResult> UploadContent(string id)
         {
-            var content = await _context.CourseContents.FindAsync(id);
+            var course = await _context.Courses.FindAsync(id);
+            if (course == null)
+                return NotFound();
+
+            var vm = new UploadContentViewModel
+            {
+                CourseId = course.CourseID,
+                CourseName = course.CourseName ?? "Unknown Course"
+            };
+
+            return View(vm);
+        }
+
+        // POST: Courses/UploadContent
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadContent(UploadContentViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            try
+            {
+                var userId = _userManager.GetUserId(User);
+                if (userId == null)
+                {
+                    TempData["ErrorMessage"] = "You must be logged in to upload content.";
+                    return RedirectToAction("ContentList", new { id = model.CourseId });
+                }
+
+                // Use FileUploadService
+                var uploadedFile = await _fileUploadService.UploadFileAsync(
+                    model.File, FileContentType.CourseContent, userId);
+
+                var content = new CourseContent
+                {
+                    Title = model.Title,
+                    Description = model.Description,
+                    FileId = uploadedFile.FileId,
+                    CourseId = model.CourseId
+                };
+
+                _context.CourseContents.Add(content);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Content uploaded successfully.";
+                return RedirectToAction("ContentList", new { id = model.CourseId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading course content");
+                TempData["ErrorMessage"] = "An error occurred while uploading. Please try again.";
+                return RedirectToAction("ContentList", new { id = model.CourseId });
+            }
+        }
+
+        // GET: Courses/DownloadContent/{id}
+        public async Task<IActionResult> DownloadContent(string id)
+        {
+            var content = await _context.CourseContents
+                .Include(c => c.File)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
             if (content == null)
                 return NotFound();
 
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", content.FilePath);
-            if (!System.IO.File.Exists(path))
-                return NotFound();
-
-            // Get the original file extension
-            var originalFileName = content.Title + Path.GetExtension(content.FilePath);
-
-            var memory = new MemoryStream();
-            using (var stream = new FileStream(path, FileMode.Open))
-            {
-                await stream.CopyToAsync(memory);
-            }
-            memory.Position = 0;
-
-            return File(memory, GetContentType(path), originalFileName);
+            var stream = await _fileUploadService.DownloadFileAsync(content.FileId);
+            return File(stream, "application/octet-stream", content.File.FileName);
         }
 
-        private string GetContentType(string path)
-        {
-            var types = new Dictionary<string, string>
-            {
-                {".pdf", "application/pdf"},
-                {".doc", "application/msword"},
-                {".docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
-                {".xls", "application/vnd.ms-excel"},
-                {".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
-                {".ppt", "application/vnd.ms-powerpoint"},
-                {".pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation"},
-                {".zip", "application/zip"},
-                {".txt", "text/plain"},
-                {".jpg", "image/jpeg"},
-                {".png", "image/png"}
-            };
-
-            var ext = Path.GetExtension(path).ToLowerInvariant();
-            return types.ContainsKey(ext) ? types[ext] : "application/octet-stream";
-        }
 
 
         private bool CourseExists(string id)

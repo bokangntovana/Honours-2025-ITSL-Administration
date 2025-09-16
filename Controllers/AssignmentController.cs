@@ -1,95 +1,107 @@
 ﻿using ITSL_Administration.Data;
 using ITSL_Administration.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using ITSL_Administration.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace ITSL_Administration.Controllers
 {
-    [Authorize(Roles = "Admin,Lecturer")]
-    public class AssignmentController : Controller
+    public class AssignmentsController : Controller
     {
         private readonly AppDbContext _context;
-        private readonly UserManager<Users> _userManager;
+        private readonly IFileUploadService _fileUploadService;
+        private readonly ILogger<AssignmentsController> _logger;
 
-        public AssignmentController(AppDbContext context, UserManager<Users> userManager)
+        public AssignmentsController(AppDbContext context, IFileUploadService fileUploadService, ILogger<AssignmentsController> logger)
         {
             _context = context;
-            _userManager = userManager;
+            _fileUploadService = fileUploadService;
+            _logger = logger;
         }
 
-        // GET: Assignment/CourseAssignments/{courseId}
-        public async Task<IActionResult> CourseAssignments(string courseId)
+        // GET: Assignments/Manage?courseId=123
+        public async Task<IActionResult> ManageAssignment(string courseId)
         {
-            var assignments = await _context.Assignments
-                .Include(a => a.Course)
-                .Where(a => a.CourseId == courseId)
-                .OrderByDescending(a => a.DueDate)
-                .ToListAsync();
+            var course = await _context.Courses
+                .Include(c => c.Assignments)
+                .ThenInclude(a => a.Files)
+                .FirstOrDefaultAsync(c => c.CourseID == courseId);
 
-            ViewBag.CourseId = courseId;
-            ViewBag.CourseName = _context.Courses.Find(courseId)?.CourseName;
-            return View(assignments);
-        }
-
-        // GET: Assignment/Create/{courseId}
-        public IActionResult Create(string courseId)
-        {
-            var course = _context.Courses.Find(courseId);
             if (course == null)
             {
                 return NotFound();
             }
 
-            ViewBag.CourseName = course.CourseName;
-            return View(new Assignment { CourseId = courseId });
+            return View(course);
         }
 
-        // POST: Assignment/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Title,Description,DueDate,MaxPoints,CourseId")] Assignment assignment)
+        // GET: Assignments/Create?courseId=123
+        public IActionResult Create(string courseId)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(assignment);
-                await _context.SaveChangesAsync();
-                TempData["Message"] = "Assignment created successfully!";
-                return RedirectToAction(nameof(CourseAssignments), new { courseId = assignment.CourseId });
-            }
-
-            ViewBag.CourseName = _context.Courses.Find(assignment.CourseId)?.CourseName;
+            var assignment = new Assignment { CourseId = courseId };
             return View(assignment);
         }
 
-        // GET: Assignment/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // POST: Assignments/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Assignment assignment, IFormFile? instructionFile)
         {
-            if (id == null)
+            if (ModelState.IsValid)
             {
-                return NotFound();
+                // Save assignment
+                _context.Add(assignment);
+                await _context.SaveChangesAsync();
+
+                // If file uploaded → save it
+                if (instructionFile != null)
+                {
+                    var file = await _fileUploadService.UploadFileAsync(
+                        instructionFile,
+                        FileContentType.AssignmentInstruction,
+                        User.Identity!.Name! // uploader ID
+                    );
+                    assignment.Files.Add(file);
+                    _context.Update(assignment);
+                    await _context.SaveChangesAsync();
+                }
+
+                // If assignment is Quiz → redirect to quiz creation
+                if (assignment.AssignmentType == AssignmentType.Quiz)
+                {
+                    return RedirectToAction("Create", "Quizzes", new { assignmentId = assignment.AssignmentID });
+                }
+
+                TempData["SuccessMessage"] = "Assignment created successfully.";
+                return RedirectToAction("Manage", new { courseId = assignment.CourseId });
             }
 
-            var assignment = await _context.Assignments.FindAsync(id);
+            return View(assignment);
+        }
+
+        // GET: Assignments/Edit/5
+        public async Task<IActionResult> Edit(string id)
+        {
+            var assignment = await _context.Assignments
+                .Include(a => a.Files)
+                .FirstOrDefaultAsync(a => a.AssignmentID == id);
+
             if (assignment == null)
             {
                 return NotFound();
             }
 
-            ViewBag.CourseName = _context.Courses.Find(assignment.CourseId)?.CourseName;
             return View(assignment);
         }
 
-        // POST: Assignment/Edit/5
+        // POST: Assignments/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("AssignmentId,Title,Description,DueDate,MaxPoints,CourseId")] Assignment assignment)
+        public async Task<IActionResult> Edit(string id, Assignment assignment)
         {
-            if (id != assignment.AssignmentId)
-            {
-                return NotFound();
-            }
+            if (id != assignment.AssignmentID) return NotFound();
 
             if (ModelState.IsValid)
             {
@@ -97,137 +109,86 @@ namespace ITSL_Administration.Controllers
                 {
                     _context.Update(assignment);
                     await _context.SaveChangesAsync();
-                    TempData["Message"] = "Assignment updated successfully!";
+
+                    TempData["SuccessMessage"] = "Assignment updated successfully.";
+                    return RedirectToAction("Manage", new { courseId = assignment.CourseId });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!AssignmentExists(assignment.AssignmentId))
-                    {
+                    if (!_context.Assignments.Any(a => a.AssignmentID == id))
                         return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    throw;
                 }
-                return RedirectToAction(nameof(CourseAssignments), new { courseId = assignment.CourseId });
             }
-
-            ViewBag.CourseName = _context.Courses.Find(assignment.CourseId)?.CourseName;
             return View(assignment);
         }
 
-        // GET: Assignment/CreateQuiz/{courseId}
-        public IActionResult CreateQuiz(string courseId)
+        // GET: Assignments/Delete/5
+        public async Task<IActionResult> Delete(string id)
         {
-            var course = _context.Courses.Find(courseId);
-            if (course == null)
-            {
-                return NotFound();
-            }
-
-            ViewBag.CourseName = course.CourseName;
-            return View(new Assignment
-            {
-                CourseId = courseId,
-                AssignmentType = AssignmentType.Quiz
-            });
-        }
-
-        // POST: Assignment/CreateQuiz
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateQuiz([Bind("Title,Description,DueDate,MaxPoints,CourseId,AssignmentType")] Assignment assignment)
-        {
-            if (ModelState.IsValid)
-            {
-                assignment.AssignmentType = AssignmentType.Quiz;
-                _context.Add(assignment);
-                await _context.SaveChangesAsync();
-                TempData["Message"] = "Quiz created successfully!";
-                return RedirectToAction(nameof(QuizController.ManageQuestions), "Quiz", new { assignmentId = assignment.AssignmentId });
-                
-            }
-
-            ViewBag.CourseName = _context.Courses.Find(assignment.CourseId)?.CourseName;
-            return View(assignment);
-        }
-
-        // GET: Assignment/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var assignment = await _context.Assignments
                 .Include(a => a.Course)
-                .FirstOrDefaultAsync(m => m.AssignmentId == id);
-            if (assignment == null)
-            {
-                return NotFound();
-            }
+                .FirstOrDefaultAsync(a => a.AssignmentID == id);
+
+            if (assignment == null) return NotFound();
 
             return View(assignment);
         }
 
-        // POST: Assignment/Delete/5
+        // POST: Assignments/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var assignment = await _context.Assignments.FindAsync(id);
-            var courseId = assignment.CourseId;
-            _context.Assignments.Remove(assignment);
-            await _context.SaveChangesAsync();
-            TempData["Message"] = "Assignment deleted successfully!";
-            return RedirectToAction(nameof(CourseAssignments), new { courseId });
-        }
-
-
-        // GET: Assignment/Submissions/5
-        public async Task<IActionResult> Submissions(int id)
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
             var assignment = await _context.Assignments
-                .Include(a => a.Course)
+                .Include(a => a.Files)
+                .FirstOrDefaultAsync(a => a.AssignmentID == id);
+
+            if (assignment != null)
+            {
+                // delete files from storage + db
+                foreach (var file in assignment.Files)
+                {
+                    await _fileUploadService.DeleteFileAsync(file.FileId);
+                }
+
+                _context.Assignments.Remove(assignment);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Assignment deleted successfully.";
+                return RedirectToAction("Manage", new { courseId = assignment.CourseId });
+            }
+
+            return NotFound();
+        }
+
+        // GET: Assignment/Details/5
+        public async Task<IActionResult> Details(string id)
+        {
+            if (id == null) return NotFound();
+
+            var assignment = await _context.Assignments
+                .Include(a => a.Files)
                 .Include(a => a.Submissions)
                     .ThenInclude(s => s.Participant)
-                .FirstOrDefaultAsync(a => a.AssignmentId == id);
+                .FirstOrDefaultAsync(m => m.AssignmentID == id);
 
-            if (assignment == null)
-            {
-                return NotFound();
-            }
+            if (assignment == null) return NotFound();
 
             return View(assignment);
         }
 
-        // POST: Assignment/GradeSubmission/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GradeSubmission(int submissionId, decimal grade, string feedback)
+        // GET: Assignment/ManageSubmissions/5
+        public async Task<IActionResult> ManageSubmissions(string id)
         {
-            var submission = await _context.Submissions.FindAsync(submissionId);
-            if (submission == null)
-            {
-                return NotFound();
-            }
+            var submissions = await _context.Submissions
+                .Include(s => s.Participant)
+                .Include(s => s.Grade)
+                .Where(s => s.AssignmentId == id)
+                .ToListAsync();
 
-            submission.Grade = grade;
-            submission.Feedback = feedback;
-            submission.GradedDate = DateTime.Now;
-
-            _context.Update(submission);
-            await _context.SaveChangesAsync();
-            TempData["Message"] = "Submission graded successfully!";
-
-            return RedirectToAction(nameof(Submissions), new { id = submission.AssignmentId });
-        }
-
-        private bool AssignmentExists(int id)
-        {
-            return _context.Assignments.Any(e => e.AssignmentId == id);
+            ViewBag.AssignmentId = id;
+            return View(submissions);
         }
     }
 }

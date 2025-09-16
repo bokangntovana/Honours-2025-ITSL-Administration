@@ -1,0 +1,49 @@
+﻿@model ITSL_Administration.Models.QuizOption
+
+@{
+    ViewData["Title"] = "Edit Option";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h3 class="card-title mb-0">
+                <i class="fas fa-edit me-2"></i>@ViewData["Title"]
+            </h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="EditOption" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="OptionID" />
+                <input type="hidden" asp-for="QuestionId" />
+
+                <div class="form-group mb-4">
+                    <label asp-for="OptionText" class="form-label fw-bold">Option Text</label>
+                    <textarea asp-for="OptionText" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="OptionText" class="text-danger small"></span>
+                </div>
+
+                <div class="form-group form-check mb-4">
+                    <input class="form-check-input" type="checkbox" asp-for="IsCorrect" />
+                    <label class="form-check-label fw-bold" asp-for="IsCorrect">Correct Answer</label>
+                    <span class="form-text text-muted">Check this if this option is the correct answer</span>
+                </div>
+
+                <div class="form-group d-flex justify-content-between">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                    <a asp-action="EditQuestion" asp-route-id="@Model.QuestionId" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

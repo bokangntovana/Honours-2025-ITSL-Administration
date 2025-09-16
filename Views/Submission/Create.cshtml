@@ -1,29 +1,21 @@
-﻿@using ITSL_Administration
-@{
+﻿@{
     ViewData["Title"] = "Submit Assignment";
-    var assignment = ViewBag.Assignment as Assignment;
 }
 
-<h2>Submit Assignment: @assignment.Title</h2>
-<h4>Course: @assignment.Course.CourseName</h4>
-<h5>Due: @assignment.DueDate.ToString("g")</h5>
+<div class="container mt-4">
+    <h2 class="text-primary mb-3"><i class="fas fa-upload"></i> Submit Assignment</h2>
+    <h5 class="text-muted">Assignment: @ViewBag.AssignmentTitle</h5>
+    <hr />
 
-<form asp-action="Create" method="post" enctype="multipart/form-data">
-    <input type="hidden" name="assignmentId" value="@assignment.AssignmentId" />
+    <form asp-action="Create" asp-route-assignmentId="@ViewBag.AssignmentId" method="post" enctype="multipart/form-data" class="bg-light p-4 rounded shadow-sm">
+        <div class="form-group mb-3">
+            <label for="files" class="form-label">Upload Submission Files</label>
+            <input type="file" name="files" multiple class="form-control" />
+        </div>
 
-    <div class="form-group">
-        <label for="notes">Notes (optional)</label>
-        <textarea name="notes" class="form-control" rows="3"></textarea>
-    </div>
-
-    <div class="form-group">
-        <label for="file">Upload your submission</label>
-        <input type="file" name="file" class="form-control-file" required />
-        <small class="form-text text-muted">Accepted file types: PDF, DOCX, XLSX, PPTX, ZIP, TXT, JPG, PNG</small>
-    </div>
-
-    <div class="form-group">
-        <input type="submit" value="Submit" class="btn btn-primary" />
-        <a asp-action="MySubmissions" class="btn btn-secondary">Cancel</a>
-    </div>
-</form>
+        <button type="submit" class="btn btn-success"><i class="fas fa-paper-plane"></i> Submit</button>
+        <a asp-action="Index" asp-route-assignmentId="@ViewBag.AssignmentId" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </form>
+</div>

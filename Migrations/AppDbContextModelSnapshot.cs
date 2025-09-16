@@ -24,63 +24,86 @@ namespace ITSL_Administration.Migrations
 
             modelBuilder.Entity("ITSL_Administration.Models.Assignment", b =>
                 {
-                    b.Property<int>("AssignmentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AssignmentId"));
+                    b.Property<string>("AssignmentID")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("AssignmentType")
                         .HasColumnType("int");
 
                     b.Property<string>("CourseId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("MaxPoints")
-                        .HasColumnType("int");
+                    b.Property<double>("SetAssignmentMark")
+                        .HasColumnType("float");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("AssignmentId");
+                    b.Property<double>("Weight")
+                        .HasColumnType("float");
+
+                    b.HasKey("AssignmentID");
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("Assignments");
+                    b.ToTable("Assignments", t =>
+                        {
+                            t.HasCheckConstraint("CK_Assignment_SetAssignmentMark", "SetAssignmentMark >= 0");
+
+                            t.HasCheckConstraint("CK_Assignment_Weight", "Weight >= 0 AND Weight <= 1");
+                        });
+                });
+
+            modelBuilder.Entity("ITSL_Administration.Models.Course", b =>
+                {
+                    b.Property<string>("CourseID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CourseCode")
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.Property<int>("CourseCredits")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CourseDescription")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("CourseName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("CourseID");
+
+                    b.ToTable("Courses");
                 });
 
             modelBuilder.Entity("ITSL_Administration.Models.CourseContent", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CourseID")
+                    b.Property<string>("CourseId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FilePath")
+                    b.Property<string>("FileId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -91,36 +114,11 @@ namespace ITSL_Administration.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CourseID");
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("FileId");
 
                     b.ToTable("CourseContents");
-                });
-
-            modelBuilder.Entity("ITSL_Administration.Models.Courses", b =>
-                {
-                    b.Property<string>("CourseID")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CourseCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("CourseCredits")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CourseDescription")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("CourseName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("CourseID");
-
-                    b.ToTable("Courses");
                 });
 
             modelBuilder.Entity("ITSL_Administration.Models.Donation", b =>
@@ -167,45 +165,18 @@ namespace ITSL_Administration.Migrations
 
             modelBuilder.Entity("ITSL_Administration.Models.Enrollment", b =>
                 {
-                    b.Property<int>("EnrollmentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EnrollmentId"));
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CourseId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("EnrollmentDate")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
 
-                    b.Property<decimal?>("Grade")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("GradeDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("GradeFeedback")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("GradeSymbol")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ParticipantId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("EnrollmentId");
+                    b.HasKey("UserId", "CourseId");
 
                     b.HasIndex("CourseId");
-
-                    b.HasIndex("ParticipantId");
 
                     b.ToTable("Enrollments");
                 });
@@ -246,141 +217,125 @@ namespace ITSL_Administration.Migrations
                     b.ToTable("Events");
                 });
 
-            modelBuilder.Entity("ITSL_Administration.Models.QuestionOption", b =>
+            modelBuilder.Entity("ITSL_Administration.Models.Grade", b =>
                 {
-                    b.Property<int>("QuestionOptionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<string>("GradeID")
+                        .HasColumnType("nvarchar(450)");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QuestionOptionId"));
+                    b.Property<string>("AssignmentId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<double>("AssignmentMark")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("DateRecorded")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double>("FinalMark")
+                        .HasColumnType("float");
+
+                    b.Property<string>("GradesFeedback")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("HasPassed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MarkedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SubmissionId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("GradeID");
+
+                    b.HasIndex("AssignmentId");
+
+                    b.HasIndex("SubmissionId")
+                        .IsUnique()
+                        .HasFilter("[SubmissionId] IS NOT NULL");
+
+                    b.ToTable("Grades");
+                });
+
+            modelBuilder.Entity("ITSL_Administration.Models.Quiz", b =>
+                {
+                    b.Property<string>("QuizID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AssignmentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("QuizID");
+
+                    b.HasIndex("AssignmentId")
+                        .IsUnique();
+
+                    b.ToTable("Quizzes");
+                });
+
+            modelBuilder.Entity("ITSL_Administration.Models.QuizOption", b =>
+                {
+                    b.Property<string>("OptionID")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsCorrect")
                         .HasColumnType("bit");
 
                     b.Property<string>("OptionText")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("QuizQuestionId")
-                        .HasColumnType("int");
+                    b.Property<string>("QuestionId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("QuestionOptionId");
+                    b.HasKey("OptionID");
 
-                    b.HasIndex("QuizQuestionId");
+                    b.HasIndex("QuestionId");
 
-                    b.ToTable("QuestionOptions");
-                });
-
-            modelBuilder.Entity("ITSL_Administration.Models.QuizAnswer", b =>
-                {
-                    b.Property<int>("QuizAnswerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QuizAnswerId"));
-
-                    b.Property<string>("AnswerText")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<decimal?>("PointsAwarded")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("QuizQuestionId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SelectedOptionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SubmissionId")
-                        .HasColumnType("int");
-
-                    b.HasKey("QuizAnswerId");
-
-                    b.HasIndex("QuizQuestionId");
-
-                    b.HasIndex("SelectedOptionId");
-
-                    b.HasIndex("SubmissionId");
-
-                    b.ToTable("QuizAnswers");
+                    b.ToTable("QuizOptions");
                 });
 
             modelBuilder.Entity("ITSL_Administration.Models.QuizQuestion", b =>
                 {
-                    b.Property<int>("QuizQuestionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QuizQuestionId"));
-
-                    b.Property<int>("AssignmentId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Points")
-                        .HasColumnType("int");
+                    b.Property<string>("QuestionID")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("QuestionText")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("QuestionType")
-                        .HasColumnType("int");
+                    b.Property<string>("QuizId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("QuizQuestionId");
+                    b.HasKey("QuestionID");
 
-                    b.HasIndex("AssignmentId");
+                    b.HasIndex("QuizId");
 
                     b.ToTable("QuizQuestions");
                 });
 
             modelBuilder.Entity("ITSL_Administration.Models.Submission", b =>
                 {
-                    b.Property<int>("SubmissionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<string>("SubmissionID")
+                        .HasColumnType("nvarchar(450)");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubmissionId"));
+                    b.Property<string>("AssignmentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("AssignmentId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("AutoGradedScore")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Feedback")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("FilePath")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("Grade")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("GradedDate")
+                    b.Property<DateTime>("DateSubmitted")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("OriginalFileName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ParticipantId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("SubmissionDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("SubmissionId");
+                    b.HasKey("SubmissionID");
 
                     b.HasIndex("AssignmentId");
 
@@ -389,7 +344,54 @@ namespace ITSL_Administration.Migrations
                     b.ToTable("Submissions");
                 });
 
-            modelBuilder.Entity("ITSL_Administration.Models.Users", b =>
+            modelBuilder.Entity("ITSL_Administration.Models.UploadedFile", b =>
+                {
+                    b.Property<string>("FileId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AssignmentID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ContentType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("StoredFilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SubmissionID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("UploadDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UploadedByUserID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("FileId");
+
+                    b.HasIndex("AssignmentID");
+
+                    b.HasIndex("SubmissionID");
+
+                    b.HasIndex("UploadedByUserID");
+
+                    b.ToTable("UploadedFiles");
+                });
+
+            modelBuilder.Entity("ITSL_Administration.Models.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -397,16 +399,18 @@ namespace ITSL_Administration.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Age")
+                    b.Property<int>("Age")
                         .HasColumnType("int");
 
-                    b.Property<double?>("AmountDonated")
+                    b.Property<double>("AmountDonated")
                         .HasColumnType("float");
 
                     b.Property<string>("CampusName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("City")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -425,6 +429,7 @@ namespace ITSL_Administration.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("IDNumber")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -463,7 +468,7 @@ namespace ITSL_Administration.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<bool?>("isVolunteer")
+                    b.Property<bool>("isVolunteer")
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
@@ -614,29 +619,36 @@ namespace ITSL_Administration.Migrations
 
             modelBuilder.Entity("ITSL_Administration.Models.Assignment", b =>
                 {
-                    b.HasOne("ITSL_Administration.Models.Courses", "Course")
-                        .WithMany()
+                    b.HasOne("ITSL_Administration.Models.Course", "Course")
+                        .WithMany("Assignments")
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Course");
                 });
 
             modelBuilder.Entity("ITSL_Administration.Models.CourseContent", b =>
                 {
-                    b.HasOne("ITSL_Administration.Models.Courses", "Course")
+                    b.HasOne("ITSL_Administration.Models.Course", "Course")
                         .WithMany("Contents")
-                        .HasForeignKey("CourseID")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ITSL_Administration.Models.UploadedFile", "File")
+                        .WithMany()
+                        .HasForeignKey("FileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Course");
+
+                    b.Navigation("File");
                 });
 
             modelBuilder.Entity("ITSL_Administration.Models.Donation", b =>
                 {
-                    b.HasOne("ITSL_Administration.Models.Users", "Donor")
+                    b.HasOne("ITSL_Administration.Models.User", "Donor")
                         .WithMany()
                         .HasForeignKey("DonorId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -647,69 +659,70 @@ namespace ITSL_Administration.Migrations
 
             modelBuilder.Entity("ITSL_Administration.Models.Enrollment", b =>
                 {
-                    b.HasOne("ITSL_Administration.Models.Courses", "Course")
+                    b.HasOne("ITSL_Administration.Models.Course", "Course")
                         .WithMany("Enrollments")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ITSL_Administration.Models.Users", "Participant")
+                    b.HasOne("ITSL_Administration.Models.User", "User")
                         .WithMany("Enrollments")
-                        .HasForeignKey("ParticipantId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Course");
 
-                    b.Navigation("Participant");
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ITSL_Administration.Models.QuestionOption", b =>
+            modelBuilder.Entity("ITSL_Administration.Models.Grade", b =>
                 {
-                    b.HasOne("ITSL_Administration.Models.QuizQuestion", "QuizQuestion")
-                        .WithMany("Options")
-                        .HasForeignKey("QuizQuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("QuizQuestion");
-                });
-
-            modelBuilder.Entity("ITSL_Administration.Models.QuizAnswer", b =>
-                {
-                    b.HasOne("ITSL_Administration.Models.QuizQuestion", "QuizQuestion")
-                        .WithMany("Answers")
-                        .HasForeignKey("QuizQuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ITSL_Administration.Models.QuestionOption", "SelectedOption")
+                    b.HasOne("ITSL_Administration.Models.Assignment", "Assignment")
                         .WithMany()
-                        .HasForeignKey("SelectedOptionId")
-                        .OnDelete(DeleteBehavior.ClientCascade);
+                        .HasForeignKey("AssignmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("ITSL_Administration.Models.Submission", "Submission")
-                        .WithMany("QuizAnswers")
-                        .HasForeignKey("SubmissionId")
-                        .OnDelete(DeleteBehavior.ClientCascade)
-                        .IsRequired();
+                        .WithOne("Grade")
+                        .HasForeignKey("ITSL_Administration.Models.Grade", "SubmissionId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
-                    b.Navigation("QuizQuestion");
-
-                    b.Navigation("SelectedOption");
+                    b.Navigation("Assignment");
 
                     b.Navigation("Submission");
                 });
 
-            modelBuilder.Entity("ITSL_Administration.Models.QuizQuestion", b =>
+            modelBuilder.Entity("ITSL_Administration.Models.Quiz", b =>
                 {
                     b.HasOne("ITSL_Administration.Models.Assignment", "Assignment")
-                        .WithMany("QuizQuestions")
-                        .HasForeignKey("AssignmentId")
+                        .WithOne()
+                        .HasForeignKey("ITSL_Administration.Models.Quiz", "AssignmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Assignment");
+                });
+
+            modelBuilder.Entity("ITSL_Administration.Models.QuizOption", b =>
+                {
+                    b.HasOne("ITSL_Administration.Models.QuizQuestion", "Question")
+                        .WithMany("Options")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("ITSL_Administration.Models.QuizQuestion", b =>
+                {
+                    b.HasOne("ITSL_Administration.Models.Quiz", "Quiz")
+                        .WithMany("Questions")
+                        .HasForeignKey("QuizId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Quiz");
                 });
 
             modelBuilder.Entity("ITSL_Administration.Models.Submission", b =>
@@ -720,7 +733,7 @@ namespace ITSL_Administration.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ITSL_Administration.Models.Users", "Participant")
+                    b.HasOne("ITSL_Administration.Models.User", "Participant")
                         .WithMany()
                         .HasForeignKey("ParticipantId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -729,6 +742,25 @@ namespace ITSL_Administration.Migrations
                     b.Navigation("Assignment");
 
                     b.Navigation("Participant");
+                });
+
+            modelBuilder.Entity("ITSL_Administration.Models.UploadedFile", b =>
+                {
+                    b.HasOne("ITSL_Administration.Models.Assignment", null)
+                        .WithMany("Files")
+                        .HasForeignKey("AssignmentID");
+
+                    b.HasOne("ITSL_Administration.Models.Submission", null)
+                        .WithMany("Files")
+                        .HasForeignKey("SubmissionID");
+
+                    b.HasOne("ITSL_Administration.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UploadedByUserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -742,7 +774,7 @@ namespace ITSL_Administration.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("ITSL_Administration.Models.Users", null)
+                    b.HasOne("ITSL_Administration.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -751,7 +783,7 @@ namespace ITSL_Administration.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("ITSL_Administration.Models.Users", null)
+                    b.HasOne("ITSL_Administration.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -766,7 +798,7 @@ namespace ITSL_Administration.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ITSL_Administration.Models.Users", null)
+                    b.HasOne("ITSL_Administration.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -775,7 +807,7 @@ namespace ITSL_Administration.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("ITSL_Administration.Models.Users", null)
+                    b.HasOne("ITSL_Administration.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -784,31 +816,38 @@ namespace ITSL_Administration.Migrations
 
             modelBuilder.Entity("ITSL_Administration.Models.Assignment", b =>
                 {
-                    b.Navigation("QuizQuestions");
+                    b.Navigation("Files");
 
                     b.Navigation("Submissions");
                 });
 
-            modelBuilder.Entity("ITSL_Administration.Models.Courses", b =>
+            modelBuilder.Entity("ITSL_Administration.Models.Course", b =>
                 {
+                    b.Navigation("Assignments");
+
                     b.Navigation("Contents");
 
                     b.Navigation("Enrollments");
                 });
 
+            modelBuilder.Entity("ITSL_Administration.Models.Quiz", b =>
+                {
+                    b.Navigation("Questions");
+                });
+
             modelBuilder.Entity("ITSL_Administration.Models.QuizQuestion", b =>
                 {
-                    b.Navigation("Answers");
-
                     b.Navigation("Options");
                 });
 
             modelBuilder.Entity("ITSL_Administration.Models.Submission", b =>
                 {
-                    b.Navigation("QuizAnswers");
+                    b.Navigation("Files");
+
+                    b.Navigation("Grade");
                 });
 
-            modelBuilder.Entity("ITSL_Administration.Models.Users", b =>
+            modelBuilder.Entity("ITSL_Administration.Models.User", b =>
                 {
                     b.Navigation("Enrollments");
                 });

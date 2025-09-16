@@ -1,75 +1,112 @@
 ﻿using ITSL_Administration.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
+using System.Diagnostics;
 
 namespace ITSL_Administration.Data
 {
-    public class AppDbContext: IdentityDbContext<Users>
+    public class AppDbContext : IdentityDbContext<User>
     {
-        public AppDbContext(DbContextOptions options) : base(options)
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
 
-        //Entity Sets
-        public DbSet<Users> Users { get; set; }
-        public DbSet<Courses> Courses { get; set; }
-        public DbSet<Event> Events { get; set; }
-        public DbSet<Donation> Donations { get; set; }
+        public DbSet<UploadedFile> UploadedFiles { get; set; }
+        public DbSet<Course> Courses { get; set; }
         public DbSet<CourseContent> CourseContents { get; set; }
-        public DbSet<Enrollment> Enrollments { get; set; }
         public DbSet<Assignment> Assignments { get; set; }
-        public DbSet<Submission> Submissions { get; set; }
+        public DbSet<Models.EventSchedule> Events { get; set; }
+        public DbSet<Quiz> Quizzes { get; set; }
+        public DbSet<Donation> Donations { get; set; }
         public DbSet<QuizQuestion> QuizQuestions { get; set; }
-        public DbSet<QuestionOption> QuestionOptions { get; set; }
-        public DbSet<QuizAnswer> QuizAnswers { get; set; }
+        public DbSet<QuizOption> QuizOptions { get; set; }
+        public DbSet<Submission> Submissions { get; set; }
+        public DbSet<Grade> Grades { get; set; }
+        public DbSet<Enrollment> Enrollments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configure QuizAnswer relationships
-            modelBuilder.Entity<QuizAnswer>(entity =>
+            // Enrollment Configuration
+            modelBuilder.Entity<Enrollment>(e =>
             {
-                // Relationship with Submission (change to Restrict)
-                entity.HasOne(a => a.Submission)
-                      .WithMany(s => s.QuizAnswers)
-                      .HasForeignKey(a => a.SubmissionId)
-                      .OnDelete(DeleteBehavior.ClientCascade);
+                e.HasKey(x => new { x.UserId, x.CourseId });
 
-                // Relationship with QuizQuestion (keep Cascade)
-                entity.HasOne(a => a.QuizQuestion)
-                      .WithMany(q => q.Answers)
-                      .HasForeignKey(a => a.QuizQuestionId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(x => x.User)
+                 .WithMany(u => u.Enrollments)
+                 .HasForeignKey(x => x.UserId)
+                 .OnDelete(DeleteBehavior.Cascade);
 
-                // Relationship with QuestionOption (for SelectedOption)
-                entity.HasOne(a => a.SelectedOption)
-                      .WithMany()
-                      .HasForeignKey(a => a.SelectedOptionId)
-                      .OnDelete(DeleteBehavior.ClientCascade);
+                e.HasOne(x => x.Course)
+                 .WithMany(c => c.Enrollments)
+                 .HasForeignKey(x => x.CourseId)
+                 .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // Configure other relationships
-            modelBuilder.Entity<QuizQuestion>(entity =>
+            // Assignment Configuration
+            modelBuilder.Entity<Assignment>(a =>
             {
-                entity.HasOne(q => q.Assignment)
-                      .WithMany(a => a.QuizQuestions)
-                      .HasForeignKey(q => q.AssignmentId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                a.HasOne(x => x.Course)
+                 .WithMany(c => c.Assignments)
+                 .HasForeignKey(x => x.CourseId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+                a.ToTable(t =>
+                {
+                    t.HasCheckConstraint("CK_Assignment_Weight", "Weight >= 0 AND Weight <= 1");
+                    t.HasCheckConstraint("CK_Assignment_SetAssignmentMark", "SetAssignmentMark >= 0");
+                });
             });
 
-            modelBuilder.Entity<Submission>(entity =>
+            // Quiz Configuration
+            modelBuilder.Entity<Quiz>(q =>
             {
-                entity.HasOne(s => s.Assignment)
-                      .WithMany(a => a.Submissions)
-                      .HasForeignKey(s => s.AssignmentId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                q.HasOne(x => x.Assignment)
+                 .WithOne()
+                 .HasForeignKey<Quiz>(x => x.AssignmentId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+                //q.ToTable(t =>
+                //{
+                //    t.HasCheckConstraint(
+                //        "CK_Quiz_AssignmentType",
+                //        "EXISTS (SELECT 1 FROM Assignments WHERE AssignmentID = AssignmentId AND AssignmentType = 2)");
+                //});
             });
+
+            // Grade Configuration
+            modelBuilder.Entity<Grade>(g =>
+            {
+                g.HasOne(x => x.Submission)
+                 .WithOne(s => s.Grade)
+                 .HasForeignKey<Grade>(x => x.SubmissionId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+                g.HasOne(x => x.Assignment)
+                 .WithMany()
+                 .HasForeignKey(x => x.AssignmentId)
+                 .OnDelete(DeleteBehavior.Restrict);
+
+                //g.ToTable(t =>
+                //{
+                //    t.HasCheckConstraint(
+                //        "CK_Grade_AssignmentMark",
+                //        "AssignmentMark <= (SELECT SetAssignmentMark FROM Assignments WHERE AssignmentID = AssignmentId)");
+                //    t.HasCheckConstraint(
+                //        "CK_Grade_FinalMark",
+                //        "FinalMark >= 0 AND FinalMark <= 100");
+                //});
+            });
+
+            // QuizOption Configuration
+            modelBuilder.Entity<QuizOption>()
+                .HasOne(o => o.Question)
+                .WithMany(q => q.Options)
+                .HasForeignKey(o => o.QuestionId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
-
-
-
-
     }
 
 }

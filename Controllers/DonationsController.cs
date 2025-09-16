@@ -12,8 +12,8 @@ namespace ITSL_Administration.Controllers
     [AllowAnonymous]
     public class DonationsController : Controller
     {
-        private readonly UserManager<Users> _userManager;
-        private readonly SignInManager<Users> _signInManager;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
         private readonly ILogger<DonationsController> _logger;
@@ -21,8 +21,8 @@ namespace ITSL_Administration.Controllers
 
 
         public DonationsController(
-            UserManager<Users> userManager,
-            SignInManager<Users> signInManager,
+            UserManager<User> userManager,
+            SignInManager<User> signInManager,
             RoleManager<IdentityRole> roleManager,
             IConfiguration configuration,
             ILogger<DonationsController> logger,
@@ -58,14 +58,14 @@ namespace ITSL_Administration.Controllers
                 return View(model);
             }
 
-            var user = new Users
+            var user = new User
             {
                 FullName = model.Name,
                 UserName = model.Email,
                 NormalizedUserName = model.Email.ToUpper(),
                 Email = model.Email,
                 NormalizedEmail = model.Email.ToUpper(),
-                Age = model.Age,
+              //  Age = model.Age,
                 IDNumber = model.IDNumber,
                 City = model.City,
                 CampusName = model.CampusName,
@@ -245,7 +245,7 @@ namespace ITSL_Administration.Controllers
                     donation.StripeCustomerId = paymentIntent.CustomerId;
 
                     // Update user's total donations with proper type conversion
-                    user.AmountDonated = (user.AmountDonated ?? 0) + (double)donation.Amount;
+                    user.AmountDonated = (user.AmountDonated) + (double)donation.Amount;
 
                     await _context.SaveChangesAsync();
                     await _userManager.UpdateAsync(user);

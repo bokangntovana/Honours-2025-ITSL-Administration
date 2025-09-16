@@ -3,8 +3,6 @@ using ITSL_Administration.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -20,13 +18,13 @@ namespace ITSL_Administration.Controllers
             _context = context;
         }
 
-        // GET: ClassesAndEvents (Main Calendar View)
+        // Main Calendar View
         public IActionResult Index()
         {
             return View();
         }
 
-        // GET: Fetch Events (for FullCalendar)
+        // Fetch Events
         [HttpGet]
         public async Task<IActionResult> GetEvents()
         {
@@ -46,61 +44,51 @@ namespace ITSL_Administration.Controllers
             return Json(events);
         }
 
-        // POST: Create Event
+        // Create Event
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateEvent([FromBody] Event newEvent)
+        public async Task<IActionResult> CreateEvent([FromBody] EventSchedule newEvent)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Events.Add(newEvent);
-                await _context.SaveChangesAsync();
-                return Json(new { success = true });
-            }
-            return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors) });
-        }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-        // POST: Update Event
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateEvent([FromBody] Event updatedEvent)
-        {
-            if (ModelState.IsValid)
-            {
-                var existingEvent = await _context.Events.FindAsync(updatedEvent.Id);
-                if (existingEvent == null)
-                {
-                    return NotFound();
-                }
-
-                existingEvent.Title = updatedEvent.Title;
-                existingEvent.Start = updatedEvent.Start;
-                existingEvent.End = updatedEvent.End;
-                existingEvent.Description = updatedEvent.Description;
-                existingEvent.BackgroundColor = updatedEvent.BackgroundColor;
-                existingEvent.IsAllDay = updatedEvent.IsAllDay;
-
-                _context.Events.Update(existingEvent);
-                await _context.SaveChangesAsync();
-                return Json(new { success = true });
-            }
-            return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors) });
-        }
-
-        // POST: Delete Event
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteEvent(int id)
-        {
-            var eventToDelete = await _context.Events.FindAsync(id);
-            if (eventToDelete == null)
-            {
-                return NotFound();
-            }
-
-            _context.Events.Remove(eventToDelete);
+            _context.Events.Add(newEvent);
             await _context.SaveChangesAsync();
-            return Json(new { success = true });
+            return Ok(new { success = true });
+        }
+
+        // Update Event
+        [HttpPost]
+        public async Task<IActionResult> UpdateEvent([FromBody] EventSchedule updatedEvent)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var existing = await _context.Events.FindAsync(updatedEvent.Id);
+            if (existing == null)
+                return NotFound();
+
+            existing.Title = updatedEvent.Title;
+            existing.Start = updatedEvent.Start;
+            existing.End = updatedEvent.End;
+            existing.Description = updatedEvent.Description;
+            existing.BackgroundColor = updatedEvent.BackgroundColor;
+            existing.IsAllDay = updatedEvent.IsAllDay;
+
+            await _context.SaveChangesAsync();
+            return Ok(new { success = true });
+        }
+
+        // Delete Event
+        [HttpPost]
+        public async Task<IActionResult> DeleteEvent([FromBody] int id)
+        {
+            var evt = await _context.Events.FindAsync(id);
+            if (evt == null)
+                return NotFound();
+
+            _context.Events.Remove(evt);
+            await _context.SaveChangesAsync();
+            return Ok(new { success = true });
         }
     }
 }

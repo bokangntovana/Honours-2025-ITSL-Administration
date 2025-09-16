@@ -1,4 +1,4 @@
-﻿@model ITSL_Administration.Models.Courses
+﻿@model ITSL_Administration.Models.Course
 
 @{
     ViewData["Title"] = "Course Details";
@@ -43,6 +43,13 @@
             <a asp-action="Edit" asp-route-id="@Model.CourseID" class="btn btn-primary">
                 <i class="fas fa-edit me-2"></i>Edit
             </a>
+            <a class="btn btn-danger" asp-controller="Grades" asp-action="ExportParticipantReport" asp-route-courseId="@Model.CourseID" asp-route-studentId="@User.Identity.Name">
+                <i class="fas fa-file-pdf"></i> Download My Academic Record
+            </a>
+            <a asp-controller="Grades" asp-action="ExportGradebookPdf" asp-route-courseId="@Model.CourseID" class="btn btn-primary">
+                <i class="fas fa-file-pdf"></i> Export Gradebook
+            </a>
+
             <a asp-action="Index" class="btn btn-outline-secondary">
                 <i class="fas fa-list me-2"></i>View All Courses
             </a>

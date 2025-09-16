@@ -1,0 +1,66 @@
+﻿@model IEnumerable<ITSL_Administration.Models.Submission>
+
+@{
+    ViewData["Title"] = "Manage Submissions";
+    var assignmentId = ViewBag.AssignmentId;
+}
+
+<div class="container mt-4">
+    <h2 class="text-primary"><i class="fas fa-users"></i> Manage Submissions</h2>
+    <hr />
+
+    <table class="table table-striped">
+        <thead class="bg-light">
+            <tr>
+                <th>Student</th>
+                <th>Date Submitted</th>
+                <th>Files</th>
+                <th>Grade</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var submission in Model)
+        {
+            <tr>
+                <td>@submission.Participant?.FullName</td>
+                <td>@submission.DateSubmitted.ToString("g")</td>
+                <td>
+                    @foreach (var file in submission.Files)
+                    {
+                        <a href="@Url.Action("Download", "File", new { id = file.FileId })" class="btn btn-link">
+                            <i class="fas fa-download"></i> @file.FileName
+                        </a><br />
+                    }
+                </td>
+                <td>
+                    @if (submission.Grade != null)
+                    {
+                        <span class="badge bg-success">@submission.Grade.AssignmentMark%</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark">Not Graded</span>
+                    }
+                </td>
+                <td>
+                    @if (submission.Grade == null)
+                    {
+                        <a asp-controller="Grade" asp-action="Create" asp-route-submissionId="@submission.SubmissionID"
+                           class="btn btn-primary btn-sm"><i class="fas fa-pen"></i> Grade</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Grade" asp-action="Edit" asp-route-id="@submission.Grade.GradeID"
+                           class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i> Edit</a>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <a asp-action="Details" asp-route-id="@assignmentId" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+</div>

@@ -5,49 +5,25 @@ namespace ITSL_Administration.Models
 {
     public class Submission
     {
-        public int SubmissionId { get; set; }
+        [Key]
+        public string SubmissionID { get; set; } = Guid.NewGuid().ToString();
 
-        [Required]
-        public int AssignmentId { get; set; }
+        public DateTime DateSubmitted { get; set; } = DateTime.Now;
+       
+        public string ParticipantId { get; set; } = string.Empty;
+        
+        public string AssignmentId { get; set; } = string.Empty;
 
-        [Required]
-        public string ParticipantId { get; set; }
-
-        [DataType(DataType.DateTime)]
-        [Display(Name = "Submission Date")]
-        public DateTime SubmissionDate { get; set; } = DateTime.Now;
-
-        [StringLength(500, ErrorMessage = "Notes cannot be longer than 500 characters.")]
-        public string? Notes { get; set; }
-
-        [Display(Name = "File Path")]
-        public string? FilePath { get; set; }
-
-        [Display(Name = "Original File Name")]
-        public string? OriginalFileName { get; set; }
-
-        [Range(0, 1000, ErrorMessage = "Grade must be between 0 and 1000")]
-        public decimal? Grade { get; set; }
-
-        [StringLength(500, ErrorMessage = "Feedback cannot be longer than 500 characters.")]
-        public string? Feedback { get; set; }
-
-        [DataType(DataType.DateTime)]
-        [Display(Name = "Graded Date")]
-        public DateTime? GradedDate { get; set; }
-
-        // Add these new properties
-        [Display(Name = "Auto Graded Score")]
-        public decimal? AutoGradedScore { get; set; }
-
-        // Navigation properties
+        //Navigation properties
+        // The assignment this submission is for
         [ForeignKey("AssignmentId")]
-        public Assignment Assignment { get; set; }
-
+        public Assignment? Assignment { get; set; }
+        // Add this navigation property
+        [InverseProperty("Submission")]
+        public Grade? Grade { get; set; }
         [ForeignKey("ParticipantId")]
-        public Users Participant { get; set; }
-
-        // Navigation property for quiz answers
-        public ICollection<QuizAnswer> QuizAnswers { get; set; }
+        public User? Participant { get; set; } 
+        // The files submitted for the assignment
+        public ICollection<UploadedFile> Files { get; set; } = new List<UploadedFile>();
     }
 }

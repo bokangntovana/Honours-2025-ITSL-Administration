@@ -30,6 +30,6 @@ namespace ITSL_Administration.Models
         public string? ReceiptUrl { get; set; } = string.Empty;
 
         // Navigation property
-        public virtual Users Donor { get; set; }
+        public virtual User Donor { get; set; }
     }
 }

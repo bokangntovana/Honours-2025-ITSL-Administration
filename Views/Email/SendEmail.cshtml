@@ -4,27 +4,66 @@
     ViewData["Title"] = "Send Email";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<form asp-action="SendEmail" method="post">
-    <div>
-        <label asp-for="ToEmail"></label>
-        <input asp-for="ToEmail" type="email" required />
-        <span asp-validation-for="ToEmail"></span>
+
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">📧 Send Email</h3>
+        </div>
+        <div class="card-body bg-light">
+            <form asp-action="SendEmail" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+
+             
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Select Recipients</label>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" asp-for="SendToAll" id="sendAllCheck" />
+                        <label class="form-check-label text-danger fw-semibold" for="sendAllCheck">
+                            Send to all users
+                        </label>
+                    </div>
+                    <select asp-for="SelectedEmails" class="form-select" multiple style="height: 200px;">
+                        @foreach (var user in Model.Users)
+                        {
+                            <option value="@user.Email">@user.FullName (@user.Email)</option>
+                        }
+                    </select>
+                    <small class="text-muted">Hold Ctrl (or Cmd on Mac) to select multiple users.</small>
+                </div>
+
+                <!-- Subject -->
+                <div class="mb-3">
+                    <label asp-for="Subject" class="form-label fw-bold"></label>
+                    <input asp-for="Subject" type="text" class="form-control border-primary" placeholder="Enter subject..." required />
+                    <span asp-validation-for="Subject" class="text-danger"></span>
+                </div>
+
+            
+                <div class="mb-3">
+                    <label asp-for="Message" class="form-label fw-bold"></label>
+                    <textarea asp-for="Message" class="form-control border-primary" rows="6" placeholder="Write your message here..." required></textarea>
+                    <span asp-validation-for="Message" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Attachments" class="form-label fw-bold">Attachments</label>
+                    <input asp-for="Attachments" type="file" class="form-control border-secondary" multiple />
+                    <small class="text-muted">You can upload multiple files (e.g., PDFs, images).</small>
+                </div>
+
+              
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-danger btn-lg fw-bold shadow-sm">
+                        Send Email 🚀
+                    </button>
+                </div>
+            </form>
+        </div>
+        @if (ViewBag.Message != null)
+        {
+            <div class="card-footer bg-white text-success fw-semibold">
+                <p class="mb-0">@ViewBag.Message</p>
+            </div>
+        }
     </div>
-    <div>
-        <label asp-for="Subject"></label>
-        <input asp-for="Subject" type="text" required />
-        <span asp-validation-for="Subject"></span>
-    </div>
-    <div>
-        <label asp-for="Message"></label>
-        <textarea asp-for="Message" required></textarea>
-        <span asp-validation-for="Message"></span>
-    </div>
-    <div>
-        <input type="submit" value="Send Email" />
-    </div>
-</form>
-@if (ViewBag.Message != null)
-{
-    <p>@ViewBag.Message</p>
-}
+</div>

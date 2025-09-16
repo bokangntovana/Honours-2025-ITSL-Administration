@@ -12,10 +12,10 @@ namespace ITSL_Administration.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
-        private readonly UserManager<Users> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AdminController(UserManager<Users> userManager, RoleManager<IdentityRole> roleManager)
+        public AdminController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -107,7 +107,7 @@ namespace ITSL_Administration.Controllers
                 }
 
                 // Create user exactly like in your seed example
-                var user = new Users
+                var user = new User
                 {
                     FullName = model.FullName,
                     UserName = model.Email,
@@ -118,7 +118,7 @@ namespace ITSL_Administration.Controllers
                     SecurityStamp = Guid.NewGuid().ToString(),
                     RegistrationDate = DateTime.Now,
                     // Optional fields from your model
-                    Age = model.Age,
+                    //Age = model.Age,
                     IDNumber = model.IDNumber,
                     City = model.City,
                     CampusName = model.CampusName

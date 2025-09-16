@@ -1,0 +1,25 @@
+﻿@model ITSL_Administration.Models.Assignment
+
+@{
+    ViewData["Title"] = "Assignment Details";
+}
+
+<div class="container mt-4">
+    <h2 class="text-primary"><i class="fas fa-tasks"></i> @Model.Title</h2>
+    <p class="text-muted">@Model.Description</p>
+
+    <dl class="row">
+        <dt class="col-sm-3">Due Date</dt>
+        <dd class="col-sm-9">@Model.DueDate.ToShortDateString()</dd>
+
+        <dt class="col-sm-3">Type</dt>
+        <dd class="col-sm-9">@Model.AssignmentType</dd>
+
+        <dt class="col-sm-3">Total Marks</dt>
+        <dd class="col-sm-9">@Model.SetAssignmentMark</dd>
+    </dl>
+
+    <a asp-action="ManageSubmissions" asp-route-id="@Model.AssignmentID"
+       class="btn btn-info"><i class="fas fa-users"></i> Manage Submissions</a>
+    <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
+</div>

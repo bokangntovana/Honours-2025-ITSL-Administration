@@ -12,7 +12,7 @@ namespace ITSL_Administration.Services
 
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Users>>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
             var logger = scope.ServiceProvider.GetRequiredService<ILogger<SeedDataService>>();
 
             try
@@ -41,7 +41,7 @@ namespace ITSL_Administration.Services
                 var adminEmail = "sysAdmin@gmail.com";
                 if(await userManager.FindByEmailAsync(adminEmail) == null)
                 {
-                    var adminUser = new Users
+                    var adminUser = new User
                     {
                         FullName = "sysAdmin",
                         IDNumber = "0000202512",
@@ -71,7 +71,7 @@ namespace ITSL_Administration.Services
                 var lecturerEmail = "erobinson@gmail.com";
                 if (await userManager.FindByEmailAsync(lecturerEmail) == null)
                 {
-                    var lecturer = new Users
+                    var lecturer = new User
                     {
                         FullName = "Edward Robinson",
                         IDNumber = "8110215140846",
@@ -101,7 +101,7 @@ namespace ITSL_Administration.Services
                 var tutorEmail = "kateMurphy@gmail.com";
                 if (await userManager.FindByEmailAsync(tutorEmail) == null)
                 {
-                    var tutor = new Users
+                    var tutor = new User
                     {
                         FullName = "Kate Murphy",
                         IDNumber = "0210215140846",
@@ -132,7 +132,7 @@ namespace ITSL_Administration.Services
                 var ParticipantEmail = "Larissa_Reyners@gmail.com";
                 if (await userManager.FindByEmailAsync(ParticipantEmail) == null)
                 {
-                    var participant = new Users
+                    var participant = new User
                     {
                         FullName = "Larissa Reyners",
                         IDNumber = "9504225140846",
@@ -165,7 +165,7 @@ namespace ITSL_Administration.Services
                 var DonorEmail = "thabo_mdluli001@gmail.com";
                 if (await userManager.FindByEmailAsync(DonorEmail) == null)
                 {
-                    var donor = new Users
+                    var donor = new User
                     {
                         FullName = "Thabo Mdluli",
                         IDNumber = "9804225140846",
@@ -196,21 +196,21 @@ namespace ITSL_Administration.Services
                 }
 
                 //Seed Courses
-                var courses = new Courses[]
+                var courses = new Course[]
                 {
-                    new Courses {
+                    new Course {
                        CourseCode="MSDOCX101",
                         CourseName="Introduction to MS Word",
                         CourseCredits=10,
                        CourseDescription="This module will serve to get participants up to speed with the basics of MS Word"
                     },
-                    new Courses {
+                    new Course {
                         CourseCode="MSXLSX101",
                         CourseName="Introduction to MS Excel",
                         CourseCredits=10,
                         CourseDescription="This module will serve to get participants up to speed with the basics of MS Excel"
                     },
-                    new Courses {
+                    new Course {
                         CourseCode="MSPPTX101",
                         CourseName="Introduction to MS PowerPoint",
                         CourseCredits=10,
@@ -219,9 +219,9 @@ namespace ITSL_Administration.Services
                 };
                 logger.LogInformation("Seeding courses");
                 //Check if courses already exist before seeding
-                foreach (Courses _course in courses)
+                foreach (Course _course in courses)
                 {
-                    if(!context.Courses.Any(c => c.CourseID == _course.CourseID || c.CourseCode == _course.CourseCode))
+                    if(!context.Courses.Any(c =>c.CourseCode == _course.CourseCode))
                     {
                         context.Courses.Add(_course);
                     }
@@ -231,9 +231,9 @@ namespace ITSL_Administration.Services
                 //seeding events
                 logger.LogInformation("Seeding sample events");
 
-                var sampleEvents = new Event[]
+                var sampleEvents = new EventSchedule[]
                 {
-                    new Event {
+                    new EventSchedule {
                     Title = "MS Word Orientation",
                     Start = DateTime.Parse("2025-06-01T09:00:00"),
                     End = DateTime.Parse("2025-06-01T12:00:00"),
@@ -241,7 +241,7 @@ namespace ITSL_Administration.Services
                     BackgroundColor = "#3788d8",
                     IsAllDay = false
                     },
-                    new Event {
+                    new EventSchedule {
                     Title = "MS Excel Orientation",
                     Start = DateTime.Parse("2025-06-02T09:00:00"),
                     End = DateTime.Parse("2025-06-02T12:00:00"),
@@ -249,7 +249,7 @@ namespace ITSL_Administration.Services
                     BackgroundColor = "#3788d8",
                     IsAllDay = false
                     },
-                     new Event {
+                     new EventSchedule {
                     Title = "MS Access Orientation",
                     Start = DateTime.Parse("2025-06-01T09:00:00"),
                     End = DateTime.Parse("2025-06-01T12:00:00"),
@@ -257,7 +257,7 @@ namespace ITSL_Administration.Services
                     BackgroundColor = "#3788d8",
                     IsAllDay = false
                     },
-                    new Event {
+                    new EventSchedule {
                     Title = "MS PowerPoint Orientation",
                     Start = DateTime.Parse("2025-05-28T09:00:00"),
                     End = DateTime.Parse("2025-05-29T12:00:00"),
@@ -276,6 +276,121 @@ namespace ITSL_Administration.Services
                     }
                 }
                 await context.SaveChangesAsync();
+
+                //logger.LogInformation("Seeding sample quiz questions");
+                //var quizQuestions = new QuizQuestion[]
+                //{
+                //    new QuizQuestion
+                //    {
+                //        QuestionText = "What is Microsoft Excel sheet?",
+                //        Options = new List<QuizOption>
+                //        {
+                //            new QuizOption()
+                //            {
+                //                OptionID= Guid.NewGuid().ToString(),
+                //                OptionText = "It's a digital spreadsheet application",
+                //                IsCorrect = true
+                //            },
+                //            new QuizOption()
+                //            {
+                //                OptionID= Guid.NewGuid().ToString(),
+                //                OptionText = "A type of paper sheet",
+
+                //            },
+                //            new QuizOption()
+                //            {
+                //                OptionID= Guid.NewGuid().ToString(),
+                //                OptionText = "I don't know",
+
+                //            },
+                //        }
+
+                //    },
+                //    new QuizQuestion
+                //    {
+                //        QuestionText = "What is a Microsoft Excel Cell?",
+                //        Options = new List<QuizOption>
+                //        {
+                //            new QuizOption()
+                //            {
+                //                OptionID = Guid.NewGuid().ToString(),
+                //                OptionText = "It's a single data point in a spreadsheet",
+                //                IsCorrect = true
+                //            },
+                //            new QuizOption()
+                //            {
+                //                    OptionID = Guid.NewGuid().ToString(),
+                //                    OptionText = "A type of animal",
+
+                //            },
+                //            new QuizOption()
+                //            {
+                //                        OptionID = Guid.NewGuid().ToString(),
+                //                        OptionText = "I don't know",
+
+                //            },
+                //        }
+
+                //    },
+                //    new QuizQuestion
+                //    {
+                //        QuestionText = "What is a Microsoft Excel Formula?",
+                //        Options = new List<QuizOption>
+                //        {
+                //            new QuizOption()
+                //            {
+                //                OptionID = Guid.NewGuid().ToString(),
+                //                OptionText = "It's a calculation performed on data in the spreadsheet",
+                //                IsCorrect = true
+                //            },
+                //            new QuizOption()
+                //            {
+                //                    OptionID = Guid.NewGuid().ToString(),
+                //                    OptionText = "A type of chemical formula"
+                //            },
+                //            new QuizOption()
+                //            {
+                //                        OptionID = Guid.NewGuid().ToString(),
+                //                        OptionText = "I don't know"
+                //            },
+                //        }
+                //    },
+                //    new QuizQuestion
+                //    {
+                //        QuestionText = "What is a Microsoft Excel Function?",
+                //        Options = new List<QuizOption>
+                //        {
+                //            new QuizOption()
+                //            {
+                //                OptionID = Guid.NewGuid().ToString(),
+                //                OptionText = "It's a predefined formula that performs a specific calculation",
+                //                IsCorrect = true
+                //            },
+                //            new QuizOption()
+                //            {
+                //                    OptionID = Guid.NewGuid().ToString(),
+                //                    OptionText = "A type of mathematical function",
+
+                //            },
+                //            new QuizOption()
+                //            {
+                //                        OptionID = Guid.NewGuid().ToString(),
+                //                        OptionText = "I don't know",
+                //            },
+                //        }
+                //    }
+                //};
+                //foreach (var question in quizQuestions)
+                //{
+                //    var correctOption = question.Options.FirstOrDefault(o => o.IsCorrect);
+                //    //question.CorrectAnswer = correctOption?.OptionText ?? string.Empty;
+                //    if (!context.QuizQuestions.Any(q => q.QuestionText == question.QuestionText))
+                //    {
+
+                //        context.QuizQuestions.Add(question);
+                //    }
+                //}
+                //await context.SaveChangesAsync();
             }
             catch (Exception ex)
             {

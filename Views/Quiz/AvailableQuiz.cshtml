@@ -1,0 +1,77 @@
+﻿@model IEnumerable<ITSL_Administration.Models.Quiz>
+
+@{
+    ViewData["Title"] = "Available Quizzes";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-list-ol text-primary me-2"></i>@ViewData["Title"]
+        </h2>
+        @if (User.IsInRole("Lecturer") || User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn btn-success">
+                <i class="fas fa-plus-circle me-2"></i>Create New Quiz
+            </a>
+        }
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Assignment.Title</td>
+                                    <td>@(string.IsNullOrEmpty(item.Assignment.Description) ? "No description" : item.Assignment.Description)</td>
+                                    <td>@item.Assignment.DueDate.ToString("g")</td>
+                                    <td>
+                                        <span class="badge @(item.Assignment.DueDate > DateTime.Now ? "bg-success" : "bg-secondary")">
+                                            @(item.Assignment.DueDate > DateTime.Now ? "Active" : "Expired")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="TakeQuiz" asp-route-quizId="@item.QuizID" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-play me-1"></i>Take
+                                            </a>
+                                            @if (User.IsInRole("Lecturer") || User.IsInRole("Admin"))
+                                            {
+                                                <a asp-action="EditQuiz" asp-route-id="@item.QuizID" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="fas fa-edit me-1"></i>Edit
+                                                </a>
+                                                <a asp-action="DeleteQuiz" asp-route-id="@item.QuizID" class="btn btn-sm btn-outline-danger">
+                                                    <i class="fas fa-trash-alt me-1"></i>Delete
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>No quizzes available at this time.
+                </div>
+            }
+        </div>
+    </div>
+</div>
