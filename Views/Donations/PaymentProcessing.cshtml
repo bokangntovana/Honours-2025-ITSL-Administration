@@ -43,13 +43,13 @@
     <script>
         // Check payment status every 5 seconds
         setInterval(function() {
-            fetch('@Url.Action("CheckPaymentStatus", new { donationId = Model.Id })')
+            fetch('@Url.Action("CheckPaymentStatus", new { donationId = Model.DonationId })')
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === "succeeded") {
-                        window.location.href = '@Url.Action("PaymentSuccess", new { donationId = Model.Id })';
+                        window.location.href = '@Url.Action("PaymentSuccess", new { donationId = Model.DonationId })';
                     } else if (data.status === "failed") {
-                        window.location.href = '@Url.Action("PaymentFailed", new { donationId = Model.Id })';
+                        window.location.href = '@Url.Action("PaymentFailed", new { donationId = Model.DonationId })';
                     }
                 });
         }, 5000);

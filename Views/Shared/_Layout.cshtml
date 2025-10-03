@@ -21,6 +21,8 @@
 
     <!-- FullCalendar (CDN) -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet" />
+    <!--chatbot styling-->
+    <link rel="stylesheet" href="~/css/chatbot.css" />
 
 </head>
 <body>
@@ -41,7 +43,7 @@
                         {
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">
+                                   data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-user-circle me-1"></i> @User.Identity.Name
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -75,6 +77,12 @@
                                 </a>
                             </li>
                         }
+                        <!--dark/light mode-->
+                        <li class="nav-item">
+                            <button id="themeToggle" class="btn btn-link text-decoration-none">
+                                <i id="themeIcon" class="fas fa-moon"></i>
+                            </button>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -85,14 +93,36 @@
             <ul class="nav flex-column">
                 @if (SignInManager.IsSignedIn(User))
                 {
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Home" asp-action="Index">
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a class="nav-link" asp-controller="Home" asp-action="AdminDashboard">
                             <i class="fa-solid fa-gauge"></i>
                             Dashboard
                         </a>
-                    </li>
+                    }
+                    @if (User.IsInRole("Lecturer"))
+                    {
+                        <a class="nav-link" asp-controller="Home" asp-action="LecturerDashboard">
+                            <i class="fa-solid fa-gauge"></i>
+                            Dashboard
+                        </a>
+                    }
+                    @if (User.IsInRole("Tutor"))
+                    {
+                        <a class="nav-link" asp-controller="Home" asp-action="TutorDashboard">
+                            <i class="fa-solid fa-gauge"></i>
+                            Dashboard
+                        </a>
+                    }
+                    @if (User.IsInRole("Participant"))
+                    {
+                        <a class="nav-link" asp-controller="Home" asp-action="ParticipantDashboard">
+                            <i class="fa-solid fa-gauge"></i>
+                            Dashboard
+                        </a>
+                    }
                 }
-                @if(User.IsInRole("Admin"))
+                @if (User.IsInRole("Admin"))
                 {
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Admin" asp-action="Index">
@@ -101,18 +131,12 @@
                         </a>
                     </li>
                 }
-                @if (User.IsInRole("Admin") || User.IsInRole("Lecturer"))
+                @* @if (User.IsInRole("Admin") || User.IsInRole("Lecturer"))
                 {
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Lecturer" asp-action="Index">
                             <i class="fas fa-chalkboard-teacher me-2"></i>
                             Lecturer
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Enrollment" asp-action="MyCourses">
-                            <i class="fas fa-user-plus me-2"></i>
-                            Enrollments
                         </a>
                     </li>
                 }
@@ -124,15 +148,15 @@
                             Tutor
                         </a>
                     </li>
-                }
-                @if (User.IsInRole("Admin")|| User.IsInRole("Tutor") || User.IsInRole("Lecturer") || User.IsInRole("Participant"))
+                } *@
+                @if (User.IsInRole("Admin") || User.IsInRole("Tutor") || User.IsInRole("Lecturer") || User.IsInRole("Participant"))
                 {
-                    <li class="nav-item">
+                    @*  <li class="nav-item">
                         <a class="nav-link" asp-controller="Participant" asp-action="Index">
                             <i class="fas fa-users me-2"></i>
                             Participant
                         </a>
-                    </li>
+                    </li> *@
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Courses" asp-action="Index">
                             <i class="fas fa-book-open me-2"></i>
@@ -145,12 +169,51 @@
                             Quizzes
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Grades" asp-action="Index">
-                            <i class="fa-solid fa-clipboard-check"></i>
-                            Grades
-                        </a>
-                    </li>
+
+                    <!-- Grade Management Links with Access Control -->
+                    @if (User.IsInRole("Lecturer") || User.IsInRole("Tutor") || User.IsInRole("Admin"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Grades" asp-action="GradingOverview">
+                                <i class="fas fa-clipboard-check me-2"></i>
+                                Grading Overview
+                            </a>
+                        </li>
+                    }
+
+                    @if (User.IsInRole("Participant"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Grades" asp-action="ParticipantGrades">
+                                <i class="fas fa-graduation-cap me-2"></i>
+                                My Grades
+                            </a>
+                        </li>
+                    }
+
+                    @if (User.IsInRole("Lecturer") || User.IsInRole("Tutor") || User.IsInRole("Admin"))
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="gradesDropdown" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                Grade Management
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="gradesDropdown">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Grades" asp-action="GradingOverview">
+                                        <i class="fas fa-tachometer-alt me-2"></i> Grading Overview
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Grades" asp-action="ExportGradebookPdf"
+                                       asp-route-courseId="" onclick="return alert('Please select a course from the grading overview to export gradebook.')">
+                                        <i class="fas fa-download me-2"></i> Export Gradebook
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    }
 
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="ClassesAndEvents" asp-action="Index">
@@ -159,6 +222,7 @@
                         </a>
                     </li>
                 }
+
                 @if (SignInManager.IsSignedIn(User))
                 {
                     <li class="nav-item">
@@ -185,12 +249,16 @@
             @RenderBody()
         </main>
     </div>
+    <!--Chatbot Partial-->
+    <partial name="_Chatbot" />
     <!-- FullCalendar (CDN) -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <!--Main JS scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/chatbot.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

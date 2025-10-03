@@ -163,7 +163,7 @@ namespace ITSL_Administration.Controllers
                     ReceiptEmail = model.Email,
                     Metadata = new Dictionary<string, string>
                     {
-                        { "DonationId", donation.Id.ToString() },
+                        { "DonationId", donation.DonationId.ToString() },
                         { "DonorId", user.Id }
                     }
                 };
@@ -178,7 +178,7 @@ namespace ITSL_Administration.Controllers
                 var confirmOptions = new PaymentIntentConfirmOptions
                 {
                     PaymentMethod = model.StripeToken,
-                    ReturnUrl = Url.Action("PaymentConfirmation", "Donations", new { donationId = donation.Id }, Request.Scheme)
+                    ReturnUrl = Url.Action("PaymentConfirmation", "Donations", new { donationId = donation.DonationId }, Request.Scheme)
                 };
 
                 var confirmedIntent = await service.ConfirmAsync(paymentIntent.Id, confirmOptions);
@@ -188,7 +188,7 @@ namespace ITSL_Administration.Controllers
                     return Redirect(confirmedIntent.NextAction.RedirectToUrl.Url);
                 }
 
-                return await HandlePaymentResult(confirmedIntent, donation.Id);
+                return await HandlePaymentResult(confirmedIntent, donation.DonationId);
             }
             catch (StripeException e)
             {
@@ -250,12 +250,12 @@ namespace ITSL_Administration.Controllers
                     await _context.SaveChangesAsync();
                     await _userManager.UpdateAsync(user);
 
-                    return RedirectToAction("PaymentSuccess", new { donationId = donation.Id });
+                    return RedirectToAction("PaymentSuccess", new { donationId = donation.DonationId });
 
                     await _context.SaveChangesAsync();
                     await _userManager.UpdateAsync(user);
 
-                    return RedirectToAction("PaymentSuccess", new { donationId = donation.Id });
+                    return RedirectToAction("PaymentSuccess", new { donationId = donation.DonationId });
 
                 case "processing":
                     donation.PaymentStatus = "processing";
@@ -276,7 +276,7 @@ namespace ITSL_Administration.Controllers
                 default:
                     donation.PaymentStatus = "failed";
                     await _context.SaveChangesAsync();
-                    return RedirectToAction("PaymentFailed", new { donationId = donation.Id });
+                    return RedirectToAction("PaymentFailed", new { donationId = donation.DonationId });
             }
         }
 
@@ -285,7 +285,7 @@ namespace ITSL_Administration.Controllers
         {
             var donation = await _context.Donations
                 .Include(d => d.Donor)
-                .FirstOrDefaultAsync(d => d.Id == donationId);
+                .FirstOrDefaultAsync(d => d.DonationId == donationId);
 
             if (donation == null)
             {
@@ -300,7 +300,7 @@ namespace ITSL_Administration.Controllers
         {
             var donation = await _context.Donations
                 .Include(d => d.Donor)
-                .FirstOrDefaultAsync(d => d.Id == donationId);
+                .FirstOrDefaultAsync(d => d.DonationId == donationId);
 
             if (donation == null)
             {
@@ -315,7 +315,7 @@ namespace ITSL_Administration.Controllers
         {
             var donation = await _context.Donations
                 .Include(d => d.Donor)
-                .FirstOrDefaultAsync(d => d.Id == donationId);
+                .FirstOrDefaultAsync(d => d.DonationId == donationId);
 
             if (donation == null)
             {

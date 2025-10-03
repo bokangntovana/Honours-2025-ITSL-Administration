@@ -1,21 +1,71 @@
 ﻿@{
     ViewData["Title"] = "Submit Assignment";
+    var dueDate = ViewBag.DueDate as DateTime?;
+    var isPastDue = dueDate.HasValue && dueDate.Value < DateTime.Now;
 }
 
 <div class="container mt-4">
-    <h2 class="text-primary mb-3"><i class="fas fa-upload"></i> Submit Assignment</h2>
-    <h5 class="text-muted">Assignment: @ViewBag.AssignmentTitle</h5>
-    <hr />
-
-    <form asp-action="Create" asp-route-assignmentId="@ViewBag.AssignmentId" method="post" enctype="multipart/form-data" class="bg-light p-4 rounded shadow-sm">
-        <div class="form-group mb-3">
-            <label for="files" class="form-label">Upload Submission Files</label>
-            <input type="file" name="files" multiple class="form-control" />
+    <div class="card">
+        <div class="card-header @(isPastDue ? "bg-warning text-dark" : "bg-primary text-white")">
+            <h2 class="mb-0"><i class="fas fa-upload"></i> Submit Assignment</h2>
         </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5 class="text-primary">@ViewBag.AssignmentTitle</h5>
+                    <p class="text-muted mb-1">Course: @ViewBag.CourseName</p>
+                    @if (dueDate.HasValue)
+                    {
+                        <p class="@(isPastDue ? "text-danger fw-bold" : "text-muted")">
+                            Due Date: @dueDate.Value.ToString("MMM dd, yyyy HH:mm")
+                            @if (isPastDue)
+                            {
+                                <span class="badge bg-danger ms-2">PAST DUE</span>
+                            }
+                        </p>
+                    }
+                </div>
+                <div class="col-md-6">
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle"></i> Submission Guidelines</h6>
+                        <ul class="mb-0 small">
+                            <li>You can upload multiple files</li>
+                            <li>Accepted file types: PDF, Word, Excel, Images, etc.</li>
+                            <li>You can only submit once per assignment</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
 
-        <button type="submit" class="btn btn-success"><i class="fas fa-paper-plane"></i> Submit</button>
-        <a asp-action="Index" asp-route-assignmentId="@ViewBag.AssignmentId" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back
-        </a>
-    </form>
+            <hr />
+
+            <form asp-action="Create" asp-route-assignmentId="@ViewBag.AssignmentId" method="post" enctype="multipart/form-data">
+                <div class="form-group mb-4">
+                    <label for="files" class="form-label fw-bold">Upload Your Submission Files *</label>
+                    <input type="file" name="files" id="files" multiple class="form-control" required />
+                    <div class="form-text">
+                        Select one or more files to upload. Hold Ctrl (Windows) or Command (Mac) to select multiple files.
+                    </div>
+                </div>
+
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-exclamation-triangle"></i> Important</h6>
+                    <p class="mb-0">
+                        Once submitted, you cannot make changes to your submission.
+                        Please ensure all files are correct before submitting.
+                    </p>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-paper-plane"></i> Submit Assignment
+                    </button>
+                    <a asp-action="Details" asp-controller="Assignment" asp-route-id="@ViewBag.AssignmentId"
+                       class="btn btn-secondary btn-lg">
+                        <i class="fas fa-arrow-left"></i> Back to Assignment
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

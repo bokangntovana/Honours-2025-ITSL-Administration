@@ -1,6 +1,7 @@
 ﻿using ITSL_Administration.Data;
 using ITSL_Administration.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace ITSL_Administration.Services
 {
@@ -196,13 +197,14 @@ namespace ITSL_Administration.Services
                 }
 
                 //Seed Courses
+                logger.LogInformation("Seeding courses");
                 var courses = new Course[]
                 {
                     new Course {
-                       CourseCode="MSDOCX101",
+                        CourseCode="MSDOCX101",
                         CourseName="Introduction to MS Word",
                         CourseCredits=10,
-                       CourseDescription="This module will serve to get participants up to speed with the basics of MS Word"
+                        CourseDescription="This module will serve to get participants up to speed with the basics of MS Word"
                     },
                     new Course {
                         CourseCode="MSXLSX101",
@@ -217,16 +219,24 @@ namespace ITSL_Administration.Services
                         CourseDescription="This module will serve to get participants up to speed with the basics of MS PowerPoint"
                     },
                 };
-                logger.LogInformation("Seeding courses");
+
                 //Check if courses already exist before seeding
                 foreach (Course _course in courses)
                 {
-                    if(!context.Courses.Any(c =>c.CourseCode == _course.CourseCode))
+                    var existingCourse = await context.Courses
+                        .FirstOrDefaultAsync(c => c.CourseCode == _course.CourseCode);
+
+                    if (existingCourse == null)
                     {
+                        logger.LogInformation("Adding course: {CourseCode}", _course.CourseCode);
                         context.Courses.Add(_course);
                     }
+                    else
+                    {
+                        logger.LogInformation("Course already exists: {CourseCode}", _course.CourseCode);
+                    }
                 }
-               await context.SaveChangesAsync();
+                await context.SaveChangesAsync();
 
                 //seeding events
                 logger.LogInformation("Seeding sample events");
@@ -277,120 +287,6 @@ namespace ITSL_Administration.Services
                 }
                 await context.SaveChangesAsync();
 
-                //logger.LogInformation("Seeding sample quiz questions");
-                //var quizQuestions = new QuizQuestion[]
-                //{
-                //    new QuizQuestion
-                //    {
-                //        QuestionText = "What is Microsoft Excel sheet?",
-                //        Options = new List<QuizOption>
-                //        {
-                //            new QuizOption()
-                //            {
-                //                OptionID= Guid.NewGuid().ToString(),
-                //                OptionText = "It's a digital spreadsheet application",
-                //                IsCorrect = true
-                //            },
-                //            new QuizOption()
-                //            {
-                //                OptionID= Guid.NewGuid().ToString(),
-                //                OptionText = "A type of paper sheet",
-
-                //            },
-                //            new QuizOption()
-                //            {
-                //                OptionID= Guid.NewGuid().ToString(),
-                //                OptionText = "I don't know",
-
-                //            },
-                //        }
-
-                //    },
-                //    new QuizQuestion
-                //    {
-                //        QuestionText = "What is a Microsoft Excel Cell?",
-                //        Options = new List<QuizOption>
-                //        {
-                //            new QuizOption()
-                //            {
-                //                OptionID = Guid.NewGuid().ToString(),
-                //                OptionText = "It's a single data point in a spreadsheet",
-                //                IsCorrect = true
-                //            },
-                //            new QuizOption()
-                //            {
-                //                    OptionID = Guid.NewGuid().ToString(),
-                //                    OptionText = "A type of animal",
-
-                //            },
-                //            new QuizOption()
-                //            {
-                //                        OptionID = Guid.NewGuid().ToString(),
-                //                        OptionText = "I don't know",
-
-                //            },
-                //        }
-
-                //    },
-                //    new QuizQuestion
-                //    {
-                //        QuestionText = "What is a Microsoft Excel Formula?",
-                //        Options = new List<QuizOption>
-                //        {
-                //            new QuizOption()
-                //            {
-                //                OptionID = Guid.NewGuid().ToString(),
-                //                OptionText = "It's a calculation performed on data in the spreadsheet",
-                //                IsCorrect = true
-                //            },
-                //            new QuizOption()
-                //            {
-                //                    OptionID = Guid.NewGuid().ToString(),
-                //                    OptionText = "A type of chemical formula"
-                //            },
-                //            new QuizOption()
-                //            {
-                //                        OptionID = Guid.NewGuid().ToString(),
-                //                        OptionText = "I don't know"
-                //            },
-                //        }
-                //    },
-                //    new QuizQuestion
-                //    {
-                //        QuestionText = "What is a Microsoft Excel Function?",
-                //        Options = new List<QuizOption>
-                //        {
-                //            new QuizOption()
-                //            {
-                //                OptionID = Guid.NewGuid().ToString(),
-                //                OptionText = "It's a predefined formula that performs a specific calculation",
-                //                IsCorrect = true
-                //            },
-                //            new QuizOption()
-                //            {
-                //                    OptionID = Guid.NewGuid().ToString(),
-                //                    OptionText = "A type of mathematical function",
-
-                //            },
-                //            new QuizOption()
-                //            {
-                //                        OptionID = Guid.NewGuid().ToString(),
-                //                        OptionText = "I don't know",
-                //            },
-                //        }
-                //    }
-                //};
-                //foreach (var question in quizQuestions)
-                //{
-                //    var correctOption = question.Options.FirstOrDefault(o => o.IsCorrect);
-                //    //question.CorrectAnswer = correctOption?.OptionText ?? string.Empty;
-                //    if (!context.QuizQuestions.Any(q => q.QuestionText == question.QuestionText))
-                //    {
-
-                //        context.QuizQuestions.Add(question);
-                //    }
-                //}
-                //await context.SaveChangesAsync();
             }
             catch (Exception ex)
             {

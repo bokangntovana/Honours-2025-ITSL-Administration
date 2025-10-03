@@ -1,0 +1,334 @@
+﻿@model ITSL_Administration.ViewModels.LecturerDashboardViewModel
+@{
+    ViewData["Title"] = "Lecturer Dashboard";
+}
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0 text-dark">
+                <i class="fas fa-chalkboard-teacher me-2 text-primary"></i>Lecturer Dashboard
+            </h1>
+            <p class="text-muted">Teaching overview and course management</p>
+        </div>
+    </div>
+
+    <!-- First Row - Key Metrics -->
+    <div class="row">
+        <!-- Participants Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Participants
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.ParticipantCount</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-graduate fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tutors Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Tutors
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TutorCount</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-tie fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Courses Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Active Courses
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.CourseCount</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-book fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Content Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Course Content
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalCourseContent</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-file-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Second Row - Assignment Metrics -->
+    <div class="row">
+        <!-- Total Assignments -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Assignments
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalAssignments</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tasks fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submitted Assignments -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Submitted
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.SubmittedAssignmentsCount</div>
+                            <div class="text-xs text-muted mt-1">@Model.RecentSubmissionsCount new this week</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-paper-plane fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Grading -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Pending Grading
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.PendingGradingCount</div>
+                            <div class="text-xs text-muted mt-1">@Model.OverdueAssignmentsCount overdue</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Grade -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Average Grade
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.AverageGrade.ToString("F1")%</div>
+                            <div class="text-xs text-muted mt-1">@Model.GradedParticipantsCount participants graded</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignment Types Breakdown -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-white py-3">
+                    <h5 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-pie me-2"></i>Assignment Types
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3 mb-3">
+                            <div class="text-primary">
+                                <i class="fas fa-file-alt fa-2x mb-2"></i>
+                                <h5>@Model.WrittenAssignmentsCount</h5>
+                                <small class="text-muted">Written Assignments</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="text-success">
+                                <i class="fas fa-project-diagram fa-2x mb-2"></i>
+                                <h5>@Model.ProjectAssignmentsCount</h5>
+                                <small class="text-muted">Projects</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="text-info">
+                                <i class="fas fa-question-circle fa-2x mb-2"></i>
+                                <h5>@Model.QuizAssignmentsCount</h5>
+                                <small class="text-muted">Quizzes</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="text-warning">
+                                <i class="fas fa-file-signature fa-2x mb-2"></i>
+                                <h5>@Model.ExaminationAssignmentsCount</h5>
+                                <small class="text-muted">Examinations</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course-wise Assignment Breakdown -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-list-alt me-2"></i>Assignments by Course
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.CourseAssignmentCounts.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Course</th>
+                                        <th>Assignments</th>
+                                        <th>Submitted</th>
+                                        <th>Graded</th>
+                                        <th>Pending</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var course in Model.CourseAssignmentCounts)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@course.CourseCode</strong><br>
+                                                <small class="text-muted">@course.CourseName</small>
+                                            </td>
+                                            <td>@course.AssignmentCount</td>
+                                            <td>@course.SubmittedCount</td>
+                                            <td>
+                                                <span class="text-success">@course.GradedCount</span>
+                                            </td>
+                                            <td>
+                                                @if (course.PendingGradingCount > 0)
+                                                {
+                                                    <span class="text-warning">@course.PendingGradingCount</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">@course.PendingGradingCount</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a asp-controller="Assignment" asp-action="ManageAssignment"
+                                                   asp-route-courseId="@course.CourseId"
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    Manage
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No assignments found for any courses.</p>
+                            <a asp-controller="Courses" asp-action="Index" class="btn btn-primary">
+                                View Courses
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-white py-3">
+                    <h5 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a asp-controller="Courses" asp-action="Index" class="btn btn-primary btn-block">
+                                <i class="fas fa-book me-2"></i>Manage Courses
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a asp-controller="Assignment" asp-action="Create" class="btn btn-success btn-block">
+                                <i class="fas fa-plus me-2"></i>Create Assignment
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a asp-controller="Grades" asp-action="GradingOverview" class="btn btn-info btn-block">
+                                <i class="fas fa-clipboard-check me-2"></i>Grade Assignments
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a asp-controller="Courses" asp-action="UploadContent" class="btn btn-warning btn-block">
+                                <i class="fas fa-upload me-2"></i>Upload Content
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

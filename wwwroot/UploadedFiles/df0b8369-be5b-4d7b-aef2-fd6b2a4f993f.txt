@@ -1,0 +1,39 @@
+Additions for this commit
+------------------------------------------------
+Add pagination, 
+redo register page,
+add about,
+add payment gate,
+add smtp for email comms
+-------------------------------------------------
+
+------------------------------------------------- 
+CRUD for full calendar still not working on client side, backlog
+-------------------------------------------------
+
+-------------------------------------------------
+view list of emails from website.
+add recipient select for CC
+add course content: upload from device
+add edit for admin view
+add pagination for all current list views
+add pdf generator
+add email templates for events, courses, registration ,submissions ,reminders, receipts for payments (I think this can be done by Stripe)
+Redesign Course, Enrollment, Quiz and Assignment workflow.
+-------------------------------------------------
+
+Quiz Functions
+------------------------------------------------------------------------
+Fix the delete quiz and edit quiz button.
+Fix the save operation on questions button.
+Fix the save operation on options.
+Fix the delete operation on options
+Fix the authorisation on Quiz Operations
+Fix the relationship model of the database 
+						: Course>Assignment>Quiz>Submission>Grade
+						: Course>Assignment>Upload Type>Submission>Grade
+						: Grade --> View All submissions and their mark
+						: Enrollment> Courses> Users > Enrollment Status>
+Users must enroll for a course before they can get access to the courses page to access content
+For Grades , we will add a PDF generator with all the relevant fields. 
+-----------------------------------------------------------------------------

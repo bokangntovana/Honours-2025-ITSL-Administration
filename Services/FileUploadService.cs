@@ -1,5 +1,4 @@
-﻿
-using ITSL_Administration.Data;
+﻿using ITSL_Administration.Data;
 using ITSL_Administration.Models;
 using ITSL_Administration.Services.Interfaces;
 
@@ -14,13 +13,13 @@ namespace ITSL_Administration.Services
 
         private readonly string[] _permittedExtensions =
         {
-        ".pdf", ".ppt", ".pptx", ".doc", ".docx",
-        ".xls", ".xlsx", ".mp4", ".mp3",".mov", ".jpg",
-        ".jpeg", ".png", ".txt", ".zip", ".rar",
-        ".cpp", ".java", ".py"
-    };
+            ".pdf", ".ppt", ".pptx", ".doc", ".docx",
+            ".xls", ".xlsx", ".mp4", ".mp3",".mov", ".jpg",
+            ".jpeg", ".png", ".txt", ".zip", ".rar",
+            ".cpp", ".java", ".py"
+        };
 
-        private const long _maxFileSize = 10 * 1024 * 1024;
+      //  private const long _maxFileSize = 10 * 1024 * 1024;
 
         public FileUploadService(AppDbContext context, IWebHostEnvironment environment, ILogger<FileUploadService> logger)
         {
@@ -28,7 +27,8 @@ namespace ITSL_Administration.Services
             _environment = environment;
             _logger = logger;
 
-            _uploadBasePath = Path.Combine(_environment.ContentRootPath, "UploadedFiles");
+            // CHANGED: Use WebRootPath instead of ContentRootPath
+            _uploadBasePath = Path.Combine(_environment.WebRootPath, "UploadedFiles");
 
             if (!Directory.Exists(_uploadBasePath))
             {
@@ -43,9 +43,9 @@ namespace ITSL_Administration.Services
                 if (file == null || file.Length == 0)
                     throw new ArgumentException("No file uploaded or file is empty.");
 
-                if (file.Length > _maxFileSize)
-                    throw new ArgumentException(
-                        $"File size exceeds the maximum limit of {_maxFileSize / (1024 * 1024)}MB.");
+                //if (file.Length > _maxFileSize)
+                //    throw new ArgumentException(
+                //        $"File size exceeds the maximum limit of {_maxFileSize / (1024 * 1024)}MB.");
 
                 var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
                 if (string.IsNullOrEmpty(fileExtension) || !_permittedExtensions.Contains(fileExtension))
@@ -53,7 +53,6 @@ namespace ITSL_Administration.Services
                     var allowedExtensions = string.Join(", ", _permittedExtensions);
                     throw new ArgumentException($"File type not permitted. Allowed types: {allowedExtensions}");
                 }
-
 
                 var user = await _context.Users.FindAsync(userId);
                 if (user == null)
@@ -72,7 +71,7 @@ namespace ITSL_Administration.Services
                 {
                     FileId = fileId,
                     FileName = file.FileName,
-                    FilePath = $"/UploadedFiles/{storedFileName}",
+                    FilePath = $"/UploadedFiles/{storedFileName}", // This will now be accessible via web URL
                     StoredFilePath = storedFilePath,
                     FileSize = file.Length,
                     ContentType = contentType,
@@ -91,7 +90,6 @@ namespace ITSL_Administration.Services
                 throw;
             }
         }
-
 
         public async Task<Stream> DownloadFileAsync(string fileId)
         {

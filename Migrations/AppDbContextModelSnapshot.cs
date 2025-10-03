@@ -71,8 +71,8 @@ namespace ITSL_Administration.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CourseCode")
-                        .HasMaxLength(8)
-                        .HasColumnType("nvarchar(8)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<int>("CourseCredits")
                         .HasColumnType("int");
@@ -95,18 +95,15 @@ namespace ITSL_Administration.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CourseId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FileId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UploadDate")
@@ -123,11 +120,11 @@ namespace ITSL_Administration.Migrations
 
             modelBuilder.Entity("ITSL_Administration.Models.Donation", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("DonationId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DonationId"));
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
@@ -140,7 +137,6 @@ namespace ITSL_Administration.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DonorId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("PaymentStatus")
@@ -156,7 +152,7 @@ namespace ITSL_Administration.Migrations
                     b.Property<string>("StripePaymentIntentId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("DonationId");
 
                     b.HasIndex("DonorId");
 
@@ -171,6 +167,12 @@ namespace ITSL_Administration.Migrations
                     b.Property<string>("CourseId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime>("EnrollmentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
@@ -181,7 +183,7 @@ namespace ITSL_Administration.Migrations
                     b.ToTable("Enrollments");
                 });
 
-            modelBuilder.Entity("ITSL_Administration.Models.Event", b =>
+            modelBuilder.Entity("ITSL_Administration.Models.EventSchedule", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -190,11 +192,9 @@ namespace ITSL_Administration.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("BackgroundColor")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -631,15 +631,11 @@ namespace ITSL_Administration.Migrations
                 {
                     b.HasOne("ITSL_Administration.Models.Course", "Course")
                         .WithMany("Contents")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CourseId");
 
                     b.HasOne("ITSL_Administration.Models.UploadedFile", "File")
                         .WithMany()
-                        .HasForeignKey("FileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FileId");
 
                     b.Navigation("Course");
 
@@ -650,9 +646,7 @@ namespace ITSL_Administration.Migrations
                 {
                     b.HasOne("ITSL_Administration.Models.User", "Donor")
                         .WithMany()
-                        .HasForeignKey("DonorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DonorId");
 
                     b.Navigation("Donor");
                 });

@@ -30,8 +30,4 @@
     <PackageReference Include="Stripe.net" Version="48.2.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="UploadedFiles\" />
-  </ItemGroup>
-
 </Project>

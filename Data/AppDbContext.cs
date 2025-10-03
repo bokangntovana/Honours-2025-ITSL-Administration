@@ -16,34 +16,18 @@ namespace ITSL_Administration.Data
         public DbSet<Course> Courses { get; set; }
         public DbSet<CourseContent> CourseContents { get; set; }
         public DbSet<Assignment> Assignments { get; set; }
-        public DbSet<Models.EventSchedule> Events { get; set; }
+        public DbSet<EventSchedule> Events { get; set; }
         public DbSet<Quiz> Quizzes { get; set; }
         public DbSet<Donation> Donations { get; set; }
         public DbSet<QuizQuestion> QuizQuestions { get; set; }
         public DbSet<QuizOption> QuizOptions { get; set; }
         public DbSet<Submission> Submissions { get; set; }
         public DbSet<Grade> Grades { get; set; }
-        public DbSet<Enrollment> Enrollments { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            // Enrollment Configuration
-            modelBuilder.Entity<Enrollment>(e =>
-            {
-                e.HasKey(x => new { x.UserId, x.CourseId });
-
-                e.HasOne(x => x.User)
-                 .WithMany(u => u.Enrollments)
-                 .HasForeignKey(x => x.UserId)
-                 .OnDelete(DeleteBehavior.Cascade);
-
-                e.HasOne(x => x.Course)
-                 .WithMany(c => c.Enrollments)
-                 .HasForeignKey(x => x.CourseId)
-                 .OnDelete(DeleteBehavior.Cascade);
-            });
 
             // Assignment Configuration
             modelBuilder.Entity<Assignment>(a =>

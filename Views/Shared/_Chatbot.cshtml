@@ -1,0 +1,52 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using ITSL_Administration.ViewModels
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+@{
+    var user = UserManager.GetUserAsync(User).Result;
+    var roles = user != null ? UserManager.GetRolesAsync(user).Result : new List<string>();
+}
+
+<div id="chatbot-helper">
+    <div id="chatbot-toggle">
+        <i class="fas fa-comments"></i>
+    </div>
+    <div id="chatbot-window" class="hidden">
+        <div id="chatbot-header">
+            <span>Need Help?</span>
+            <button id="chatbot-close">×</button>
+        </div>
+        <div id="chatbot-body">
+            <p>Quick Navigation:</p>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/Account/About">Learn More About ITSL</a></li>
+                <li><a href="/Donations/Donations">Donate</a></li>
+                <li><a href="/Donations/RegisterDonor">Become a Donor</a></li>
+                <li><a href="/Donations/Payment">Make Payment</a></li>
+                <li><a href="/Courses/Index">Courses</a></li>
+                <li><a href="/Assignment/ManageAssignment?courseId=1">Assignments</a></li>
+                <li><a href="/Grades/ParticipantGrades">My Grades</a></li>
+                <li><a href="/Quiz/AvailableQuiz">Quizzes</a></li>
+                <li><a href="/ClassesAndEvents/Index">Classes & Events</a></li>
+                <li><a href="/Email/SendEmail">Messages</a></li>
+            </ul>
+
+            @if (SignInManager.IsSignedIn(User))
+            {
+                <form asp-controller="Account" asp-action="Logout" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-link p-0">
+                        Logout
+                    </button>
+                </form>
+            }
+            else
+            {
+                <li><a href="/Account/Login">Login</a></li>
+                <li><a href="/Account/Register">Register</a></li>
+            }
+        </div>
+    </div>
+</div>

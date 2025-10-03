@@ -1,33 +1,138 @@
-﻿@model ITSL_Administration.Models.Grade
-
+﻿@model ITSL_Administration.ViewModels.GradeCreateViewModel
 @{
     ViewData["Title"] = "Edit Grade";
+    var currentPercentage = Model.Grade.AssignmentMark / Model.Submission.Assignment.SetAssignmentMark * 100;
 }
 
 <div class="container mt-4">
-    <h2 class="text-primary"><i class="fas fa-edit"></i> Edit Grade</h2>
-    <hr />
-
-    <form asp-action="Edit" method="post">
-        <input type="hidden" asp-for="GradeID" />
-        <input type="hidden" asp-for="AssignmentId" />
-        <input type="hidden" asp-for="SubmissionId" />
-
-        <div class="form-group mb-3">
-            <label asp-for="AssignmentMark"></label>
-            <input asp-for="AssignmentMark" class="form-control" />
-            <span asp-validation-for="AssignmentMark" class="text-danger"></span>
+    <div class="card">
+        <div class="card-header bg-warning text-dark">
+            <h2 class="mb-0"><i class="fas fa-edit"></i> Edit Grade</h2>
         </div>
+        <div class="card-body">
+            <div class="alert alert-info mb-4">
+                <div class="row">
+                    <div class="col-md-4">
+                        <strong><i class="fas fa-user"></i> Participant:</strong><br>
+                        @Model.Submission.Participant?.FullName
+                    </div>
+                    <div class="col-md-4">
+                        <strong><i class="fas fa-clipboard-list"></i> Assignment:</strong><br>
+                        @Model.Submission.Assignment?.Title
+                    </div>
+                    <div class="col-md-4">
+                        <strong><i class="fas fa-calendar"></i> Originally Graded:</strong><br>
+                        @Model.Grade.DateRecorded.ToString("dd MMM yyyy") by @Model.Grade.MarkedBy
+                    </div>
+                </div>
+            </div>
 
-        <div class="form-group mb-3">
-            <label asp-for="GradesFeedback"></label>
-            <textarea asp-for="GradesFeedback" class="form-control"></textarea>
-            <span asp-validation-for="GradesFeedback" class="text-danger"></span>
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="Grade.GradeID" />
+                <input type="hidden" asp-for="Grade.AssignmentId" />
+                <input type="hidden" asp-for="Grade.SubmissionId" />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Grade.AssignmentMark" class="form-label fw-bold">Assignment Mark *</label>
+                            <input asp-for="Grade.AssignmentMark" class="form-control"
+                                   min="0" max="@Model.Submission.Assignment?.SetAssignmentMark"
+                                   step="0.1" />
+                            <span asp-validation-for="Grade.AssignmentMark" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                Current: @Model.Grade.AssignmentMark/@Model.Submission.Assignment?.SetAssignmentMark (@currentPercentage.ToString("F1")%)
+                            </small>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <h6><i class="fas fa-calculator"></i> Current Status</h6>
+                            <p class="mb-1">
+                                <strong>Pass/Fail:</strong>
+                                <span class="badge @(Model.Grade.HasPassed ? "bg-success" : "bg-danger")">
+                                    @(Model.Grade.HasPassed ? "PASS" : "FAIL")
+                                </span>
+                            </p>
+                            <p class="mb-0"><strong>New Status:</strong> <span id="newStatus">@(Model.Grade.HasPassed ? "PASS" : "FAIL")</span></p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Grade.GradesFeedback" class="form-label fw-bold">Feedback</label>
+                            <textarea asp-for="Grade.GradesFeedback" class="form-control" rows="5"
+                                      placeholder="Provide constructive feedback for the participant..."></textarea>
+                            <span asp-validation-for="Grade.GradesFeedback" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                <span id="feedbackCount">@(Model.Grade.GradesFeedback?.Length ?? 0)</span>/500 characters
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-exclamation-triangle"></i> Update Information</h6>
+                        <p class="mb-1"><strong>Updated by:</strong> @User.Identity?.Name</p>
+                        <p class="mb-0"><strong>Update date:</strong> @DateTime.Now.ToString("dd MMM yyyy HH:mm")</p>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save"></i> Update Grade
+                    </button>
+                    <a asp-action="Details" asp-route-id="@Model.Grade.GradeID" class="btn btn-info btn-lg">
+                        <i class="fas fa-eye"></i> View Details
+                    </a>
+                    <a asp-controller="Assignment" asp-action="ManageSubmissions" asp-route-id="@Model.Grade.AssignmentId"
+                       class="btn btn-secondary btn-lg">
+                        <i class="fas fa-arrow-left"></i> Back to Submissions
+                    </a>
+                </div>
+            </form>
         </div>
-
-        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Update Grade</button>
-        <a asp-controller="Assignment" asp-action="ManageSubmissions" asp-route-id="@Model.AssignmentId" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Cancel
-        </a>
-    </form>
+    </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Real-time calculations
+        const assignmentMarkInput = document.getElementById('Grade_AssignmentMark');
+        const feedbackTextarea = document.getElementById('Grade_GradesFeedback');
+        const newStatusSpan = document.getElementById('newStatus');
+        const feedbackCountSpan = document.getElementById('feedbackCount');
+        const maxMarks = @Model.Submission.Assignment?.SetAssignmentMark;
+
+        assignmentMarkInput.addEventListener('input', function() {
+            const mark = parseFloat(this.value) || 0;
+            const status = mark >= 50 ? 'PASS' : 'FAIL';
+            const statusClass = mark >= 50 ? 'text-success fw-bold' : 'text-danger fw-bold';
+
+            newStatusSpan.innerHTML = `<span class="${statusClass}">${status}</span>`;
+
+            if (mark > maxMarks) {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+            }
+        });
+
+        feedbackTextarea.addEventListener('input', function() {
+            const count = this.value.length;
+            feedbackCountSpan.textContent = count;
+
+            if (count > 500) {
+                this.classList.add('is-invalid');
+                feedbackCountSpan.classList.add('text-danger');
+            } else {
+                this.classList.remove('is-invalid');
+                feedbackCountSpan.classList.remove('text-danger');
+            }
+        });
+    </script>
+}

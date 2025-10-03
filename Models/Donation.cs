@@ -1,16 +1,17 @@
 ﻿// Models/Donation.cs
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ITSL_Administration.Models
 {
     public class Donation
     {
         [Key]
-        public int Id { get; set; }
+        public int DonationId { get; set; }
 
-        [Required]
-        public string DonorId { get; set; }
+        
+        public string? DonorId { get; set; }
 
         [Required]
         public decimal Amount { get; set; }
@@ -30,6 +31,7 @@ namespace ITSL_Administration.Models
         public string? ReceiptUrl { get; set; } = string.Empty;
 
         // Navigation property
+        [ForeignKey("DonorId")]
         public virtual User Donor { get; set; }
     }
 }

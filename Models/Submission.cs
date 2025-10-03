@@ -9,9 +9,9 @@ namespace ITSL_Administration.Models
         public string SubmissionID { get; set; } = Guid.NewGuid().ToString();
 
         public DateTime DateSubmitted { get; set; } = DateTime.Now;
-       
+
         public string ParticipantId { get; set; } = string.Empty;
-        
+
         public string AssignmentId { get; set; } = string.Empty;
 
         //Navigation properties
@@ -22,7 +22,7 @@ namespace ITSL_Administration.Models
         [InverseProperty("Submission")]
         public Grade? Grade { get; set; }
         [ForeignKey("ParticipantId")]
-        public User? Participant { get; set; } 
+        public User? Participant { get; set; }
         // The files submitted for the assignment
         public ICollection<UploadedFile> Files { get; set; } = new List<UploadedFile>();
     }

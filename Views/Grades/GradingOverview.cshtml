@@ -1,0 +1,101 @@
+﻿@model IEnumerable<ITSL_Administration.Models.Course>
+@using ITSL_Administration.Models
+
+@{
+    ViewData["Title"] = "Grading Overview";
+}
+
+<div class="container mt-4">
+    <h2><i class="fas fa-tachometer-alt"></i> Grading Overview</h2>
+    <p class="text-muted">Overview of courses you're teaching and their grading status</p>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <h4>No courses assigned</h4>
+            <p>You are not currently assigned as a lecturer or tutor for any courses.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var course in Model.OrderBy(c => c.CourseName))
+            {
+                var totalAssignments = course.Assignments.Count;
+                var totalSubmissions = course.Assignments.Sum(a => a.Submissions.Count);
+                var totalGraded = course.Assignments.Sum(a => a.Submissions.Count(s => s.Grade != null));
+                var gradingProgress = totalSubmissions > 0 ? (totalGraded * 100 / totalSubmissions) : 0;
+
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">@course.CourseName</h5>
+                            <small>@course.CourseCode</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <small class="text-muted">Assignments</small>
+                                    <h4>@totalAssignments</h4>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Submissions</small>
+                                    <h4>@totalSubmissions</h4>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <small class="text-muted">Grading Progress</small>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar @(gradingProgress == 100 ? "bg-success" : "bg-warning")"
+                                         role="progressbar"
+                                         style="width: @gradingProgress%;"
+                                         aria-valuenow="@gradingProgress"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100">
+                                        @gradingProgress%
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Assignment Breakdown -->
+                            <div class="assignment-breakdown">
+                                @foreach (var assignment in course.Assignments.OrderBy(a => a.DueDate))
+                                {
+                                    var assignmentGraded = assignment.Submissions.Count(s => s.Grade != null);
+                                    var assignmentTotal = assignment.Submissions.Count;
+                                    var assignmentProgress = assignmentTotal > 0 ? (assignmentGraded * 100 / assignmentTotal) : 0;
+
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div>
+                                            <small class="fw-bold">@assignment.Title</small>
+                                            <br />
+                                            <small class="text-muted">Due: @assignment.DueDate.ToString("dd MMM")</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <small>@assignmentGraded/@assignmentTotal graded</small>
+                                            <br />
+                                            <span class="badge @(assignmentProgress == 100 ? "bg-success" : "bg-warning")">
+                                                @assignmentProgress%
+                                            </span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="@Url.Action("ManageGrades", "Grades", new { courseId = course.CourseID })"
+                               class="btn btn-primary btn-sm">
+                                <i class="fas fa-tasks"></i> Manage Grades
+                            </a>
+                            <a href="@Url.Action("ExportGradebookPdf", "Grades", new { courseId = course.CourseID })"
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-download"></i> Export
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

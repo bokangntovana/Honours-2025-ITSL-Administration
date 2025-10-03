@@ -21,8 +21,5 @@ namespace ITSL_Administration.Models
 
         public string CampusName { get; set; } = string.Empty;
 
-        // Navigation property
-        public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
-
     }
 }

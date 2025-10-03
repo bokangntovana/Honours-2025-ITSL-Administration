@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ITSL_Administration.Controllers
 {
-    
+    [Authorize]
     public class CoursesController : Controller
     {
         private readonly AppDbContext _context;
@@ -19,10 +19,9 @@ namespace ITSL_Administration.Controllers
         private readonly IFileUploadService _fileUploadService;
         private readonly UserManager<User> _userManager;
 
-
-        public CoursesController(AppDbContext context, 
+        public CoursesController(AppDbContext context,
             ILogger<CoursesController> logger,
-             IFileUploadService fileUploadService, 
+             IFileUploadService fileUploadService,
              UserManager<User> userManager)
         {
             _context = context;
@@ -35,6 +34,9 @@ namespace ITSL_Administration.Controllers
         public async Task<IActionResult> Index(string searchString, string filterField)
         {
             var courses = _context.Courses.AsQueryable();
+
+            // REMOVED: Enrollment filtering for non-admin users
+            // All authenticated users can see all courses now
 
             if (!string.IsNullOrEmpty(searchString))
             {
@@ -61,20 +63,26 @@ namespace ITSL_Administration.Controllers
         }
 
         // GET: Courses/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(string id)
         {
             if (id == null)
                 return NotFound();
 
-            var course = await _context.Courses.FirstOrDefaultAsync(c => c.CourseID == id);
+            var course = await _context.Courses
+                .FirstOrDefaultAsync(c => c.CourseID == id);
 
             if (course == null)
                 return NotFound();
+
+            // REMOVED: Enrollment-based access check
+            // All authenticated users can view course details now
 
             return View(course);
         }
 
         // GET: Courses/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -83,6 +91,7 @@ namespace ITSL_Administration.Controllers
         // POST: Courses/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("CourseCode,CourseName,CourseCredits,CourseDescription")] Course course)
         {
             try
@@ -104,6 +113,7 @@ namespace ITSL_Administration.Controllers
         }
 
         // GET: Courses/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
@@ -119,6 +129,7 @@ namespace ITSL_Administration.Controllers
         // POST: Courses/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(string id, [Bind("CourseID,CourseCode,CourseName,CourseCredits,CourseDescription")] Course course)
         {
             if (id != course.CourseID)
@@ -152,6 +163,7 @@ namespace ITSL_Administration.Controllers
         }
 
         // GET: Courses/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
@@ -165,32 +177,12 @@ namespace ITSL_Administration.Controllers
             return View(course);
         }
 
-        // POST: Courses/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
-        {
-            try
-            {
-                var course = await _context.Courses.FindAsync(id);
-                if (course != null)
-                {
-                    _context.Courses.Remove(course);
-                    await _context.SaveChangesAsync();
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting course");
-                ModelState.AddModelError("", "An error occurred while deleting. Please try again.");
-                return View("Delete", await _context.Courses.FindAsync(id));
-            }
-        }
-
-        // GET: Courses/ContentList/{id}
+        [Authorize]
         public async Task<IActionResult> ContentList(string id)
         {
+            // REMOVED: Enrollment-based access check
+            // All authenticated users can access content now
+
             var course = await _context.Courses
                 .Include(c => c.Contents)
                 .ThenInclude(c => c.File)
@@ -203,8 +195,16 @@ namespace ITSL_Administration.Controllers
         }
 
         // GET: Courses/UploadContent/{id}
+        [Authorize(Roles = "Lecturer,Admin")]
         public async Task<IActionResult> UploadContent(string id)
         {
+            // Simplified role check
+            if (!User.IsInRole("Lecturer") && !User.IsInRole("Admin"))
+            {
+                TempData["ErrorMessage"] = "Only course lecturers can upload content.";
+                return RedirectToAction("ContentList", new { id });
+            }
+
             var course = await _context.Courses.FindAsync(id);
             if (course == null)
                 return NotFound();
@@ -218,24 +218,52 @@ namespace ITSL_Administration.Controllers
             return View(vm);
         }
 
-        // POST: Courses/UploadContent
+        // POST: Courses/UploadContent/{id}
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UploadContent(UploadContentViewModel model)
+        [Authorize(Roles = "Lecturer,Admin")]
+        public async Task<IActionResult> UploadContent(string id, UploadContentViewModel model)
         {
+            _logger.LogInformation($"UploadContent POST called. ID: {id}, ModelState: {ModelState.IsValid}");
+
+            // Simplified role check
+            if (!User.IsInRole("Lecturer") && !User.IsInRole("Admin"))
+            {
+                TempData["ErrorMessage"] = "Only course lecturers can upload content.";
+                return RedirectToAction("ContentList", new { id });
+            }
+
             if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("ModelState is invalid. Errors:");
+                foreach (var key in ModelState.Keys)
+                {
+                    var state = ModelState[key];
+                    foreach (var error in state.Errors)
+                    {
+                        _logger.LogWarning($"- {key}: {error.ErrorMessage}");
+                    }
+                }
+
+                var course = await _context.Courses.FindAsync(model.CourseId);
+                if (course != null)
+                {
+                    model.CourseName = course.CourseName ?? "Unknown Course";
+                }
                 return View(model);
+            }
 
             try
             {
                 var userId = _userManager.GetUserId(User);
                 if (userId == null)
                 {
-                    TempData["ErrorMessage"] = "You must be logged in to upload content.";
-                    return RedirectToAction("ContentList", new { id = model.CourseId });
+                    ModelState.AddModelError("", "You must be logged in to upload content.");
+                    var course = await _context.Courses.FindAsync(model.CourseId);
+                    if (course != null) model.CourseName = course.CourseName;
+                    return View(model);
                 }
 
-                // Use FileUploadService
                 var uploadedFile = await _fileUploadService.UploadFileAsync(
                     model.File, FileContentType.CourseContent, userId);
 
@@ -256,26 +284,70 @@ namespace ITSL_Administration.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error uploading course content");
-                TempData["ErrorMessage"] = "An error occurred while uploading. Please try again.";
-                return RedirectToAction("ContentList", new { id = model.CourseId });
+                ModelState.AddModelError("", "An error occurred while uploading. Please try again.");
+
+                var course = await _context.Courses.FindAsync(model.CourseId);
+                if (course != null) model.CourseName = course.CourseName;
+
+                return View(model);
             }
         }
 
         // GET: Courses/DownloadContent/{id}
+        [Authorize]
         public async Task<IActionResult> DownloadContent(string id)
         {
-            var content = await _context.CourseContents
-                .Include(c => c.File)
-                .FirstOrDefaultAsync(c => c.Id == id);
+            try
+            {
+                var content = await _context.CourseContents
+                    .Include(c => c.File)
+                    .Include(c => c.Course)
+                    .FirstOrDefaultAsync(c => c.Id == id);
 
-            if (content == null)
-                return NotFound();
+                if (content?.File == null)
+                    return NotFound();
 
-            var stream = await _fileUploadService.DownloadFileAsync(content.FileId);
-            return File(stream, "application/octet-stream", content.File.FileName);
+                // REMOVED: Enrollment-based access check
+                // All authenticated users can download content now
+
+                var stream = await _fileUploadService.DownloadFileAsync(content.FileId);
+
+                var contentType = GetContentType(content.File.FileName);
+                return File(stream, contentType, content.File.FileName);
+            }
+            catch (FileNotFoundException)
+            {
+                TempData["ErrorMessage"] = "File not found on server.";
+                return RedirectToAction("ContentList");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error downloading content");
+                TempData["ErrorMessage"] = "Error downloading file.";
+                return RedirectToAction("ContentList");
+            }
         }
 
-
+        private string GetContentType(string fileName)
+        {
+            var extension = Path.GetExtension(fileName).ToLowerInvariant();
+            return extension switch
+            {
+                ".pdf" => "application/pdf",
+                ".doc" => "application/msword",
+                ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                ".xls" => "application/vnd.ms-excel",
+                ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                ".ppt" => "application/vnd.ms-powerpoint",
+                ".pptx" => "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".mp4" => "video/mp4",
+                ".mp3" => "audio/mpeg",
+                ".zip" => "application/zip",
+                _ => "application/octet-stream"
+            };
+        }
 
         private bool CourseExists(string id)
         {

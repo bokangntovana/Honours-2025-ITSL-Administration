@@ -1,0 +1,316 @@
+﻿@model ITSL_Administration.ViewModels.TutorDashboardViewModel
+@{
+    ViewData["Title"] = "Tutor Dashboard";
+}
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0 text-dark">
+                <i class="fas fa-user-tie me-2 text-primary"></i>Tutor Dashboard
+            </h1>
+            <p class="text-muted">Student support and assignment grading overview</p>
+        </div>
+    </div>
+
+    <!-- First Row - Key Metrics -->
+    <div class="row">
+        <!-- Participants Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Participants
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.ParticipantCount</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-graduate fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assignments to Grade -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                To Grade
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.AssignmentsToGrade</div>
+                            <div class="text-xs text-muted mt-1">@Model.NewSubmissionsToday new today</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graded Count -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Graded by You
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalGradedByTutor</div>
+                            <div class="text-xs text-muted mt-1">@Model.RecentlyGradedCount this week</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Grade -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Your Average Grade
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.AverageGradeGiven.ToString("F1")%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Second Row - Submission Metrics -->
+    <div class="row">
+        <!-- Total Submissions -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Submissions
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalSubmissions</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-paper-plane fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- On Time Submissions -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                On Time
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.OnTimeSubmissions</div>
+                            <div class="text-xs text-success mt-1">
+                                @((Model.TotalSubmissions > 0 ? (Model.OnTimeSubmissions * 100.0 / Model.TotalSubmissions) : 0).ToString("F1"))%
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Late Submissions -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Late Submissions
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.LateSubmissions</div>
+                            <div class="text-xs text-muted mt-1">
+                                @((Model.TotalSubmissions > 0 ? (Model.LateSubmissions * 100.0 / Model.TotalSubmissions) : 0).ToString("F1"))%
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Deadlines -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Upcoming Deadlines
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.UpcomingDeadlines</div>
+                            <div class="text-xs text-muted mt-1">Next 7 days</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Overview for Tutors -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-list-ol me-2"></i>Course Overview
+                    </h5>
+                    <span class="badge bg-primary">@Model.ActiveCoursesWithAssignments Active Courses</span>
+                </div>
+                <div class="card-body">
+                    @if (Model.CourseOverviews.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Course</th>
+                                        <th>Assignments</th>
+                                        <th>Participants</th>
+                                        <th>Submissions</th>
+                                        <th>To Grade</th>
+                                        <th>Graded</th>
+                                        <th>Progress</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var course in Model.CourseOverviews)
+                                    {
+                                        var progress = course.TotalSubmissions > 0 ? (course.GradedSubmissions * 100.0 / course.TotalSubmissions) : 0;
+                                        <tr>
+                                            <td>
+                                                <strong>@course.CourseCode</strong><br>
+                                                <small class="text-muted">@course.CourseName</small>
+                                            </td>
+                                            <td>@course.AssignmentCount</td>
+                                            <td>@course.ParticipantCount</td>
+                                            <td>@course.TotalSubmissions</td>
+                                            <td>
+                                                @if (course.SubmissionsToGrade > 0)
+                                                {
+                                                    <span class="badge bg-warning text-dark">@course.SubmissionsToGrade</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">0</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="text-success">@course.GradedSubmissions</span>
+                                            </td>
+                                            <td>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-success" role="progressbar"
+                                                         style="width: @progress%;"
+                                                         aria-valuenow="@progress" aria-valuemin="0" aria-valuemax="100">
+                                                    </div>
+                                                </div>
+                                                <small class="text-muted">@progress.ToString("F1")%</small>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a asp-controller="Grades" asp-action="ManageGrades"
+                                                       asp-route-courseId="@course.CourseId"
+                                                       class="btn btn-outline-primary">
+                                                        Grade
+                                                    </a>
+                                                    <a asp-controller="Courses" asp-action="ContentList"
+                                                       asp-route-id="@course.CourseId"
+                                                       class="btn btn-outline-info">
+                                                        Content
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No courses with assignments found.</p>
+                            <a asp-controller="Courses" asp-action="Index" class="btn btn-primary">
+                                Browse Courses
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-white py-3">
+                    <h5 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a asp-controller="Grades" asp-action="GradingOverview" class="btn btn-warning btn-block">
+                                <i class="fas fa-clipboard-check me-2"></i>Grade Assignments
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a asp-controller="Courses" asp-action="Index" class="btn btn-primary btn-block">
+                                <i class="fas fa-book me-2"></i>View Courses
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a asp-controller="Assignment" asp-action="ManageSubmissions" class="btn btn-info btn-block">
+                                <i class="fas fa-tasks me-2"></i>Manage Submissions
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a asp-controller="Courses" asp-action="UploadContent" class="btn btn-success btn-block">
+                                <i class="fas fa-upload me-2"></i>Upload Content
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

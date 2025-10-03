@@ -1,0 +1,180 @@
+﻿@model IEnumerable<ITSL_Administration.Models.Grade>
+@using ITSL_Administration.Models
+
+@{
+    ViewData["Title"] = "My Grades";
+    var groupedGrades = Model.GroupBy(g => g.Assignment?.Course).OrderBy(g => g.Key?.CourseName);
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-graduation-cap"></i> My Grades</h2>
+        <a href="@Url.Action("Index", "Courses")" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Courses
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <h4>No grades available</h4>
+            <p>You haven't been graded for any assignments yet.</p>
+        </div>
+    }
+    else
+    {
+        @foreach (var courseGroup in groupedGrades)
+        {
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-book"></i> @courseGroup.Key?.CourseName
+                        <span class="badge bg-light text-dark float-end">@courseGroup.Key?.CourseCode</span>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Assignment</th>
+                                    <th>Type</th>
+                                    <th>Due Date</th>
+                                    <th>Weight</th>
+                                    <th>Mark</th>
+                                    <th>Status</th>
+                                    <th>Feedback</th>
+                                    <th>Graded By</th>
+                                    <th>Date Graded</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var grade in courseGroup.OrderBy(g => g.Assignment?.DueDate))
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@grade.Assignment?.Title</strong>
+                                            @if (!string.IsNullOrEmpty(grade.Assignment?.Description))
+                                            {
+                                                <br />
+                                                <small class="text-muted">@grade.Assignment.Description</small>
+                                            }
+                                        </td>
+                                        <td>
+                                            <span class="badge @(grade.Assignment?.AssignmentType == AssignmentType.Quiz ? "bg-info" : grade.Assignment?.AssignmentType == AssignmentType.WrittenAssignment ? "bg-warning" : "bg-success")">
+                                                @grade.Assignment?.AssignmentType
+                                            </span>
+                                        </td>
+                                        <td>@grade.Assignment?.DueDate.ToString("dd MMM yyyy")</td>
+                                        <td>
+                                            <span class="badge bg-secondary">@((grade.Assignment?.Weight * 100)?.ToString("F0"))%</span>
+                                        </td>
+                                        <td>
+                                            <strong>@grade.AssignmentMark.ToString("F1")/@grade.Assignment?.SetAssignmentMark</strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge @(grade.HasPassed ? "bg-success" : "bg-danger")">
+                                                @(grade.HasPassed ? "PASS" : "FAIL")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(grade.GradesFeedback))
+                                            {
+                                                <button type="button" class="btn btn-sm btn-outline-info"
+                                                        data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="@grade.GradesFeedback">
+                                                    <i class="fas fa-comment"></i> View Feedback
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">No feedback</span>
+                                            }
+                                        </td>
+                                        <td>@grade.MarkedBy</td>
+                                        <td>@grade.DateRecorded.ToString("dd MMM yyyy")</td>
+                                        <td>
+                                            <a href="@Url.Action("Details", "Grades", new { id = grade.GradeID })"
+                                               class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i> View Details
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Course Summary -->
+                    @{
+                        var courseGrades = courseGroup.Where(g => g.AssignmentMark > 0).ToList();
+                        if (courseGrades.Any())
+                        {
+                            double totalWeightedMarks = 0;
+                            double totalWeight = 0;
+
+                            foreach (var grade in courseGrades)
+                            {
+                                if (grade.Assignment != null)
+                                {
+                                    totalWeightedMarks += grade.AssignmentMark * grade.Assignment.Weight;
+                                    totalWeight += grade.Assignment.Weight;
+                                }
+                            }
+
+                            double courseAverage = totalWeight > 0 ? totalWeightedMarks / totalWeight : 0;
+                            bool coursePassed = courseAverage >= 50;
+
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Course Progress</h5>
+                                            <div class="progress mb-2" style="height: 20px;">
+                                                <div class="progress-bar @(coursePassed ? "bg-success" : "bg-warning")"
+                                                     role="progressbar"
+                                                     style="width: @courseAverage%;"
+                                                     aria-valuenow="@courseAverage"
+                                                     aria-valuemin="0"
+                                                     aria-valuemax="100">
+                                                    @courseAverage.ToString("F1")%
+                                                </div>
+                                            </div>
+                                            <p class="mb-0">
+                                                <strong>Status:</strong>
+                                                <span class="badge @(coursePassed ? "bg-success" : "bg-warning")">
+                                                    @(coursePassed ? "PASSING" : "NOT PASSING")
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Grading Summary</h5>
+                                            <p class="mb-1"><strong>Graded Assignments:</strong> @courseGrades.Count/@courseGroup.Count()</p>
+                                            <p class="mb-1"><strong>Average Mark:</strong> @courseAverage.ToString("F1")%</p>
+                                            <p class="mb-0"><strong>Completion:</strong> @((courseGrades.Count * 100 / courseGroup.Count()).ToString("F0"))%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    </script>
+}

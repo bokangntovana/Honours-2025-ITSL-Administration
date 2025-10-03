@@ -66,17 +66,17 @@ namespace ITSL_Administration.Controllers
 
         public async Task<IActionResult> AvailableQuiz()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
             IQueryable<Quiz> query = _context.Quizzes
                 .Include(q => q.Assignment)
                 .ThenInclude(a => a.Course);
 
-            if (!(User.IsInRole("Admin") || User.IsInRole("Lecturer")))
-            {
-                query = query.Where(q => q.Assignment.Course.Enrollments
-                    .Any(e => e.UserId == userId));
-            }
+            // REMOVED: Enrollment filtering for non-admin/non-lecturer users
+            // Now all authenticated users can see all quizzes
+            // if (!(User.IsInRole("Admin") || User.IsInRole("Lecturer")))
+            // {
+            //     query = query.Where(q => q.Assignment.Course.Enrollment
+            //         .Any(e => e.UserId == userId));
+            // }
 
             return View(await query.ToListAsync());
         }
@@ -93,7 +93,7 @@ namespace ITSL_Administration.Controllers
 
             if (quiz == null) return NotFound();
 
-            if (!IsAdminOrLecturer(quiz.Assignment.CourseId)) return Forbid();
+            if (!IsAdminOrLecturer()) return Forbid(); // REMOVED: courseId parameter
 
             return View(quiz);
         }
@@ -115,8 +115,8 @@ namespace ITSL_Administration.Controllers
 
                 if (existingQuiz == null) return NotFound();
 
-                // authorization check
-                if (!IsAdminOrLecturer(existingQuiz.Assignment.CourseId))
+                // authorization check - REMOVED: courseId parameter
+                if (!IsAdminOrLecturer())
                     return Forbid();
 
                 // Update only the fields you want to allow editing
@@ -155,7 +155,7 @@ namespace ITSL_Administration.Controllers
                 .FirstOrDefaultAsync(q => q.QuizID == id);
 
             if (quiz == null) return NotFound();
-            if (!IsAdminOrLecturer(quiz.Assignment.CourseId)) return Forbid();
+            if (!IsAdminOrLecturer()) return Forbid(); // REMOVED: courseId parameter
 
             _context.Quizzes.Remove(quiz);
             await _context.SaveChangesAsync();
@@ -408,6 +408,7 @@ namespace ITSL_Administration.Controllers
 
             return View(vm);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SubmitQuiz(QuizViewModel model, string action)
@@ -525,8 +526,6 @@ namespace ITSL_Administration.Controllers
             return RedirectToAction("TakeQuiz", new { quizId = model.QuizId, page = model.CurrentPage });
         }
 
-
-
         public async Task<IActionResult> QuizResult(string submissionId)
         {
             var submission = await _context.Submissions
@@ -571,22 +570,13 @@ namespace ITSL_Administration.Controllers
         }
 
         // ================================
-        // HELPERS
+        // HELPERS - UPDATED TO REMOVE ENROLLMENT
         // ================================
-        private bool IsAdminOrLecturer(string courseId)
+        private bool IsAdminOrLecturer()
         {
-            if (User.IsInRole("Admin") || User.IsInRole("Lecturer"))
-                return true;
-
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return _context.Enrollments.Any(e =>
-                e.UserId == userId &&
-                e.CourseId == courseId &&
-                (e.Role == CourseRole.Lecturer || e.Role == CourseRole.Admin));
+            // REMOVED: Enrollment-based check
+            // Simplified to pure role-based check
+            return User.IsInRole("Admin") || User.IsInRole("Lecturer");
         }
     }
-
-
-
-
 }

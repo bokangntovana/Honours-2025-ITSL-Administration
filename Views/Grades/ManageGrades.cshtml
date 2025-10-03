@@ -1,0 +1,303 @@
+﻿@model ITSL_Administration.Models.Course
+@using ITSL_Administration.Models
+
+@{
+    ViewData["Title"] = "Grade Management - " + Model.CourseName;
+    var assignments = Model.Assignments.OrderBy(a => a.DueDate).ToList();
+
+    // Get participants who have submissions for this course (replaces enrollment-based count)
+    var participantsWithSubmissions = assignments
+        .SelectMany(a => a.Submissions)
+        .Select(s => s.ParticipantId)
+        .Distinct()
+        .ToList();
+
+    // Get all unique participants across all assignments
+    var allParticipants = assignments
+        .SelectMany(a => a.Submissions)
+        .Select(s => s.Participant)
+        .Where(p => p != null)
+        .Distinct()
+        .ToList();
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-tasks"></i> Grade Management - @Model.CourseName</h2>
+        <a href="@Url.Action("ExportGradebookPdf", "Grades", new { courseId = Model.CourseID })" class="btn btn-primary">
+            <i class="fas fa-download"></i> Export Gradebook
+        </a>
+    </div>
+
+    <!-- Course Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <!-- REMOVED: Enrollment-based participant count -->
+                            <!-- REPLACED WITH: Count of unique participants with submissions -->
+                            <h4>@allParticipants.Count</h4>
+                            <p class="mb-0">Participants</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>@assignments.Count</h4>
+                            <p class="mb-0">Assignments</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clipboard-list fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>@assignments.Sum(a => a.Submissions.Count(s => s.Grade == null))</h4>
+                            <p class="mb-0">Ungraded</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>@assignments.Sum(a => a.Submissions.Count(s => s.Grade != null))</h4>
+                            <p class="mb-0">Graded</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignments Tabs -->
+    <ul class="nav nav-tabs" id="assignmentsTab" role="tablist">
+        @foreach (var assignment in assignments)
+        {
+            <li class="nav-item" role="presentation">
+                <button class="nav-link @(assignment == assignments.First() ? "active" : "")"
+                        id="tab-@assignment.AssignmentID"
+                        data-bs-toggle="tab"
+                        data-bs-target="#content-@assignment.AssignmentID"
+                        type="button" role="tab">
+                    @assignment.Title
+                    <span class="badge
+                                @(assignment.Submissions.Count(s => s.Grade == null) > 0 ? "bg-warning" : "bg-success")">
+                        @assignment.Submissions.Count(s => s.Grade != null)/@assignment.Submissions.Count
+                    </span>
+                </button>
+            </li>
+        }
+    </ul>
+
+    <div class="tab-content" id="assignmentsTabContent">
+        @foreach (var assignment in assignments)
+        {
+            <div class="tab-pane fade @(assignment == assignments.First() ? "show active" : "")"
+                 id="content-@assignment.AssignmentID" role="tabpanel">
+
+                <!-- Assignment Header -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            @assignment.Title
+                            <span class="badge
+                                        @(assignment.AssignmentType == AssignmentType.Quiz ? "bg-info" :
+                                                                                                      assignment.AssignmentType == AssignmentType.WrittenAssignment ? "bg-warning" : "bg-success") float-end">
+                            @assignment.AssignmentType
+                        </span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Due Date:</strong> @assignment.DueDate.ToString("dd MMM yyyy")</p>
+                            <p><strong>Weight:</strong> <span class="badge bg-secondary">@((assignment.Weight * 100).ToString("F0"))%</span></p>
+                            <p><strong>Total Marks:</strong> @assignment.SetAssignmentMark</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Submissions:</strong> @assignment.Submissions.Count</p>
+                            <p><strong>Graded:</strong> @assignment.Submissions.Count(s => s.Grade != null)</p>
+                            <p><strong>Pending:</strong> @assignment.Submissions.Count(s => s.Grade == null)</p>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(assignment.Description))
+                        {
+                            <p><strong>Description:</strong> @assignment.Description</p>
+                        }
+                    </div>
+                </div>
+
+                <!-- Submissions Table -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6 class="mb-0">Submissions</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Participant</th>
+                                        <th>Submitted Date</th>
+                                        <th>Status</th>
+                                        <th>Mark</th>
+                                        <th>Graded By</th>
+                                        <th>Feedback</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var submission in assignment.Submissions.OrderBy(s => s.Participant?.FullName))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@submission.Participant?.FullName</strong>
+                                                <br />
+                                                <small class="text-muted">@submission.Participant?.Email</small>
+                                            </td>
+                                            <td>@submission.DateSubmitted.ToString("dd MMM yyyy HH:mm")</td>
+                                            <td>
+                                                @if (submission.Grade == null)
+                                                {
+                                                    <span class="badge bg-warning">Not Graded</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge @(submission.Grade.HasPassed ? "bg-success" : "bg-danger")">
+                                                        @(submission.Grade.HasPassed ? "Pass" : "Fail")
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (submission.Grade != null)
+                                                {
+                                                    <strong>@submission.Grade.AssignmentMark.ToString("F1")/@assignment.SetAssignmentMark</strong>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            <td>@submission.Grade?.MarkedBy</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(submission.Grade?.GradesFeedback))
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-info"
+                                                            data-bs-toggle="tooltip"
+                                                            title="@submission.Grade.GradesFeedback">
+                                                        <i class="fas fa-comment"></i>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (submission.Grade == null)
+                                                {
+                                                    <a href="@Url.Action("Create", "Grades", new { submissionId = submission.SubmissionID })"
+                                                       class="btn btn-sm btn-success">
+                                                        <i class="fas fa-pen"></i> Grade
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="@Url.Action("Edit", "Grades", new { id = submission.Grade.GradeID })"
+                                                       class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </a>
+                                                }
+                                                <a href="@Url.Action("ManageSubmissions", "Assignment", new { id = assignment.AssignmentID })"
+                                                   class="btn btn-sm btn-info">
+                                                    <i class="fas fa-list"></i> View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Participants without submissions -->
+                @{
+                    // REMOVED: Enrollment-based participant filtering
+                    // REPLACED WITH: Get participants who have submitted to other assignments but not this one
+                    var participantsWithSubmissionsForThisAssignment = assignment.Submissions.Select(s => s.ParticipantId).ToList();
+                    var participantsWithoutSubmissionsForThisAssignment = allParticipants
+                    .Where(p => !participantsWithSubmissionsForThisAssignment.Contains(p.Id))
+                    .ToList();
+                }
+
+                @if (participantsWithoutSubmissionsForThisAssignment.Any())
+                {
+                    <div class="card mt-3 border-warning">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="mb-0">Participants Without Submissions</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                @foreach (var participant in participantsWithoutSubmissionsForThisAssignment)
+                                {
+                                    <div class="col-md-4 mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-user-circle text-muted me-2"></i>
+                                            <div>
+                                                <strong>@participant?.FullName</strong>
+                                                <br />
+                                                <small class="text-muted">@participant?.Email</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+
+        // Auto-refresh page every 5 minutes to show latest submissions
+        setTimeout(function() {
+            location.reload();
+        }, 300000); // 5 minutes
+    </script>
+}

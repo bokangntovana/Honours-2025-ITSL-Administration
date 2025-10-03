@@ -1,34 +1,161 @@
-﻿@model ITSL_Administration.Models.Grade
+﻿@model ITSL_Administration.ViewModels.GradeCreateViewModel
 @{
-    var submission = ViewBag.Submission as ITSL_Administration.Models.Submission;
     ViewData["Title"] = "Grade Submission";
 }
 
 <div class="container mt-4">
-    <h2 class="text-primary"><i class="fas fa-pen"></i> Grade Submission</h2>
-    <h5>Student: @submission.Participant?.FullName</h5>
-    <h6>Assignment: @submission.Assignment?.Title</h6>
-    <hr />
-
-    <form asp-action="Create" method="post">
-        <input type="hidden" asp-for="SubmissionId" />
-        <input type="hidden" asp-for="AssignmentId" />
-
-        <div class="form-group mb-3">
-            <label asp-for="AssignmentMark"></label>
-            <input asp-for="AssignmentMark" class="form-control" />
-            <span asp-validation-for="AssignmentMark" class="text-danger"></span>
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0"><i class="fas fa-pen"></i> Grade Submission</h2>
         </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-user"></i> Participant Details</h5>
+                    <p class="mb-1"><strong>Name:</strong> @Model.Submission.Participant?.FullName</p>
+                    <p class="mb-1"><strong>Email:</strong> @Model.Submission.Participant?.Email</p>
+                    <p class="mb-0"><strong>Submitted:</strong> @Model.Submission.DateSubmitted.ToString("dd MMM yyyy HH:mm")</p>
+                </div>
+                <div class="col-md-6">
+                    <h5><i class="fas fa-clipboard-list"></i> Assignment Details</h5>
+                    <p class="mb-1"><strong>Title:</strong> @Model.Submission.Assignment?.Title</p>
+                    <p class="mb-1"><strong>Type:</strong> <span class="badge bg-info">@Model.Submission.Assignment?.AssignmentType</span></p>
+                    <p class="mb-1"><strong>Weight:</strong> <span class="badge bg-secondary">@((Model.Submission.Assignment?.Weight * 100)?.ToString("F0"))%</span></p>
+                    <p class="mb-0"><strong>Total Marks:</strong> @Model.Submission.Assignment?.SetAssignmentMark</p>
+                </div>
+            </div>
 
-        <div class="form-group mb-3">
-            <label asp-for="GradesFeedback"></label>
-            <textarea asp-for="GradesFeedback" class="form-control"></textarea>
-            <span asp-validation-for="GradesFeedback" class="text-danger"></span>
+            <hr />
+
+            <form asp-action="Create" method="post">
+                <input type="hidden" asp-for="Grade.SubmissionId" />
+                <input type="hidden" asp-for="Grade.AssignmentId" />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Grade.AssignmentMark" class="form-label fw-bold">Assignment Mark *</label>
+                            <input asp-for="Grade.AssignmentMark" class="form-control"
+                                   min="0" max="@Model.Submission.Assignment?.SetAssignmentMark"
+                                   step="0.1" />
+                            <span asp-validation-for="Grade.AssignmentMark" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                Must be between 0 and @Model.Submission.Assignment?.SetAssignmentMark
+                            </small>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <h6><i class="fas fa-calculator"></i> Automatic Calculations</h6>
+                            <p class="mb-1"><strong>Pass/Fail:</strong> <span id="passFailStatus">Will be calculated</span></p>
+                            <p class="mb-0"><strong>Percentage:</strong> <span id="percentage">0%</span></p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Grade.GradesFeedback" class="form-label fw-bold">Feedback</label>
+                            <textarea asp-for="Grade.GradesFeedback" class="form-control" rows="5"
+                                      placeholder="Provide constructive feedback for the participant..."></textarea>
+                            <span asp-validation-for="Grade.GradesFeedback" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                <span id="feedbackCount">0</span>/500 characters
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle"></i> Grading Information</h6>
+                        <p class="mb-1"><strong>Graded by:</strong> @User.Identity?.Name</p>
+                        <p class="mb-0"><strong>Date:</strong> @DateTime.Now.ToString("dd MMM yyyy HH:mm")</p>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-save"></i> Save Grade
+                    </button>
+                    <a asp-controller="Assignment" asp-action="ManageSubmissions" asp-route-id="@Model.Submission.AssignmentId"
+                       class="btn btn-secondary btn-lg">
+                        <i class="fas fa-arrow-left"></i> Back to Submissions
+                    </a>
+                </div>
+            </form>
         </div>
-
-        <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Save Grade</button>
-        <a asp-controller="Assignment" asp-action="ManageSubmissions" asp-route-id="@submission.AssignmentId" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Cancel
-        </a>
-    </form>
+    </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Real-time calculations and validation
+        const assignmentMarkInput = document.getElementById('Grade_AssignmentMark');
+        const feedbackTextarea = document.getElementById('Grade_GradesFeedback');
+        const passFailSpan = document.getElementById('passFailStatus');
+        const percentageSpan = document.getElementById('percentage');
+        const feedbackCountSpan = document.getElementById('feedbackCount');
+        const maxMarks = @Model.Submission.Assignment?.SetAssignmentMark;
+
+        // Mark calculation
+        assignmentMarkInput.addEventListener('input', function() {
+            const mark = parseFloat(this.value) || 0;
+            const percentage = maxMarks > 0 ? (mark / maxMarks * 100) : 0;
+            const status = mark >= 50 ? 'PASS' : 'FAIL';
+            const statusColor = mark >= 50 ? 'text-success' : 'text-danger';
+
+            percentageSpan.textContent = percentage.toFixed(1) + '%';
+            passFailSpan.innerHTML = `<span class="${statusColor} fw-bold">${status}</span>`;
+
+            // Validate mark range
+            if (mark > maxMarks) {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+            }
+        });
+
+        // Feedback character count
+        feedbackTextarea.addEventListener('input', function() {
+            const count = this.value.length;
+            feedbackCountSpan.textContent = count;
+
+            if (count > 500) {
+                this.classList.add('is-invalid');
+                feedbackCountSpan.classList.add('text-danger');
+            } else {
+                this.classList.remove('is-invalid');
+                feedbackCountSpan.classList.remove('text-danger');
+            }
+        });
+
+        // Form validation - FIXED VERSION
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const mark = parseFloat(assignmentMarkInput.value) || 0;
+
+            // Only prevent submission if there's a serious validation error
+            if (mark > maxMarks) {
+                e.preventDefault();
+                alert(`Mark cannot exceed ${maxMarks}`);
+                return false;
+            }
+
+            // Allow the form to submit for all other cases
+            // The server-side validation will handle the rest
+        });
+
+        // Initialize calculations on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Trigger input event to show initial calculations
+            if (assignmentMarkInput.value) {
+                assignmentMarkInput.dispatchEvent(new Event('input'));
+            }
+            if (feedbackTextarea.value) {
+                feedbackTextarea.dispatchEvent(new Event('input'));
+            }
+        });
+    </script>
+}
