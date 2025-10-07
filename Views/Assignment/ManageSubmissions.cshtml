@@ -46,12 +46,12 @@
                 <td>
                     @if (submission.Grade == null)
                     {
-                        <a asp-controller="Grade" asp-action="Create" asp-route-submissionId="@submission.SubmissionID"
+                        <a asp-controller="Grades" asp-action="Create" asp-route-submissionId="@submission.SubmissionID"
                            class="btn btn-primary btn-sm"><i class="fas fa-pen"></i> Grade</a>
                     }
                     else
                     {
-                        <a asp-controller="Grade" asp-action="Edit" asp-route-id="@submission.Grade.GradeID"
+                        <a asp-controller="Grades" asp-action="Edit" asp-route-id="@submission.Grade.GradeID"
                            class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i> Edit</a>
                     }
                 </td>

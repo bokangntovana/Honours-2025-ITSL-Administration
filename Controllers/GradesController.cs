@@ -10,7 +10,6 @@ using ITSL_Administration.ViewModels;
 namespace ITSL_Administration.Controllers
 {
     [Authorize]
-    [Authorize]
     public class GradesController : Controller
     {
         private readonly AppDbContext _context;
@@ -80,9 +79,15 @@ namespace ITSL_Administration.Controllers
                     return await LoadSubmissionAndReturnView(viewModel);
                 }
 
+
+                // Calculate FinalMark based on assignment weight and obtained mark
+                double finalMark = (viewModel.Grade.AssignmentMark / assignment.SetAssignmentMark) * (assignment.Weight * 100);
                 // Pass/Fail logic
                 viewModel.Grade.HasPassed = viewModel.Grade.AssignmentMark >= 50;
                 viewModel.Grade.DateRecorded = DateTime.Now;
+                viewModel.Grade.FinalMark = finalMark;
+                viewModel.Grade.MarkedBy = User.Identity?.Name;
+
 
                 _context.Grades.Add(viewModel.Grade);
                 await _context.SaveChangesAsync();
@@ -147,8 +152,12 @@ namespace ITSL_Administration.Controllers
                     TempData["ErrorMessage"] = "You do not have grading permissions for this course.";
                     return await LoadSubmissionAndReturnView(viewModel);
                 }
+                // Calculate FinalMark based on assignment weight and obtained mark
+                double finalMark = (viewModel.Grade.AssignmentMark / assignment.SetAssignmentMark) * (assignment.Weight * 100);
 
                 viewModel.Grade.HasPassed = viewModel.Grade.AssignmentMark >= 50;
+                viewModel.Grade.FinalMark = finalMark; // This was missing!
+                viewModel.Grade.MarkedBy = User.Identity?.Name;
                 viewModel.Grade.DateRecorded = DateTime.Now;
 
                 _context.Update(viewModel.Grade);

@@ -30,7 +30,9 @@
             <form asp-action="Create" method="post">
                 <input type="hidden" asp-for="Grade.SubmissionId" />
                 <input type="hidden" asp-for="Grade.AssignmentId" />
+                <input type="hidden" asp-for="Grade.MarkedBy" value="@User.Identity?.Name" />
 
+                @Html.AntiForgeryToken()
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group mb-3">

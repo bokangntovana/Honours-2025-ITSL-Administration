@@ -10,11 +10,13 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>@ViewData["Title"] - ITSL Administration</title>
 
     <!-- Added Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
+    <!--favicon-->
+    <link rel="icon" type="image/png" href="~/itsl_favicon.png">
     <!-- Existing styles -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -216,7 +218,7 @@
                     }
 
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="ClassesAndEvents" asp-action="Index">
+                        <a class="nav-link" asp-controller="EventSchedules" asp-action="Index">
                             <i class="fas fa-calendar-alt me-2"></i>
                             Classes and Events
                         </a>
@@ -251,13 +253,20 @@
     </div>
     <!--Chatbot Partial-->
     <partial name="_Chatbot" />
+
     <!-- FullCalendar (CDN) -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+
     <!--Main JS scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Chatbot Scripts -->
     <script src="~/js/chatbot.js" asp-append-version="true"></script>
+    <!-- FullCalendar-->
+    <script src="~/js/fullCalendar.js"></script>
+
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

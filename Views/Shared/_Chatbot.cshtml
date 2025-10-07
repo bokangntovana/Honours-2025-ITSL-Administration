@@ -9,44 +9,160 @@
 }
 
 <div id="chatbot-helper">
-    <div id="chatbot-toggle">
-        <i class="fas fa-comments"></i>
+    <div id="chatbot-toggle" class="chatbot-toggle">
+        <i class="fas fa-robot"></i>
+        <span class="chatbot-pulse"></span>
     </div>
-    <div id="chatbot-window" class="hidden">
-        <div id="chatbot-header">
-            <span>Need Help?</span>
-            <button id="chatbot-close">×</button>
+    <div id="chatbot-window" class="chatbot-window hidden">
+        <div id="chatbot-header" class="chatbot-header">
+            <div class="chatbot-header-content">
+                <div class="chatbot-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="chatbot-header-text">
+                    <span class="chatbot-title">ITSL Assistant</span>
+                    <span class="chatbot-status">Online • Ready to help</span>
+                </div>
+            </div>
+            <button id="chatbot-close" class="chatbot-close-btn">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
-        <div id="chatbot-body">
-            <p>Quick Navigation:</p>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/Account/About">Learn More About ITSL</a></li>
-                <li><a href="/Donations/Donations">Donate</a></li>
-                <li><a href="/Donations/RegisterDonor">Become a Donor</a></li>
-                <li><a href="/Donations/Payment">Make Payment</a></li>
-                <li><a href="/Courses/Index">Courses</a></li>
-                <li><a href="/Assignment/ManageAssignment?courseId=1">Assignments</a></li>
-                <li><a href="/Grades/ParticipantGrades">My Grades</a></li>
-                <li><a href="/Quiz/AvailableQuiz">Quizzes</a></li>
-                <li><a href="/ClassesAndEvents/Index">Classes & Events</a></li>
-                <li><a href="/Email/SendEmail">Messages</a></li>
-            </ul>
 
-            @if (SignInManager.IsSignedIn(User))
-            {
-                <form asp-controller="Account" asp-action="Logout" method="post">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-link p-0">
-                        Logout
-                    </button>
-                </form>
-            }
-            else
-            {
-                <li><a href="/Account/Login">Login</a></li>
-                <li><a href="/Account/Register">Register</a></li>
-            }
+        <div id="chatbot-body" class="chatbot-body">
+            <!-- Quick Navigation Section -->
+            <div id="quick-nav-section" class="chatbot-section">
+                <div class="section-title">
+                    <i class="fas fa-compass"></i>
+                    Quick Navigation
+                </div>
+                <div class="nav-grid">
+                    <a href="/" class="nav-card">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                    <a href="/Account/About" class="nav-card">
+                        <i class="fas fa-info-circle"></i>
+                        <span>About ITSL</span>
+                    </a>
+                    <a href="/Donations/Donations" class="nav-card">
+                        <i class="fas fa-donate"></i>
+                        <span>Donate</span>
+                    </a>
+                    <a href="/Donations/RegisterDonor" class="nav-card">
+                        <i class="fas fa-hand-holding-heart"></i>
+                        <span>Become a Donor</span>
+                    </a>
+                    <a href="/Donations/Payment" class="nav-card">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Make Payment</span>
+                    </a>
+                    <a href="/Courses/Index" class="nav-card">
+                        <i class="fas fa-book"></i>
+                        <span>Courses</span>
+                    </a>
+                    <a href="/Assignment/ManageAssignment?courseId=1" class="nav-card">
+                        <i class="fas fa-tasks"></i>
+                        <span>Assignments</span>
+                    </a>
+                    <a href="/Grades/ParticipantGrades" class="nav-card">
+                        <i class="fas fa-chart-line"></i>
+                        <span>My Grades</span>
+                    </a>
+                    <a href="/Quiz/AvailableQuiz" class="nav-card">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Quizzes</span>
+                    </a>
+                    <a href="/EventSchedules/Index" class="nav-card">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Classes & Events</span>
+                    </a>
+                    <a href="/Email/SendEmail" class="nav-card">
+                        <i class="fas fa-envelope"></i>
+                        <span>Messages</span>
+                    </a>
+
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="nav-card logout-form">
+                            @Html.AntiForgeryToken()
+                            <i class="fas fa-sign-out-alt"></i>
+                            <button type="submit" class="btn-logout">
+                                Logout
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a href="/Account/Login" class="nav-card">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span>Login</span>
+                        </a>
+                        <a href="/Account/Register" class="nav-card">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Register</span>
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <!-- Q&A Chat Section -->
+            <div id="chat-section" class="chatbot-section hidden">
+                <div id="chat-messages" class="chat-messages">
+                    <div class="welcome-message">
+                        <div class="bot-message">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <p>Hello! I'm here to help you navigate the ITSL website. What would you like to know?</p>
+                                <div class="suggestions">
+                                    <span class="suggestion-chip" data-question="How do I donate?">
+                                        <i class="fas fa-donate"></i> How do I donate?
+                                    </span>
+                                    <span class="suggestion-chip" data-question="Where are my courses?">
+                                        <i class="fas fa-book"></i> My courses
+                                    </span>
+                                    <span class="suggestion-chip" data-question="How to check grades?">
+                                        <i class="fas fa-chart-line"></i> Check grades
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="chat-input-area" class="chat-input-area">
+                    <div class="input-container">
+                        <input type="text" id="chat-input" placeholder="Ask me anything about the website..." class="chat-input">
+                        <button id="send-message" class="send-btn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="chat-actions">
+                        <button id="back-to-nav" class="action-btn secondary">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Menu
+                        </button>
+                        <button id="clear-chat" class="action-btn secondary">
+                            <i class="fas fa-eraser"></i>
+                            Clear Chat
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mode Toggle -->
+            <div class="mode-toggle">
+                <button id="toggle-chat" class="toggle-btn primary">
+                    <i class="fas fa-comments"></i>
+                    Ask a Question
+                </button>
+                <button id="toggle-nav" class="toggle-btn secondary hidden">
+                    <i class="fas fa-compass"></i>
+                    Quick Navigation
+                </button>
+            </div>
         </div>
     </div>
 </div>

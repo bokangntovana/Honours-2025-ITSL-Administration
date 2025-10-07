@@ -1,0 +1,42 @@
+﻿@{
+    ViewData["Title"] = "Event Schedule";
+}
+
+@* <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script> *@
+
+<div class="container mt-4">
+    <h2 class="text-center mb-3 text-danger">Event Schedule</h2>
+    <div id="calendar"></div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-white border-primary">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="eventTitle"></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="eventBody"></div>
+            <div class="modal-footer">
+                @if (User.IsInRole("Admin") || User.IsInRole("Lecturer") || User.IsInRole("Tutor"))
+                {
+                    <button id="btnEdit" class="btn btn-outline-primary">Edit</button>
+                    <button id="btnDelete" class="btn btn-outline-danger">Delete</button>
+                }
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Pass user role info into JS
+        window.userRoles = {
+            canManage: @(User.IsInRole("Admin") || User.IsInRole("Lecturer") || User.IsInRole("Tutor") ? "true" : "false")
+        };
+    </script>
+    <script src="~/js/fullCalendar.js"></script>
+}

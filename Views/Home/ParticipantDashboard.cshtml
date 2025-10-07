@@ -1,0 +1,422 @@
+﻿@model ITSL_Administration.ViewModels.ParticipantDashboardViewModel
+@{
+    ViewData["Title"] = "My Learning Dashboard";
+}
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0 text-dark">
+                <i class="fas fa-user-graduate me-2 text-primary"></i>My Learning Dashboard
+            </h1>
+            <p class="text-muted">Track your progress and upcoming assignments</p>
+        </div>
+    </div>
+
+    <!-- First Row - Learning Overview -->
+    <div class="row">
+        <!-- Overall Progress -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Overall Progress
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.CurrentProgress.ToString("F1")%</div>
+                            <div class="text-xs text-muted mt-1">@Model.CompletedAssignments of @Model.TotalAssignments assignments</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tasks fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Grade -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Average Grade
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.AverageGrade.ToString("F1")%</div>
+                            <div class="text-xs text-muted mt-1">@Model.GradedAssignments assignments graded</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Status -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Performance
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.PerformanceStatus</div>
+                            <div class="text-xs text-muted mt-1">Based on your current grades</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-star fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Deadlines -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Upcoming Deadlines
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.UpcomingDeadlines</div>
+                            <div class="text-xs text-muted mt-1">Next 14 days</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Second Row - Assignment Status -->
+    <div class="row">
+        <!-- Pending Assignments -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-secondary shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                                Pending
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.PendingAssignments</div>
+                            <div class="text-xs text-muted mt-1">Assignments to complete</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overdue Assignments -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Overdue
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.OverdueAssignments</div>
+                            <div class="text-xs text-muted mt-1">Need immediate attention</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Submissions -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Recent Submissions
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.RecentSubmissions</div>
+                            <div class="text-xs text-muted mt-1">Last 7 days</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-paper-plane fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enrolled Courses -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2 dashboard-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Available Courses
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.EnrolledCoursesCount</div>
+                            <div class="text-xs text-muted mt-1">Courses to explore</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-book fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Two Column Layout -->
+    <div class="row">
+        <!-- Left Column - Upcoming Deadlines -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-white py-3">
+                    <h5 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-calendar-day me-2"></i>Upcoming Deadlines
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.NextDeadlines.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var deadline in Model.NextDeadlines)
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <div>
+                                        <h6 class="mb-1">@deadline.AssignmentTitle</h6>
+                                        <small class="text-muted">@deadline.CourseName</small>
+                                        <br>
+                                        <small class="@(deadline.DaysUntilDue <= 3 ? "text-danger" : "text-warning")">
+                                            Due in @deadline.DaysUntilDue day@(deadline.DaysUntilDue != 1 ? "s" : "")
+                                        </small>
+                                    </div>
+                                    <div>
+                                        <a asp-controller="Assignment" asp-action="Details"
+                                           asp-route-id="@deadline.AssignmentId"
+                                           class="btn btn-sm @(deadline.DaysUntilDue <= 3 ? "btn-danger" : "btn-warning")">
+                                            @(deadline.IsSubmitted ? "View" : "Submit")
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <p class="text-muted">No upcoming deadlines! Great work!</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Recent Grades -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-white py-3">
+                    <h5 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-bar me-2"></i>Recent Grades
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentGrades.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var grade in Model.RecentGrades)
+                            {
+                                <div class="list-group-item px-0">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">@grade.AssignmentTitle</h6>
+                                            <small class="text-muted">@grade.CourseName</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge bg-@(grade.HasPassed ? "success" : "danger") fs-6">
+                                                @grade.Grade.ToString("F1")%
+                                            </span>
+                                            <br>
+                                            <small class="text-muted">@grade.GradeDate.ToString("MMM dd")</small>
+                                        </div>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(grade.Feedback))
+                                    {
+                                        <div class="mt-2">
+                                            <small class="text-muted">Feedback: @grade.Feedback</small>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No grades yet. Keep working on your assignments!</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Progress Breakdown -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-white py-3">
+                    <h5 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-list-alt me-2"></i>Course Progress
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.CourseProgresses.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Course</th>
+                                        <th>Progress</th>
+                                        <th>Assignments</th>
+                                        <th>Completed</th>
+                                        <th>Graded</th>
+                                        <th>Average Grade</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var course in Model.CourseProgresses)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@course.CourseCode</strong><br>
+                                                <small class="text-muted">@course.CourseName</small>
+                                            </td>
+                                            <td>
+                                                <div class="progress" style="height: 10px;">
+                                                    <div class="progress-bar bg-success" role="progressbar"
+                                                         style="width: @course.ProgressPercentage%;"
+                                                         aria-valuenow="@course.ProgressPercentage"
+                                                         aria-valuemin="0" aria-valuemax="100">
+                                                    </div>
+                                                </div>
+                                                <small class="text-muted">@course.ProgressPercentage.ToString("F1")%</small>
+                                            </td>
+                                            <td>@course.TotalAssignments</td>
+                                            <td>@course.CompletedAssignments</td>
+                                            <td>@course.GradedAssignments</td>
+                                            <td>
+                                                @if (course.GradedAssignments > 0)
+                                                {
+                                                    <span class="badge bg-@(course.AverageGrade >= 50 ? "success" : "warning")">
+                                                        @course.AverageGrade.ToString("F1")%
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @{
+                                                    var statusClass = course.Status switch
+                                                    {
+                                                        "On Track" => "success",
+                                                        "Good Progress" => "info",
+                                                        "Needs Attention" => "warning",
+                                                        _ => "secondary"
+                                                    };
+                                                }
+                                                <span class="badge bg-@statusClass">@course.Status</span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a asp-controller="Courses" asp-action="Details"
+                                                       asp-route-id="@course.CourseId"
+                                                       class="btn btn-outline-primary">
+                                                        View
+                                                    </a>
+                                                    <a asp-controller="Courses" asp-action="ContentList"
+                                                       asp-route-id="@course.CourseId"
+                                                       class="btn btn-outline-info">
+                                                        Content
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No course progress data available.</p>
+                            <a asp-controller="Courses" asp-action="Index" class="btn btn-primary">
+                                Browse Courses
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-white py-3">
+                    <h5 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a asp-controller="Courses" asp-action="Index" class="btn btn-primary btn-block">
+                                <i class="fas fa-book me-2"></i>Browse Courses
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a asp-controller="Assignment" asp-action="Index" class="btn btn-success btn-block">
+                                <i class="fas fa-tasks me-2"></i>View Assignments
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a asp-controller="Grades" asp-action="ParticipantGrades" class="btn btn-info btn-block">
+                                <i class="fas fa-chart-bar me-2"></i>My Grades
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a asp-controller="Quiz" asp-action="AvailableQuiz" class="btn btn-warning btn-block">
+                                <i class="fas fa-question-circle me-2"></i>Take Quizzes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

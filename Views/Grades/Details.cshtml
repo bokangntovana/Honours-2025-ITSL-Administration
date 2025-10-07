@@ -1,0 +1,218 @@
+﻿@model ITSL_Administration.Models.Grade
+@{
+    ViewData["Title"] = "Grade Details";
+    var percentage = Model.AssignmentMark / Model.Assignment?.SetAssignmentMark * 100 ?? 0;
+    var isLecturerOrAbove = User.IsInRole("Admin") || User.IsInRole("Lecturer") || User.IsInRole("Tutor");
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0"><i class="fas fa-file-alt"></i> Grade Details</h2>
+                <div>
+                    @if (isLecturerOrAbove)
+                    {
+                        <a href="@Url.Action("Edit", "Grades", new { id = Model.GradeID })" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> Edit Grade
+                        </a>
+                    }
+                    <a href="@Url.Action("ParticipantGrades", "Grades")" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to My Grades
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Grade Status Banner -->
+            <div class="alert @(Model.HasPassed ? "alert-success" : "alert-danger") mb-4">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4 class="alert-heading">
+                            <i class="fas @(Model.HasPassed ? "fa-check-circle" : "fa-times-circle")"></i>
+                            @(Model.HasPassed ? "PASS" : "FAIL")
+                        </h4>
+                        <p class="mb-0">This submission has been @(Model.HasPassed ? "successfully passed" : "marked as failed").</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <h3 class="mb-0">@Model.AssignmentMark.ToString("F1")/@Model.Assignment?.SetAssignmentMark</h3>
+                        <span class="badge bg-primary fs-6">@percentage.ToString("F1")%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Left Column: Grade Information -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="fas fa-info-circle"></i> Grade Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-5 text-muted">Grade ID:</dt>
+                                <dd class="col-sm-7">
+                                    <span class="font-monospace small">@Model.GradeID</span>
+                                </dd>
+
+                                <dt class="col-sm-5 text-muted">Assignment Mark:</dt>
+                                <dd class="col-sm-7">
+                                    <strong>@Model.AssignmentMark.ToString("F1")</strong> / @Model.Assignment?.SetAssignmentMark
+                                    <span class="badge bg-primary ms-2">@percentage.ToString("F1")%</span>
+                                </dd>
+
+                                <dt class="col-sm-5 text-muted">Final Course Mark:</dt>
+                                <dd class="col-sm-7">
+                                    <strong>@Model.FinalMark.ToString("F1")%</strong>
+                                    <span class="badge @(Model.FinalMark >= 50 ? "bg-success" : "bg-danger") ms-2">
+                                        @(Model.FinalMark >= 50 ? "Passing" : "Failing")
+                                    </span>
+                                </dd>
+
+                                <dt class="col-sm-5 text-muted">Status:</dt>
+                                <dd class="col-sm-7">
+                                    <span class="badge @(Model.HasPassed ? "bg-success" : "bg-danger")">
+                                        @(Model.HasPassed ? "PASS" : "FAIL")
+                                    </span>
+                                </dd>
+
+                                <dt class="col-sm-5 text-muted">Graded By:</dt>
+                                <dd class="col-sm-7">@Model.MarkedBy</dd>
+
+                                <dt class="col-sm-5 text-muted">Date Recorded:</dt>
+                                <dd class="col-sm-7">@Model.DateRecorded.ToString("dd MMM yyyy 'at' HH:mm")</dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Assignment Details -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="fas fa-clipboard-list"></i> Assignment Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-5 text-muted">Title:</dt>
+                                <dd class="col-sm-7">@Model.Assignment?.Title</dd>
+
+                                <dt class="col-sm-5 text-muted">Course:</dt>
+                                <dd class="col-sm-7">@Model.Assignment?.Course?.CourseName</dd>
+
+                                <dt class="col-sm-5 text-muted">Type:</dt>
+                                <dd class="col-sm-7">
+                                    <span class="badge
+                                        @(Model.Assignment?.AssignmentType == AssignmentType.Quiz ? "bg-info" :
+                                                                                    Model.Assignment?.AssignmentType == AssignmentType.WrittenAssignment ? "bg-warning" : "bg-success")">
+                                        @Model.Assignment?.AssignmentType
+                                    </span>
+                                </dd>
+
+                                <dt class="col-sm-5 text-muted">Weight:</dt>
+                                <dd class="col-sm-7">
+                                    <span class="badge bg-secondary">
+                                        @((Model.Assignment?.Weight * 100)?.ToString("F0"))%
+                                    </span>
+                                </dd>
+
+                                <dt class="col-sm-5 text-muted">Due Date:</dt>
+                                <dd class="col-sm-7">@Model.Assignment?.DueDate.ToString("dd MMM yyyy")</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Participant & Feedback -->
+                <div class="col-md-6">
+                    <!-- Participant Details -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="fas fa-user"></i> Participant Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-5 text-muted">Name:</dt>
+                                <dd class="col-sm-7">@Model.Submission?.Participant?.FullName</dd>
+
+                                <dt class="col-sm-5 text-muted">Email:</dt>
+                                <dd class="col-sm-7">@Model.Submission?.Participant?.Email</dd>
+
+                                <dt class="col-sm-5 text-muted">Submitted:</dt>
+                                <dd class="col-sm-7">@Model.Submission?.DateSubmitted.ToString("dd MMM yyyy 'at' HH:mm")</dd>
+
+                                <dt class="col-sm-5 text-muted">Submission ID:</dt>
+                                <dd class="col-sm-7">
+                                    <span class="font-monospace small">@Model.SubmissionId</span>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Feedback Section -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="fas fa-comments"></i> Feedback</h5>
+                        </div>
+                        <div class="card-body">
+                            @if (!string.IsNullOrEmpty(Model.GradesFeedback))
+                            {
+                                <div class="bg-light p-3 rounded">
+                                    <p class="mb-0 text-break">@Model.GradesFeedback</p>
+                                </div>
+                                <div class="mt-2 text-muted">
+                                    <small>
+                                        <i class="fas fa-info-circle"></i>
+                                        @Model.GradesFeedback.Length/500 characters
+                                    </small>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center text-muted py-3">
+                                    <i class="fas fa-comment-slash fa-2x mb-2"></i>
+                                    <p class="mb-0">No feedback provided for this submission.</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Mark Calculation Info -->
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0"><i class="fas fa-calculator"></i> Mark Calculation</h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="small text-muted mb-2">
+                                <strong>Final Mark Formula:</strong><br>
+                                (Assignment Mark / Total Marks) × (Weight × 100)
+                            </p>
+                            <p class="small text-muted mb-0">
+                                (@Model.AssignmentMark / @Model.Assignment?.SetAssignmentMark) × (@((Model.Assignment?.Weight * 100)?.ToString("F0"))% × 100) = @Model.FinalMark.ToString("F1")%
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        @if (isLecturerOrAbove)
+                        {
+                            <a href="@Url.Action("Edit", "Grades", new { id = Model.GradeID })" class="btn btn-primary me-md-2">
+                                <i class="fas fa-edit"></i> Edit Grade
+                            </a>
+                            <a href="@Url.Action("ManageSubmissions", "Assignment", new { id = Model.AssignmentId })"
+                               class="btn btn-info me-md-2">
+                                <i class="fas fa-list"></i> View All Submissions
+                            </a>
+                        }
+                        <a href="@Url.Action("ParticipantGrades", "Grades")" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to My Grades
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

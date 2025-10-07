@@ -3,10 +3,14 @@
 <head>
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
+    <!--favicon-->
+    <link rel="icon" type="image/png" href="~/itsl_favicon.png">
+    <!--Existing style sheets-->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link rel="stylesheet" href="~/css/chatbot.css" />
     <link rel="stylesheet" href="~/css/account.css" asp-append-version="true" />
+    <!--Chatbot style-->
+    <link rel="stylesheet" href="~/css/chatbot.css" />
 </head>
 <body>
     <header>
@@ -36,16 +40,16 @@
         @RenderBody()
     </div>
     <partial name="_Chatbot" />
-    <script src="~/js/chatbot.js" asp-append-version="true"></script>
   @*   <footer class="account-footer">
         <div class="container-fluid">
             &copy; @DateTime.Now.Year - ITSL Administration Designed By Bokang Ntovana
         </div>
     </footer> *@
-    
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/chatbot.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
