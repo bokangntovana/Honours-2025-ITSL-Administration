@@ -1,23 +1,31 @@
 ﻿@model ITSL_Administration.ViewModels.GradeCreateViewModel
 @{
-    ViewData["Title"] = "Grade Submission";
+    ViewData["Title"] = "Grade Submission - ITSL Administration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Breadcrumbs {
+    <li class="breadcrumb-item">
+        <a asp-controller="Assignment" asp-action="ManageSubmissions" asp-route-id="@Model.Submission.AssignmentId">Submissions</a>
+    </li>
+    <li class="breadcrumb-item active">Grade Submission</li>
 }
 
 <div class="container mt-4">
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            <h2 class="mb-0"><i class="fas fa-pen"></i> Grade Submission</h2>
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary-blue text-white">
+            <h4 class="mb-0"><i class="fas fa-pen me-2"></i>Grade Submission - ITSL Administration</h4>
         </div>
         <div class="card-body">
             <div class="row mb-4">
                 <div class="col-md-6">
-                    <h5><i class="fas fa-user"></i> Participant Details</h5>
+                    <h5 class="text-primary-blue"><i class="fas fa-user me-2"></i>Participant Details</h5>
                     <p class="mb-1"><strong>Name:</strong> @Model.Submission.Participant?.FullName</p>
                     <p class="mb-1"><strong>Email:</strong> @Model.Submission.Participant?.Email</p>
                     <p class="mb-0"><strong>Submitted:</strong> @Model.Submission.DateSubmitted.ToString("dd MMM yyyy HH:mm")</p>
                 </div>
                 <div class="col-md-6">
-                    <h5><i class="fas fa-clipboard-list"></i> Assignment Details</h5>
+                    <h5 class="text-primary-blue"><i class="fas fa-clipboard-list me-2"></i>Assignment Details</h5>
                     <p class="mb-1"><strong>Title:</strong> @Model.Submission.Assignment?.Title</p>
                     <p class="mb-1"><strong>Type:</strong> <span class="badge bg-info">@Model.Submission.Assignment?.AssignmentType</span></p>
                     <p class="mb-1"><strong>Weight:</strong> <span class="badge bg-secondary">@((Model.Submission.Assignment?.Weight * 100)?.ToString("F0"))%</span></p>
@@ -33,32 +41,33 @@
                 <input type="hidden" asp-for="Grade.MarkedBy" value="@User.Identity?.Name" />
 
                 @Html.AntiForgeryToken()
+
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="form-group mb-3">
+                        <div class="mb-3">
                             <label asp-for="Grade.AssignmentMark" class="form-label fw-bold">Assignment Mark *</label>
                             <input asp-for="Grade.AssignmentMark" class="form-control"
                                    min="0" max="@Model.Submission.Assignment?.SetAssignmentMark"
                                    step="0.1" />
-                            <span asp-validation-for="Grade.AssignmentMark" class="text-danger"></span>
+                            <span asp-validation-for="Grade.AssignmentMark" class="text-danger small"></span>
                             <small class="form-text text-muted">
                                 Must be between 0 and @Model.Submission.Assignment?.SetAssignmentMark
                             </small>
                         </div>
 
                         <div class="alert alert-warning">
-                            <h6><i class="fas fa-calculator"></i> Automatic Calculations</h6>
+                            <h6 class="mb-2"><i class="fas fa-calculator me-2"></i>Automatic Calculations</h6>
                             <p class="mb-1"><strong>Pass/Fail:</strong> <span id="passFailStatus">Will be calculated</span></p>
                             <p class="mb-0"><strong>Percentage:</strong> <span id="percentage">0%</span></p>
                         </div>
                     </div>
 
                     <div class="col-md-6">
-                        <div class="form-group mb-3">
+                        <div class="mb-3">
                             <label asp-for="Grade.GradesFeedback" class="form-label fw-bold">Feedback</label>
                             <textarea asp-for="Grade.GradesFeedback" class="form-control" rows="5"
                                       placeholder="Provide constructive feedback for the participant..."></textarea>
-                            <span asp-validation-for="Grade.GradesFeedback" class="text-danger"></span>
+                            <span asp-validation-for="Grade.GradesFeedback" class="text-danger small"></span>
                             <small class="form-text text-muted">
                                 <span id="feedbackCount">0</span>/500 characters
                             </small>
@@ -66,22 +75,22 @@
                     </div>
                 </div>
 
-                <div class="form-group mb-3">
+                <div class="mb-3">
                     <div class="alert alert-info">
-                        <h6><i class="fas fa-info-circle"></i> Grading Information</h6>
+                        <h6 class="mb-2"><i class="fas fa-info-circle me-2"></i>Grading Information</h6>
                         <p class="mb-1"><strong>Graded by:</strong> @User.Identity?.Name</p>
                         <p class="mb-0"><strong>Date:</strong> @DateTime.Now.ToString("dd MMM yyyy HH:mm")</p>
                     </div>
                 </div>
 
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button type="submit" class="btn btn-success btn-lg">
-                        <i class="fas fa-save"></i> Save Grade
-                    </button>
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
                     <a asp-controller="Assignment" asp-action="ManageSubmissions" asp-route-id="@Model.Submission.AssignmentId"
-                       class="btn btn-secondary btn-lg">
-                        <i class="fas fa-arrow-left"></i> Back to Submissions
+                       class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Cancel
                     </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Save Grade
+                    </button>
                 </div>
             </form>
         </div>
@@ -102,7 +111,6 @@
         const feedbackCountSpan = document.getElementById('feedbackCount');
         const maxMarks = @Model.Submission.Assignment?.SetAssignmentMark;
 
-        // Mark calculation
         assignmentMarkInput.addEventListener('input', function() {
             const mark = parseFloat(this.value) || 0;
             const percentage = maxMarks > 0 ? (mark / maxMarks * 100) : 0;
@@ -112,7 +120,6 @@
             percentageSpan.textContent = percentage.toFixed(1) + '%';
             passFailSpan.innerHTML = `<span class="${statusColor} fw-bold">${status}</span>`;
 
-            // Validate mark range
             if (mark > maxMarks) {
                 this.classList.add('is-invalid');
             } else {
@@ -120,7 +127,6 @@
             }
         });
 
-        // Feedback character count
         feedbackTextarea.addEventListener('input', function() {
             const count = this.value.length;
             feedbackCountSpan.textContent = count;
@@ -134,24 +140,7 @@
             }
         });
 
-        // Form validation - FIXED VERSION
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const mark = parseFloat(assignmentMarkInput.value) || 0;
-
-            // Only prevent submission if there's a serious validation error
-            if (mark > maxMarks) {
-                e.preventDefault();
-                alert(`Mark cannot exceed ${maxMarks}`);
-                return false;
-            }
-
-            // Allow the form to submit for all other cases
-            // The server-side validation will handle the rest
-        });
-
-        // Initialize calculations on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Trigger input event to show initial calculations
             if (assignmentMarkInput.value) {
                 assignmentMarkInput.dispatchEvent(new Event('input'));
             }

@@ -1,66 +1,292 @@
 ﻿@model IEnumerable<ITSL_Administration.Models.Submission>
-
 @{
-    ViewData["Title"] = "Manage Submissions";
+    ViewData["Title"] = "Manage Submissions - ITSL Administration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
     var assignmentId = ViewBag.AssignmentId;
+    var assignment = ViewBag.Assignment as ITSL_Administration.Models.Assignment;
 }
 
-<div class="container mt-4">
-    <h2 class="text-primary"><i class="fas fa-users"></i> Manage Submissions</h2>
-    <hr />
+@section Breadcrumbs {
+    <li class="breadcrumb-item">
+        <a asp-controller="Courses" asp-action="Index" class="text-link">Courses</a>
+    </li>
+    <li class="breadcrumb-item">
+        <a asp-controller="Assignment" asp-action="ManageAssignment" asp-route-courseId="@assignment?.CourseId" class="text-link">Assignments</a>
+    </li>
+    <li class="breadcrumb-item">
+        <a asp-controller="Assignment" asp-action="Details" asp-route-id="@assignmentId" class="text-link">@assignment?.Title</a>
+    </li>
+    <li class="breadcrumb-item active">Manage Submissions</li>
+}
 
-    <table class="table table-striped">
-        <thead class="bg-light">
-            <tr>
-                <th>Student</th>
-                <th>Date Submitted</th>
-                <th>Files</th>
-                <th>Grade</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var submission in Model)
-        {
-            <tr>
-                <td>@submission.Participant?.FullName</td>
-                <td>@submission.DateSubmitted.ToString("g")</td>
-                <td>
-                    @foreach (var file in submission.Files)
-                    {
-                        <a href="@Url.Action("Download", "File", new { id = file.FileId })" class="btn btn-link">
-                            <i class="fas fa-download"></i> @file.FileName
-                        </a><br />
-                    }
-                </td>
-                <td>
-                    @if (submission.Grade != null)
-                    {
-                        <span class="badge bg-success">@submission.Grade.AssignmentMark%</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-warning text-dark">Not Graded</span>
-                    }
-                </td>
-                <td>
-                    @if (submission.Grade == null)
-                    {
-                        <a asp-controller="Grades" asp-action="Create" asp-route-submissionId="@submission.SubmissionID"
-                           class="btn btn-primary btn-sm"><i class="fas fa-pen"></i> Grade</a>
-                    }
-                    else
-                    {
-                        <a asp-controller="Grades" asp-action="Edit" asp-route-id="@submission.Grade.GradeID"
-                           class="btn btn-secondary btn-sm"><i class="fas fa-edit"></i> Edit</a>
-                    }
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
+<div class="container-fluid mt-4">
+    <!-- Page Header -->
+    <div class="index-header">
+        <div>
+            <h1 class="display-6 text-primary-blue mb-1">
+                <i class="fas fa-users me-2"></i>Manage Submissions
+            </h1>
+            <p class="text-muted mb-0">
+                @assignment?.Title - @assignment?.Course?.CourseName
+                @if (assignment != null)
+                {
+                    <span class="badge bg-secondary ms-2">@(assignment.Weight.ToString("P0")) Weight</span>
+                }
+            </p>
+        </div>
+        <a asp-action="Details" asp-route-id="@assignmentId" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Assignment
+        </a>
+    </div>
 
-    <a asp-action="Details" asp-route-id="@assignmentId" class="btn btn-secondary">
-        <i class="fas fa-arrow-left"></i> Back
-    </a>
+    <!-- Submission Statistics -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card dashboard-card border-left-primary hover-shadow">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">@Model.Count()</h3>
+                    <p class="text-muted mb-0">Total Submissions</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card dashboard-card border-left-success hover-shadow">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">@Model.Count(s => s.Grade != null)</h3>
+                    <p class="text-muted mb-0">Graded</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card dashboard-card border-left-warning hover-shadow">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">@Model.Count(s => s.Grade == null)</h3>
+                    <p class="text-muted mb-0">Pending</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card dashboard-card border-left-info hover-shadow">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">@(assignment?.SetAssignmentMark ?? 0)</h3>
+                    <p class="text-muted mb-0">Total Marks</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submissions Table -->
+    <div class="card index-card">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Student Submissions</h5>
+            <div>
+                <span class="badge bg-primary me-2">@Model.Count(s => s.Grade != null) Graded</span>
+                <span class="badge bg-warning">@Model.Count(s => s.Grade == null) Pending</span>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped index-table">
+                        <thead>
+                            <tr>
+                                <th>Student Information</th>
+                                <th>Submission Details</th>
+                                <th>Files</th>
+                                <th>Grade Status</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var submission in Model.OrderBy(s => s.Participant?.FullName))
+                            {
+                                var isGraded = submission.Grade != null;
+                                var gradePercentage = isGraded ? (submission.Grade.AssignmentMark / assignment.SetAssignmentMark * 100) : 0;
+
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                                <i class="fas fa-user-circle fa-2x text-primary-blue me-3"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1">@submission.Participant?.FullName</h6>
+                                                <small class="text-muted">@submission.Participant?.Email</small>
+                                                <br>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-id-card me-1"></i>@submission.ParticipantId
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong>Submitted:</strong>
+                                            @submission.DateSubmitted.ToString("dd MMM yyyy 'at' HH:mm")
+                                        </div>
+                                        @if (submission.DateSubmitted > assignment.DueDate)
+                                        {
+                                            <div class="mt-1">
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-clock me-1"></i>Late Submission
+                                                </span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="mt-1">
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check me-1"></i>On Time
+                                                </span>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (submission.Files?.Any() == true)
+                                        {
+                                            <div class="btn-group-vertical">
+                                                @foreach (var file in submission.Files)
+                                                {
+                                                    <a href="@Url.Action("Download", "File", new { id = file.FileId })"
+                                                       class="btn btn-sm btn-outline-primary mb-1 text-start"
+                                                       target="_blank"
+                                                       title="Download @file.FileName">
+                                                        <i class="fas fa-download me-1"></i>
+                                                        <span class="text-truncate" style="max-width: 150px; display: inline-block;">
+                                                            @file.FileName
+                                                        </span>
+                                                    </a>
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No files submitted</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (isGraded)
+                                        {
+                                            <div class="text-center">
+                                                <h5 class="text-success mb-1">@submission.Grade.AssignmentMark/@assignment.SetAssignmentMark</h5>
+                                                <div class="progress mb-1" style="height: 8px;">
+                                                    <div class="progress-bar @(gradePercentage >= 50 ? "bg-success" : "bg-danger")"
+                                                         style="width: @gradePercentage%">
+                                                    </div>
+                                                </div>
+                                                <span class="badge @(submission.Grade.HasPassed ? "bg-success" : "bg-danger")">
+                                                    @(submission.Grade.HasPassed ? "PASS" : "FAIL")
+                                                </span>
+                                                <br>
+                                                <small class="text-muted">@gradePercentage.ToString("F1")%</small>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="text-center">
+                                                <span class="badge bg-warning text-dark fs-6">
+                                                    <i class="fas fa-clock me-1"></i>Not Graded
+                                                </span>
+                                                <br>
+                                                <small class="text-muted">Awaiting assessment</small>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td class="text-center action-buttons">
+                                        <div class="btn-group-vertical btn-group-sm">
+                                            <a href="@Url.Action("Details", "Submission", new { id = submission.SubmissionID })"
+                                               class="btn btn-outline-info mb-1" title="View Submission Details">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+
+                                            @if (!isGraded)
+                                            {
+                                                <a asp-controller="Grades" asp-action="Create" asp-route-submissionId="@submission.SubmissionID"
+                                                   class="btn btn-success mb-1" title="Grade Submission">
+                                                    <i class="fas fa-pen"></i> Grade
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a asp-controller="Grades" asp-action="Edit" asp-route-id="@submission.Grade.GradeID"
+                                                   class="btn btn-primary mb-1" title="Edit Grade">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                                <a asp-controller="Grades" asp-action="Details" asp-route-id="@submission.Grade.GradeID"
+                                                   class="btn btn-outline-primary" title="View Grade Details">
+                                                    <i class="fas fa-chart-bar"></i> Details
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Grading Progress -->
+                <div class="row mt-4">
+                    <div class="col-md-8">
+                        <div class="form-card">
+                            <h4 class="form-header">
+                                <i class="fas fa-chart-line me-2"></i>Grading Progress
+                            </h4>
+                            @{
+                                var gradedCount = Model.Count(s => s.Grade != null);
+                                var totalCount = Model.Count();
+                                var progressPercentage = totalCount > 0 ? (gradedCount * 100 / totalCount) : 0;
+                            }
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Grading Completion:</span>
+                                <span class="fw-bold">@gradedCount/@totalCount (@progressPercentage%)</span>
+                            </div>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar @(progressPercentage == 100 ? "bg-success" : "bg-warning")"
+                                     role="progressbar"
+                                     style="width: @progressPercentage%;"
+                                     aria-valuenow="@progressPercentage"
+                                     aria-valuemin="0"
+                                     aria-valuemax="100">
+                                    @progressPercentage%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-card">
+                            <h4 class="form-header">
+                                <i class="fas fa-info-circle me-2"></i>Assignment Info
+                            </h4>
+                            <dl class="details-list">
+                                <dt>Due Date:</dt>
+                                <dd>@assignment?.DueDate.ToString("dd MMM yyyy")</dd>
+                                <dt>Total Marks:</dt>
+                                <dd>@assignment?.SetAssignmentMark</dd>
+                                <dt>Weight:</dt>
+                                <dd>@(assignment?.Weight.ToString("P0"))</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">No Submissions Yet</h4>
+                    <p class="text-muted mb-4">Students haven't submitted any work for this assignment.</p>
+                    <div class="btn-group">
+                        <a asp-action="Details" asp-route-id="@assignmentId" class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Assignment
+                        </a>
+                        <a asp-controller="Courses" asp-action="Details" asp-route-id="@assignment?.CourseId" class="btn btn-outline-primary">
+                            <i class="fas fa-book me-2"></i>View Course
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 </div>

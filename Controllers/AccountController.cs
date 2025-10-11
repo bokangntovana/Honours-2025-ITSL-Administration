@@ -37,18 +37,19 @@ namespace ITSL_Administration.Controllers
 
             if (result.Succeeded)
             {
-                // Switch to main layout
                 return RedirectToAction("Index", "Home");
             }
 
             ModelState.AddModelError(string.Empty, "Invalid Login Attempt.");
             return View(model);
         }
+
         //View About ITSL
         public IActionResult About()
         {
             return View();
         }
+
         //View Donations Page
         public IActionResult Donations()
         {
@@ -72,33 +73,36 @@ namespace ITSL_Administration.Controllers
 
             var user = new User
             {
-                FullName = model.Name, 
+                FullName = model.Name,
                 UserName = model.Email,
                 NormalizedUserName = model.Email.ToUpper(),
                 Email = model.Email,
                 NormalizedEmail = model.Email.ToUpper(),
-                //Age = model.Age,
-                IDNumber = model.IDNumber,
-                City = model.City,
-                isVolunteer = model.isVolunteer,
-                CampusName = model.CampusName
+                CampusName = model.CampusName,
+                Age = model.Age ?? 0,
+                IDNumber = model.IDNumber ?? string.Empty,
+                City = model.City ?? string.Empty,
+                isVolunteer = model.isVolunteer
             };
 
             var result = await userManager.CreateAsync(user, model.Password);
 
             if (result.Succeeded)
             {
-                // Validate role exists before assigning
-                if (!await roleManager.RoleExistsAsync(model.Role))
+                // Automatically assign "Participant" role to all new registrations
+                const string defaultRole = "Participant";
+
+                // Ensure Participant role exists
+                if (!await roleManager.RoleExistsAsync(defaultRole))
                 {
-                    ModelState.AddModelError("Role", "Invalid registration role");
-                    return View(model);
+                    await roleManager.CreateAsync(new IdentityRole(defaultRole));
                 }
 
-                await userManager.AddToRoleAsync(user, model.Role);
+                await userManager.AddToRoleAsync(user, defaultRole);
 
+                // Sign in the user after registration
                 await signInManager.SignInAsync(user, isPersistent: false);
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Index", "Home");
             }
 
             foreach (var error in result.Errors)
@@ -121,6 +125,81 @@ namespace ITSL_Administration.Controllers
 
             return View(user);
         }
+        // Add these methods to your existing AccountController
+
+        [HttpGet]
+        public async Task<IActionResult> EditProfile()
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return View(user);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProfile(User model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // Update user properties
+            user.FullName = model.FullName;
+            user.Email = model.Email;
+            user.PhoneNumber = model.PhoneNumber;
+            user.CampusName = model.CampusName;
+            user.Age = model.Age;
+            user.IDNumber = model.IDNumber;
+            user.City = model.City;
+            user.isVolunteer = model.isVolunteer;
+
+            var result = await userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+            {
+                // Update username if email changed
+                if (user.UserName != model.Email)
+                {
+                    user.UserName = model.Email;
+                    user.NormalizedUserName = model.Email.ToUpper();
+                    await userManager.UpdateAsync(user);
+                }
+
+                TempData["SuccessMessage"] = "Your profile has been updated successfully!";
+                return RedirectToAction("Profile");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return View(model);
+        }
+
+        //// Update the existing ChangePassword method to handle GET requests properly
+        //[HttpGet]
+        //public IActionResult ChangePassword()
+        //{
+        //    var user = userManager.GetUserAsync(User).Result;
+        //    if (user == null)
+        //    {
+        //        return RedirectToAction("Login");
+        //    }
+
+        //    return View(new ChangePasswordViewModel { Email = user.Email });
+        //}
 
         [HttpGet]
         public IActionResult VerifyEmail()
@@ -137,7 +216,7 @@ namespace ITSL_Administration.Controllers
                 return View(model);
             }
 
-            var user = await userManager.FindByNameAsync(model.Email);
+            var user = await userManager.FindByEmailAsync(model.Email); // Use FindByEmailAsync instead of FindByNameAsync
 
             if (user == null)
             {
@@ -146,7 +225,7 @@ namespace ITSL_Administration.Controllers
             }
             else
             {
-                return RedirectToAction("ChangePassword", "Account", new { username = user.UserName });
+                return RedirectToAction("ChangePassword", "Account", new { username = user.Email }); // Use user.Email
             }
         }
 

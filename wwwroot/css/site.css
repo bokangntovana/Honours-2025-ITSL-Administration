@@ -382,8 +382,8 @@ border-top: 1px solid #eee;
 }
 
 .details-list dt:first-child {
-    border-top: none;
-    padding-top: 0;
+border-top: none;
+padding-top: 0;
 }
 
 .table-responsive {
@@ -495,7 +495,7 @@ width: 100%;
 transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-.card:hover 
+.card:hover
 {
 transform: translateY(-2px);
 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
@@ -527,4 +527,47 @@ body.dark-mode a {
 color: #9ecbff;
 }
 
+/* Add to site.css - Index Page Specific Styles */
+.icon-wrapper {
+width: 80px;
+height: 80px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.dashboard-card {
+transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+border-left: 4px solid transparent;
+}
+
+.dashboard-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+border-left-color: var(--primary-blue);
+}
+
+.hover-shadow {
+transition: all 0.3s ease;
+}
+
+.hover-shadow:hover {
+transform: translateY(-2px);
+box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.page-header {
+border-bottom: 2px solid var(--light-blue);
+padding-bottom: 1rem;
+}
+
+/* Ensure consistent card heights */
+.card-body {
+display: flex;
+flex-direction: column;
+}
+
+.card-text {
+flex-grow: 1;
+}
 

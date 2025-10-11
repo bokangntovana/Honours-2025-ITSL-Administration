@@ -1,17 +1,21 @@
 ﻿@{
-    ViewData["Title"] = "About ITSL Administration";
+    ViewData["Title"] = "About - ITSL Administration";
     Layout = "~/Views/Shared/_AccountLayout.cshtml";
 }
 
+@section Breadcrumbs {
+    <li class="breadcrumb-item active">About ITSL</li>
+}
+
 <div>
-    <div class=" about-content">
+    <div class="about-content">
         <div class="text-center mb-4">
             <h2 class="display-4">About ITSL Administration</h2>
             <div class="divider"></div>
         </div>
 
         <div class="mission-section mb-5 p-4 rounded shadow-sm">
-            <h3 class="text-primary mb-3"><i class="fas fa-bullseye me-2"></i>Our Mission</h3>
+            <h3 class="text-primary-blue mb-3"><i class="fas fa-bullseye me-2"></i>Our Mission</h3>
             <p class="lead">Bridging the digital divide in South Africa through accessible computer literacy education and community engagement.</p>
         </div>
 
@@ -49,30 +53,30 @@
             <h3 class="text-success mb-3"><i class="fas fa-hands-helping me-2"></i>Our Response</h3>
             <p>The University of the Free State, through the Department of Computer Science and Informatics, has taken decisive action to address these challenges through:</p>
             <ul class="feature-list">
-                <li><i class="fas fa-check-circle text-success me-2"></i>Community-focused service learning programs</li>
-                <li><i class="fas fa-check-circle text-success me-2"></i>Practical skill development for students</li>
-                <li><i class="fas fa-check-circle text-success me-2"></i>Innovative Learning Management Systems</li>
+                <li>Community-focused service learning programs</li>
+                <li>Practical skill development for students</li>
+                <li>Innovative Learning Management Systems</li>
             </ul>
         </div>
 
         <div class="lms-section mb-4">
-            <div class="card border-primary">
-                <div class="card-header bg-primary text-white">
+            <div class="card border-primary-blue">
+                <div class="card-header bg-primary-blue text-white">
                     <h4 class="mb-0"><i class="fas fa-laptop-code me-2"></i>The Power of Learning Management Systems</h4>
                 </div>
                 <div class="card-body">
-                    <p>Our integrated LMS platform transforms education by providing:</p>
+                    <p>Our integrated ITSL Administration platform transforms education by providing:</p>
                     <div class="row">
                         <div class="col-md-6">
                             <ul class="lms-features">
-                                <li><i class="fas fa-cloud-upload-alt text-primary me-2"></i>Centralized digital learning materials</li>
-                                <li><i class="fas fa-comments text-primary me-2"></i>Seamless tutor-student communication</li>
+                                <li><i class="fas fa-cloud-upload-alt text-primary-blue me-2"></i>Centralized digital learning materials</li>
+                                <li><i class="fas fa-comments text-primary-blue me-2"></i>Seamless tutor-student communication</li>
                             </ul>
                         </div>
                         <div class="col-md-6">
                             <ul class="lms-features">
-                                <li><i class="fas fa-chart-line text-primary me-2"></i>Academic performance tracking</li>
-                                <li><i class="fas fa-graduation-cap text-primary me-2"></i>Personalized learning pathways</li>
+                                <li><i class="fas fa-chart-line text-primary-blue me-2"></i>Academic performance tracking</li>
+                                <li><i class="fas fa-graduation-cap text-primary-blue me-2"></i>Personalized learning pathways</li>
                             </ul>
                         </div>
                     </div>

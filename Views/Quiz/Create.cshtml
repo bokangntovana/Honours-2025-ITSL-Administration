@@ -1,68 +1,66 @@
 ﻿@model ITSL_Administration.Models.Quiz
-
 @{
-    ViewData["Title"] = "Create New Quiz";
+    ViewData["Title"] = "Create Quiz - ITSL Administration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Breadcrumbs {
+    <li class="breadcrumb-item">
+        <a asp-action="AvailableQuiz">Available Quizzes</a>
+    </li>
+    <li class="breadcrumb-item active">Create Quiz</li>
 }
 
 <div class="container mt-4">
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            <h3>@ViewData["Title"]</h3>
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary-blue text-white">
+            <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Create Quiz - ITSL Administration</h4>
         </div>
         <div class="card-body">
             <form asp-action="Create" method="post">
                 @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label asp-for="Assignment.Title" class="form-label"></label>
-                            <input asp-for="Assignment.Title" class="form-control" />
-                            <span asp-validation-for="Assignment.Title" class="text-danger"></span>
+                        <div class="mb-3">
+                            <label asp-for="Assignment.Title" class="form-label fw-bold">Quiz Title</label>
+                            <input asp-for="Assignment.Title" class="form-control" placeholder="Enter quiz title" />
+                            <span asp-validation-for="Assignment.Title" class="text-danger small"></span>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label asp-for="Assignment.DueDate" class="form-label"></label>
+                        <div class="mb-3">
+                            <label asp-for="Assignment.DueDate" class="form-label fw-bold">Due Date</label>
                             <input asp-for="Assignment.DueDate" type="datetime-local" class="form-control" />
-                            <span asp-validation-for="Assignment.DueDate" class="text-danger"></span>
+                            <span asp-validation-for="Assignment.DueDate" class="text-danger small"></span>
                         </div>
                     </div>
                 </div>
 
                 <div class="row">
-                @*     <div class="form-group mb-3">
-                        <label asp-for="Assignment.CourseId" class="form-label">Course</label>
-                        <select asp-for="Assignment.CourseId" asp-items="ViewBag.Courses" class="form-control">
-                            <option value="">-- Select Course --</option>
-                            @if (ViewBag.Courses != null)
-                            {
-                                foreach (var item in ViewBag.Courses as SelectList)
-                                {
-                                    <option value="@item.Value" selected="@item.Selected">@item.Text</option>
-                                }
-                            }
-                        </select>
-                        <span asp-validation-for="Assignment.CourseId" class="text-danger"></span>
-                    </div> *@
                     <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label asp-for="Assignment.SetAssignmentMark" class="form-label"></label>
-                            <input asp-for="Assignment.SetAssignmentMark" class="form-control" />
-                            <span asp-validation-for="Assignment.SetAssignmentMark" class="text-danger"></span>
+                        <div class="mb-3">
+                            <label asp-for="Assignment.SetAssignmentMark" class="form-label fw-bold">Total Marks</label>
+                            <input asp-for="Assignment.SetAssignmentMark" class="form-control" placeholder="Enter total marks" />
+                            <span asp-validation-for="Assignment.SetAssignmentMark" class="text-danger small"></span>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group mb-3">
-                    <label asp-for="Assignment.Description" class="form-label"></label>
-                    <textarea asp-for="Assignment.Description" class="form-control" rows="3"></textarea>
-                    <span asp-validation-for="Assignment.Description" class="text-danger"></span>
+                <div class="mb-3">
+                    <label asp-for="Assignment.Description" class="form-label fw-bold">Description</label>
+                    <textarea asp-for="Assignment.Description" class="form-control" rows="3" placeholder="Enter quiz description"></textarea>
+                    <span asp-validation-for="Assignment.Description" class="text-danger small"></span>
                 </div>
 
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Create Quiz</button>
-                    <a asp-action="AvailableQuiz" class="btn btn-secondary">Cancel</a>
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                    <a asp-action="AvailableQuiz" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Create Quiz
+                    </button>
                 </div>
             </form>
         </div>

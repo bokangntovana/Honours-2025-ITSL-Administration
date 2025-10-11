@@ -1,0 +1,143 @@
+﻿@model ITSL_Administration.Models.User
+@{
+    ViewData["Title"] = "Edit Profile - ITSL Administration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var campusOptions = new List<string> { "Bloemfontein", "Thaba Nchu", "Botshabelo", "QwaQwa" };
+}
+
+@section Breadcrumbs {
+    <li class="breadcrumb-item">
+        <a asp-controller="Account" asp-action="Profile">My Profile</a>
+    </li>
+    <li class="breadcrumb-item active">Edit Profile</li>
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary-blue text-white">
+            <h4 class="mb-0"><i class="fas fa-user-edit me-2"></i>Edit Profile - ITSL Administration</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="EditProfile" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <!-- Personal Information -->
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="form-label fw-bold">Full Name</label>
+                            <input asp-for="FullName" class="form-control" placeholder="Enter your full name" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="UserName" class="form-label fw-bold">Username</label>
+                            <input asp-for="UserName" class="form-control" readonly />
+                            <small class="form-text text-muted">Username cannot be changed</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label fw-bold">Email Address</label>
+                            <input asp-for="Email" class="form-control" placeholder="Enter your email address" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="Enter your phone number" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <!-- Additional Information -->
+                        <div class="mb-3">
+                            <label asp-for="CampusName" class="form-label fw-bold">Campus Location</label>
+                            <select asp-for="CampusName" class="form-control">
+                                <option value="">Select your campus</option>
+                                @foreach (var campus in campusOptions)
+                                {
+                                    <option value="@campus">@campus</option>
+                                }
+                            </select>
+                            <span asp-validation-for="CampusName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Age" class="form-label">Age</label>
+                            <input asp-for="Age" class="form-control" placeholder="Enter your age" />
+                            <span asp-validation-for="Age" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="IDNumber" class="form-label">ID Number</label>
+                            <input asp-for="IDNumber" class="form-control" placeholder="Enter your ID number" />
+                            <span asp-validation-for="IDNumber" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="City" class="form-label">City</label>
+                            <input asp-for="City" class="form-control" placeholder="Enter your city" />
+                            <span asp-validation-for="City" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input asp-for="isVolunteer" class="form-check-input" />
+                            <label asp-for="isVolunteer" class="form-check-label fw-bold">I'm interested in volunteering</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                    <a asp-controller="Account" asp-action="Profile" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                    <div>
+                        <a asp-controller="Account" asp-action="ChangePassword" class="btn btn-outline-primary me-2">
+                            <i class="fas fa-lock me-2"></i>Change Password
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Update Profile
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add real-time validation feedback
+            const form = document.querySelector('form');
+            const inputs = form.querySelectorAll('input, select');
+
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (this.value.trim() !== '') {
+                        this.classList.add('is-valid');
+                        this.classList.remove('is-invalid');
+                    } else if (this.hasAttribute('required')) {
+                        this.classList.add('is-invalid');
+                        this.classList.remove('is-valid');
+                    }
+                });
+            });
+
+            // Form submission enhancement
+            form.addEventListener('submit', function(e) {
+                const submitButton = this.querySelector('button[type="submit"]');
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+                submitButton.disabled = true;
+            });
+        });
+    </script>
+}

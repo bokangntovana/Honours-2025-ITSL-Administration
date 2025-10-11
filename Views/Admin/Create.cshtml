@@ -2,59 +2,118 @@
 @model AdminUserViewModel
 
 @{
-    ViewData["Title"] = "Create New User";
+    ViewData["Title"] = "Create User - ITSL Administration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var campusOptions = new List<string> { "Bloemfontein", "Thaba Nchu", "Botshabelo", "QwaQwa" };
 }
 
-<div class="form-card card">
-    <div class="card-body">
-        <h2 class="form-header">Create New User</h2>
+@section Breadcrumbs {
+    <li class="breadcrumb-item">
+        <a asp-controller="Admin" asp-action="Index">User Management</a>
+    </li>
+    <li class="breadcrumb-item active">Create User</li>
+}
 
-        <form asp-action="Create">
-            <div asp-validation-summary="All" class="text-danger"></div>
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary-blue text-white">
+            <h4 class="mb-0"><i class="fas fa-user-plus me-2"></i>Create New User - ITSL Administration</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label asp-for="FullName" class="form-label"></label>
-                        <input asp-for="FullName" class="form-control" />
-                        <span asp-validation-for="FullName" class="text-danger"></span>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="form-label fw-bold">Full Name</label>
+                            <input asp-for="FullName" class="form-control" placeholder="Enter full name" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label fw-bold">Email Address</label>
+                            <input asp-for="Email" class="form-control" placeholder="Enter email address" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label fw-bold">Password</label>
+                            <input asp-for="Password" class="form-control" placeholder="Create password" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label asp-for="Email" class="form-label"></label>
-                        <input asp-for="Email" class="form-control" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
-                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Role" class="form-label fw-bold">Role</label>
+                            <select asp-for="Role" class="form-control" asp-items="@(new SelectList(ViewBag.Roles))">
+                                <option value="">Select Role</option>
+                            </select>
+                            <span asp-validation-for="Role" class="text-danger small"></span>
+                        </div>
 
-                    <div class="mb-3">
-                        <label asp-for="Password" class="form-label"></label>
-                        <input asp-for="Password" class="form-control" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
+                        <div class="mb-3">
+                            <label asp-for="ConfirmPassword" class="form-label fw-bold">Confirm Password</label>
+                            <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm password" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="CampusName" class="form-label">Campus Location</label>
+                            <select asp-for="CampusName" class="form-control">
+                                <option value="">Select campus</option>
+                                @foreach (var campus in campusOptions)
+                                {
+                                    <option value="@campus">@campus</option>
+                                }
+                            </select>
+                            <span asp-validation-for="CampusName" class="text-danger small"></span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label asp-for="Role" class="form-label"></label>
-                        <select asp-for="Role" class="form-control"
-                                asp-items="@(new SelectList(ViewBag.Roles))">
-                            <option value="">Select Role</option>
-                        </select>
-                        <span asp-validation-for="Role" class="text-danger"></span>
+                <!-- Optional Fields -->
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label asp-for="Age" class="form-label">Age (Optional)</label>
+                            <input asp-for="Age" class="form-control" placeholder="Enter age" />
+                            <span asp-validation-for="Age" class="text-danger small"></span>
+                        </div>
                     </div>
-
-                    <div class="mb-3">
-                        <label asp-for="ConfirmPassword" class="form-label"></label>
-                        <input asp-for="ConfirmPassword" class="form-control" />
-                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label asp-for="IDNumber" class="form-label">ID Number (Optional)</label>
+                            <input asp-for="IDNumber" class="form-control" placeholder="Enter ID number" />
+                            <span asp-validation-for="IDNumber" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label asp-for="City" class="form-label">City (Optional)</label>
+                            <input asp-for="City" class="form-control" placeholder="Enter city" />
+                            <span asp-validation-for="City" class="text-danger small"></span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Create User</button>
-                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
-            </div>
-        </form>
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Create User
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

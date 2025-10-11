@@ -1,65 +1,121 @@
 ﻿@model ITSL_Administration.Models.Assignment
-
 @{
-    ViewData["Title"] = "Create Assignment";
+    ViewData["Title"] = "Create Assignment - ITSL Administration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Breadcrumbs {
+    <li class="breadcrumb-item">
+        <a asp-controller="Courses" asp-action="Index">Courses</a>
+    </li>
+    <li class="breadcrumb-item">
+        <a asp-controller="Assignments" asp-action="ManageAssignment" asp-route-courseId="@Model.CourseId">Assignments</a>
+    </li>
+    <li class="breadcrumb-item active">Create Assignment</li>
 }
 
 <div class="container mt-4">
-    <h2 class="mb-4 text-primary">Create Assignment</h2>
-
-    <form asp-action="Create" enctype="multipart/form-data">
-        <input type="hidden" asp-for="CourseId" />
-
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-        <div class="mb-3">
-            <label asp-for="Title" class="form-label fw-bold"></label>
-            <input asp-for="Title" class="form-control" />
-            <span asp-validation-for="Title" class="text-danger"></span>
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary-blue text-white">
+            <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Create Assignment - ITSL Administration</h4>
         </div>
+        <div class="card-body">
+            <form asp-action="Create" enctype="multipart/form-data">
+                <input type="hidden" asp-for="CourseId" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-        <div class="mb-3">
-            <label asp-for="Description" class="form-label fw-bold"></label>
-            <textarea asp-for="Description" class="form-control"></textarea>
-            <span asp-validation-for="Description" class="text-danger"></span>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label fw-bold">Assignment Title</label>
+                            <input asp-for="Title" class="form-control" placeholder="Enter assignment title" />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="AssignmentType" class="form-label fw-bold">Assignment Type</label>
+                            <select asp-for="AssignmentType" class="form-select" asp-items="Html.GetEnumSelectList<AssignmentType>()">
+                                <option value="">-- Select Assignment Type --</option>
+                            </select>
+                            <span asp-validation-for="AssignmentType" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="DueDate" class="form-label fw-bold">Due Date</label>
+                            <input asp-for="DueDate" type="datetime-local" class="form-control" />
+                            <span asp-validation-for="DueDate" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="SetAssignmentMark" class="form-label fw-bold">Total Marks</label>
+                            <input asp-for="SetAssignmentMark" class="form-control" placeholder="Enter total marks" />
+                            <span asp-validation-for="SetAssignmentMark" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Weight" class="form-label fw-bold">Weight (%)</label>
+                            <div class="input-group">
+                                <input asp-for="Weight" class="form-control" placeholder="0.00" step="0.01" min="0" max="1" />
+                                <span class="input-group-text">%</span>
+                            </div>
+                            <small class="form-text text-muted">Enter as decimal (0.15 for 15%)</small>
+                            <span asp-validation-for="Weight" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Instruction Files (Optional)</label>
+                            <input type="file" name="instructionFile" class="form-control" />
+                            <small class="form-text text-muted">Upload assignment instructions or resources</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label fw-bold">Assignment Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="4" placeholder="Provide detailed assignment description..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                    <a asp-action="ManageAssignment" asp-route-courseId="@Model.CourseId" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Create Assignment
+                    </button>
+                </div>
+            </form>
         </div>
-
-        <div class="mb-3">
-            <label asp-for="DueDate" class="form-label fw-bold"></label>
-            <input asp-for="DueDate" type="date" class="form-control" />
-            <span asp-validation-for="DueDate" class="text-danger"></span>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="SetAssignmentMark" class="form-label fw-bold"></label>
-            <input asp-for="SetAssignmentMark" class="form-control" />
-            <span asp-validation-for="SetAssignmentMark" class="text-danger"></span>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="Weight" class="form-label fw-bold"></label>
-            <input asp-for="Weight" class="form-control" />
-            <span asp-validation-for="Weight" class="text-danger"></span>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="AssignmentType" class="form-label fw-bold"></label>
-            <select asp-for="AssignmentType" class="form-select" asp-items="Html.GetEnumSelectList<AssignmentType>()">
-                <option value="">-- Select Type --</option>
-            </select>
-            <span asp-validation-for="AssignmentType" class="text-danger"></span>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label fw-bold">Instruction File (optional)</label>
-            <input type="file" name="instructionFile" class="form-control" />
-        </div>
-
-        <button type="submit" class="btn btn-success">
-            <i class="fas fa-save"></i> Save Assignment
-        </button>
-        <a asp-action="ManageAssignment" asp-route-courseId="@Model.CourseId" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Cancel
-        </a>
-    </form>
+    </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set minimum datetime to current time
+            const dueDateInput = document.querySelector('input[type="datetime-local"]');
+            if (dueDateInput) {
+                const now = new Date();
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                dueDateInput.min = now.toISOString().slice(0, 16);
+            }
+
+            // Auto-format weight input
+            const weightInput = document.querySelector('input[name="Weight"]');
+            if (weightInput) {
+                weightInput.addEventListener('blur', function() {
+                    const value = parseFloat(this.value);
+                    if (value > 1) {
+                        this.value = (value / 100).toFixed(2);
+                    }
+                });
+            }
+        });
+    </script>
+}

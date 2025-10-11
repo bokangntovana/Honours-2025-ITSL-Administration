@@ -1,69 +1,224 @@
 ﻿@using ITSL_Administration.ViewModels
 @model EmailViewModel
 @{
-    ViewData["Title"] = "Send Email";
+    ViewData["Title"] = "Send Email - ITSL Administration";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-5">
-    <div class="card shadow-lg border-0 rounded-3">
-        <div class="card-header bg-primary text-white">
-            <h3 class="mb-0">📧 Send Email</h3>
-        </div>
-        <div class="card-body bg-light">
-            <form asp-action="SendEmail" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+@section Breadcrumbs {
+    <li class="breadcrumb-item active">Send Email</li>
+}
 
-             
-                <div class="mb-3">
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary-blue text-white">
+            <h4 class="mb-0"><i class="fas fa-envelope me-2"></i>Send Email - ITSL Administration</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="SendEmail" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <!-- Recipient Selection -->
+                <div class="mb-4">
                     <label class="form-label fw-bold">Select Recipients</label>
-                    <div class="form-check mb-2">
+
+                    <!-- Send to All Checkbox -->
+                    <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" asp-for="SendToAll" id="sendAllCheck" />
-                        <label class="form-check-label text-danger fw-semibold" for="sendAllCheck">
-                            Send to all users
+                        <label class="form-check-label text-danger fw-bold" for="sendAllCheck">
+                            <i class="fas fa-users me-2"></i>Send to all users
                         </label>
                     </div>
-                    <select asp-for="SelectedEmails" class="form-select" multiple style="height: 200px;">
-                        @foreach (var user in Model.Users)
-                        {
-                            <option value="@user.Email">@user.FullName (@user.Email)</option>
-                        }
-                    </select>
-                    <small class="text-muted">Hold Ctrl (or Cmd on Mac) to select multiple users.</small>
+
+                    <!-- User Search and Selection -->
+                    <div id="userSelectionSection">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Search and Select Users</label>
+                            <input type="text" id="userSearch" class="form-control" placeholder="Search users by name or email..." />
+                        </div>
+
+                        <div class="border rounded p-3 bg-light" style="max-height: 300px; overflow-y: auto;">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th width="50px">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="selectAllUsers">
+                                                    <label class="form-check-label small fw-bold" for="selectAllUsers">All</label>
+                                                </div>
+                                            </th>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="userTableBody">
+                                        @foreach (var user in Model.Users)
+                                        {
+                                            <tr class="user-row">
+                                                <td>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input user-checkbox" type="checkbox"
+                                                               value="@user.Email"
+                                                               @(Model.SelectedEmails?.Contains(user.Email) == true ? "checked" : "")>
+                                                    </div>
+                                                </td>
+                                                <td class="user-name">@user.FullName</td>
+                                                <td class="user-email">@user.Email</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <small class="text-muted">Selected users: <span id="selectedCount">0</span></small>
+
+                        <!-- Hidden field to store selected emails -->
+                        <select asp-for="SelectedEmails" class="d-none" multiple>
+                            @if (Model.SelectedEmails != null)
+                            {
+                                foreach (var email in Model.SelectedEmails)
+                                {
+                                    <option value="@email" selected>@email</option>
+                                }
+                            }
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Subject -->
                 <div class="mb-3">
-                    <label asp-for="Subject" class="form-label fw-bold"></label>
-                    <input asp-for="Subject" type="text" class="form-control border-primary" placeholder="Enter subject..." required />
-                    <span asp-validation-for="Subject" class="text-danger"></span>
+                    <label asp-for="Subject" class="form-label fw-bold">Subject</label>
+                    <input asp-for="Subject" type="text" class="form-control" placeholder="Enter email subject..." required />
+                    <span asp-validation-for="Subject" class="text-danger small"></span>
                 </div>
 
-            
+                <!-- Message -->
                 <div class="mb-3">
-                    <label asp-for="Message" class="form-label fw-bold"></label>
-                    <textarea asp-for="Message" class="form-control border-primary" rows="6" placeholder="Write your message here..." required></textarea>
-                    <span asp-validation-for="Message" class="text-danger"></span>
+                    <label asp-for="Message" class="form-label fw-bold">Message</label>
+                    <textarea asp-for="Message" class="form-control" rows="6" placeholder="Write your message here..." required></textarea>
+                    <span asp-validation-for="Message" class="text-danger small"></span>
                 </div>
 
-                <div class="mb-3">
+                <!-- Attachments -->
+                <div class="mb-4">
                     <label asp-for="Attachments" class="form-label fw-bold">Attachments</label>
-                    <input asp-for="Attachments" type="file" class="form-control border-secondary" multiple />
-                    <small class="text-muted">You can upload multiple files (e.g., PDFs, images).</small>
+                    <input asp-for="Attachments" type="file" class="form-control" multiple />
+                    <small class="form-text text-muted">You can upload multiple files (PDFs, images, documents).</small>
                 </div>
 
-              
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-danger btn-lg fw-bold shadow-sm">
-                        Send Email 🚀
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i>Send Email
                     </button>
                 </div>
             </form>
         </div>
+
         @if (ViewBag.Message != null)
         {
-            <div class="card-footer bg-white text-success fw-semibold">
-                <p class="mb-0">@ViewBag.Message</p>
+            <div class="card-footer">
+                <div class="alert alert-success mb-0">
+                    <i class="fas fa-check-circle me-2"></i>@ViewBag.Message
+                </div>
             </div>
         }
     </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sendAllCheck = document.getElementById('sendAllCheck');
+            const userSelectionSection = document.getElementById('userSelectionSection');
+            const userSearch = document.getElementById('userSearch');
+            const selectAllUsers = document.getElementById('selectAllUsers');
+            const userCheckboxes = document.querySelectorAll('.user-checkbox');
+            const selectedEmailsSelect = document.querySelector('select[name="SelectedEmails"]');
+            const selectedCount = document.getElementById('selectedCount');
+
+            // Toggle user selection section based on "Send to All" checkbox
+            function toggleUserSelection() {
+                if (sendAllCheck.checked) {
+                    userSelectionSection.style.opacity = '0.6';
+                    userSelectionSection.style.pointerEvents = 'none';
+                    // Uncheck all user checkboxes when sending to all
+                    userCheckboxes.forEach(cb => cb.checked = false);
+                    updateSelectedEmails();
+                } else {
+                    userSelectionSection.style.opacity = '1';
+                    userSelectionSection.style.pointerEvents = 'auto';
+                }
+            }
+
+            // Update selected emails hidden field
+            function updateSelectedEmails() {
+                // Clear existing options
+                while (selectedEmailsSelect.firstChild) {
+                    selectedEmailsSelect.removeChild(selectedEmailsSelect.firstChild);
+                }
+
+                // Add selected emails
+                userCheckboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        const option = document.createElement('option');
+                        option.value = checkbox.value;
+                        option.textContent = checkbox.value;
+                        option.selected = true;
+                        selectedEmailsSelect.appendChild(option);
+                    }
+                });
+
+                // Update selected count
+                const selectedCountValue = document.querySelectorAll('.user-checkbox:checked').length;
+                selectedCount.textContent = selectedCountValue;
+            }
+
+            // User search functionality
+            function filterUsers() {
+                const searchTerm = userSearch.value.toLowerCase();
+                const rows = document.querySelectorAll('.user-row');
+
+                rows.forEach(row => {
+                    const name = row.querySelector('.user-name').textContent.toLowerCase();
+                    const email = row.querySelector('.user-email').textContent.toLowerCase();
+
+                    if (name.includes(searchTerm) || email.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            // Select all users functionality
+            selectAllUsers.addEventListener('change', function() {
+                const visibleRows = document.querySelectorAll('.user-row:not([style*="display: none"])');
+                visibleRows.forEach(row => {
+                    const checkbox = row.querySelector('.user-checkbox');
+                    checkbox.checked = selectAllUsers.checked;
+                });
+                updateSelectedEmails();
+            });
+
+            // Event listeners
+            sendAllCheck.addEventListener('change', toggleUserSelection);
+            userSearch.addEventListener('input', filterUsers);
+
+            userCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateSelectedEmails);
+            });
+
+            // Initialize
+            toggleUserSelection();
+            updateSelectedEmails();
+        });
+    </script>
+}

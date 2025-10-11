@@ -1,3 +1,214 @@
-﻿
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> SignInManager
+@{
+    ViewData["Title"] = "Welcome to ITSL Administration";
+}
 
+<div class="container-fluid">
+    <!-- Public Welcome Section (shown to non-authenticated users) -->
+    @if (!SignInManager.IsSignedIn(User))
+    {
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="text-center mb-5">
+                    <h1 class="display-4 text-primary-blue mb-3">
+                        <i class="fas fa-university me-2"></i>ITSL Administration
+                    </h1>
+                    <p class="lead text-muted">
+                        Welcome to the ITSL Learning Management System. Please log in to access your dashboard.
+                    </p>
+                    <div class="mt-4">
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg me-3">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </a>
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>Register
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Authenticated User Dashboard Navigation -->
+        <div class="row">
+            <div class="col-12">
+                <div class="page-header mb-4">
+                    <h1 class="h2 text-primary-blue">
+                        <i class="fas fa-tachometer-alt me-2"></i>Welcome, @User.Identity?.Name!
+                    </h1>
+                    <p class="text-muted">Choose your dashboard to get started</p>
+                </div>
+            </div>
+        </div>
 
+        <div class="row g-4">
+            <!-- Admin Dashboard Card -->
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="card dashboard-card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-wrapper bg-primary-blue rounded-circle mx-auto mb-3">
+                                <i class="fas fa-user-shield fa-2x text-white"></i>
+                            </div>
+                            <h5 class="card-title text-primary-blue mb-2">Admin Dashboard</h5>
+                            <p class="card-text text-muted small mb-3">
+                                Manage users, courses, and system-wide settings with comprehensive administrative tools.
+                            </p>
+                            <a asp-controller="Home" asp-action="AdminDashboard" class="btn btn-primary btn-sm">
+                                <i class="fas fa-arrow-right me-1"></i>Access Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Lecturer Dashboard Card -->
+            @if (User.IsInRole("Lecturer"))
+            {
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="card dashboard-card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-wrapper bg-success rounded-circle mx-auto mb-3">
+                                <i class="fas fa-chalkboard-teacher fa-2x text-white"></i>
+                            </div>
+                            <h5 class="card-title text-success mb-2">Lecturer Dashboard</h5>
+                            <p class="card-text text-muted small mb-3">
+                                Manage courses, create assignments, track student progress, and oversee academic activities.
+                            </p>
+                            <a asp-controller="Home" asp-action="LecturerDashboard" class="btn btn-success btn-sm">
+                                <i class="fas fa-arrow-right me-1"></i>Access Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Tutor Dashboard Card -->
+            @if (User.IsInRole("Tutor"))
+            {
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="card dashboard-card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-wrapper bg-info rounded-circle mx-auto mb-3">
+                                <i class="fas fa-user-graduate fa-2x text-white"></i>
+                            </div>
+                            <h5 class="card-title text-info mb-2">Tutor Dashboard</h5>
+                            <p class="card-text text-muted small mb-3">
+                                Grade assignments, provide feedback, and support student learning activities.
+                            </p>
+                            <a asp-controller="Home" asp-action="TutorDashboard" class="btn btn-info btn-sm text-white">
+                                <i class="fas fa-arrow-right me-1"></i>Access Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Participant Dashboard Card -->
+            @if (User.IsInRole("Participant"))
+            {
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="card dashboard-card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-wrapper bg-warning rounded-circle mx-auto mb-3">
+                                <i class="fas fa-user fa-2x text-white"></i>
+                            </div>
+                            <h5 class="card-title text-warning mb-2">Participant Dashboard</h5>
+                            <p class="card-text text-muted small mb-3">
+                                Access courses, submit assignments, track your grades, and monitor your learning progress.
+                            </p>
+                            <a asp-controller="Home" asp-action="ParticipantDashboard" class="btn btn-warning btn-sm text-dark">
+                                <i class="fas fa-arrow-right me-1"></i>Access Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Multiple Roles Message -->
+            @{
+                var userRoles = new List<string>();
+                if (User.IsInRole("Admin")) userRoles.Add("Admin");
+                if (User.IsInRole("Lecturer")) userRoles.Add("Lecturer");
+                if (User.IsInRole("Tutor")) userRoles.Add("Tutor");
+                if (User.IsInRole("Participant")) userRoles.Add("Participant");
+            }
+
+            @if (userRoles.Count > 1)
+            {
+                <div class="col-12">
+                    <div class="alert alert-info mt-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Multiple Roles Detected:</strong> You have access to multiple dashboards (@string.Join(", ", userRoles)).
+                        Choose the appropriate dashboard for your current tasks. You can switch between them using the navigation menu.
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Quick Stats Section for Authenticated Users -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light-blue">
+                        <h5 class="card-title mb-0 text-primary-blue">
+                            <i class="fas fa-rocket me-2"></i>Quick Start
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            @if (User.IsInRole("Admin") || User.IsInRole("Lecturer") || User.IsInRole("Tutor") || User.IsInRole("Participant"))
+                            {
+                                <div class="col-md-3 col-6">
+                                    <a asp-controller="Courses" asp-action="Index" class="text-decoration-none">
+                                        <div class="text-center p-3 border rounded hover-shadow">
+                                            <i class="fas fa-book-open fa-2x text-primary-blue mb-2"></i>
+                                            <h6 class="mb-1">Courses</h6>
+                                            <small class="text-muted">Browse all courses</small>
+                                        </div>
+                                    </a>
+                                </div>
+                            }
+
+                            @if (User.IsInRole("Admin") || User.IsInRole("Lecturer") || User.IsInRole("Tutor") || User.IsInRole("Participant"))
+                            {
+                                <div class="col-md-3 col-6">
+                                    <a asp-controller="Quiz" asp-action="AvailableQuiz" class="text-decoration-none">
+                                        <div class="text-center p-3 border rounded hover-shadow">
+                                            <i class="fas fa-file-alt fa-2x text-primary-blue mb-2"></i>
+                                            <h6 class="mb-1">Quizzes</h6>
+                                            <small class="text-muted">Take available quizzes</small>
+                                        </div>
+                                    </a>
+                                </div>
+                            }
+
+                            <div class="col-md-3 col-6">
+                                <a asp-controller="EventSchedules" asp-action="Index" class="text-decoration-none">
+                                    <div class="text-center p-3 border rounded hover-shadow">
+                                        <i class="fas fa-calendar-alt fa-2x text-primary-blue mb-2"></i>
+                                        <h6 class="mb-1">Calendar</h6>
+                                        <small class="text-muted">View classes & events</small>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-md-3 col-6">
+                                <a asp-controller="Account" asp-action="Profile" class="text-decoration-none">
+                                    <div class="text-center p-3 border rounded hover-shadow">
+                                        <i class="fas fa-user fa-2x text-primary-blue mb-2"></i>
+                                        <h6 class="mb-1">Profile</h6>
+                                        <small class="text-muted">Update your profile</small>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

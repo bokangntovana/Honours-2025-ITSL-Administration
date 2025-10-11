@@ -21,10 +21,11 @@
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-ddTHH:mm}", ApplyFormatInEditMode = true)]
         public DateTime Start { get; set; } // Start date and time
 
+        [Required(ErrorMessage = "End date and time is required")]
         [Display(Name = "End Date/Time")]
         [DataType(DataType.DateTime)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-ddTHH:mm}", ApplyFormatInEditMode = true)]
-        public DateTime? End { get; set; } // Optional end date and time
+        public DateTime End { get; set; } // Optional end date and time
 
         [StringLength(500, ErrorMessage = "Description cannot be longer than 500 characters")]
         [DataType(DataType.MultilineText)]

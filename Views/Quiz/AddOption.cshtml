@@ -1,31 +1,58 @@
 ﻿@model ITSL_Administration.Models.QuizOption
-
 @{
-    ViewData["Title"] = "Add Option";
+    ViewData["Title"] = "Add Option - ITSL Administration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Add Option to Question</h2>
+@section Breadcrumbs {
+    <li class="breadcrumb-item">
+        <a asp-action="EditQuestion" asp-route-id="@Model.QuestionId">Edit Question</a>
+    </li>
+    <li class="breadcrumb-item active">Add Option</li>
+}
 
-<form asp-action="AddOption" method="post">
-    @Html.AntiForgeryToken()
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary-blue text-white">
+            <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Add Option - ITSL Administration</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="AddOption" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-    <input type="hidden" asp-for="QuestionId" />
-    <input type="hidden" asp-for="OptionID" />
+                <input type="hidden" asp-for="QuestionId" />
+                <input type="hidden" asp-for="OptionID" />
 
-    <div class="form-group">
-        <label asp-for="OptionText" class="control-label"></label>
-        <input asp-for="OptionText" class="form-control" />
-        <span asp-validation-for="OptionText" class="text-danger"></span>
+                <div class="mb-3">
+                    <label asp-for="OptionText" class="form-label fw-bold">Option Text</label>
+                    <input asp-for="OptionText" class="form-control" placeholder="Enter option text" />
+                    <span asp-validation-for="OptionText" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input" asp-for="IsCorrect" />
+                        <label class="form-check-label fw-bold" asp-for="IsCorrect">Correct Answer</label>
+                    </div>
+                    <span class="form-text text-muted">Check this if this option is the correct answer</span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                    <a asp-action="EditQuestion" asp-route-id="@Model.QuestionId" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Create Option
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
+</div>
 
-    <div class="form-group form-check">
-        <input class="form-check-input" asp-for="IsCorrect" />
-        <label class="form-check-label" asp-for="IsCorrect">Correct Answer</label>
-    </div>
-
-    <div class="form-group">
-        <input type="submit" value="Create" class="btn btn-primary" />
-        <a asp-action="EditQuestion" asp-route-id="@Model.QuestionId" class="btn btn-secondary">Cancel</a>
-    </div>
-</form>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

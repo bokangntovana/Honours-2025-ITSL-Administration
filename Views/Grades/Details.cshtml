@@ -1,26 +1,32 @@
 ﻿@model ITSL_Administration.Models.Grade
 @{
-    ViewData["Title"] = "Grade Details";
+    ViewData["Title"] = "Grade Details - ITSL Administration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
     var percentage = Model.AssignmentMark / Model.Assignment?.SetAssignmentMark * 100 ?? 0;
     var isLecturerOrAbove = User.IsInRole("Admin") || User.IsInRole("Lecturer") || User.IsInRole("Tutor");
 }
 
+@section Breadcrumbs {
+    <li class="breadcrumb-item">
+        <a asp-controller="Grades" asp-action="ParticipantGrades">My Grades</a>
+    </li>
+    <li class="breadcrumb-item active">@Model.Assignment?.Title</li>
+}
+
 <div class="container mt-4">
-    <div class="card">
-        <div class="card-header bg-info text-white">
-            <div class="d-flex justify-content-between align-items-center">
-                <h2 class="mb-0"><i class="fas fa-file-alt"></i> Grade Details</h2>
-                <div>
-                    @if (isLecturerOrAbove)
-                    {
-                        <a href="@Url.Action("Edit", "Grades", new { id = Model.GradeID })" class="btn btn-warning btn-sm">
-                            <i class="fas fa-edit"></i> Edit Grade
-                        </a>
-                    }
-                    <a href="@Url.Action("ParticipantGrades", "Grades")" class="btn btn-secondary btn-sm">
-                        <i class="fas fa-arrow-left"></i> Back to My Grades
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary-blue text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="fas fa-file-alt me-2"></i>Grade Details - ITSL Administration</h4>
+            <div>
+                @if (isLecturerOrAbove)
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.GradeID" class="btn btn-light btn-sm me-2">
+                        <i class="fas fa-edit me-1"></i>Edit
                     </a>
-                </div>
+                }
+                <a asp-action="ParticipantGrades" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back
+                </a>
             </div>
         </div>
         <div class="card-body">
@@ -29,7 +35,7 @@
                 <div class="row">
                     <div class="col-md-8">
                         <h4 class="alert-heading">
-                            <i class="fas @(Model.HasPassed ? "fa-check-circle" : "fa-times-circle")"></i>
+                            <i class="fas @(Model.HasPassed ? "fa-check-circle" : "fa-times-circle") me-2"></i>
                             @(Model.HasPassed ? "PASS" : "FAIL")
                         </h4>
                         <p class="mb-0">This submission has been @(Model.HasPassed ? "successfully passed" : "marked as failed").</p>
@@ -45,16 +51,11 @@
                 <!-- Left Column: Grade Information -->
                 <div class="col-md-6">
                     <div class="card mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0"><i class="fas fa-info-circle"></i> Grade Information</h5>
+                        <div class="card-header bg-light-blue">
+                            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Grade Information</h5>
                         </div>
                         <div class="card-body">
                             <dl class="row mb-0">
-                                <dt class="col-sm-5 text-muted">Grade ID:</dt>
-                                <dd class="col-sm-7">
-                                    <span class="font-monospace small">@Model.GradeID</span>
-                                </dd>
-
                                 <dt class="col-sm-5 text-muted">Assignment Mark:</dt>
                                 <dd class="col-sm-7">
                                     <strong>@Model.AssignmentMark.ToString("F1")</strong> / @Model.Assignment?.SetAssignmentMark
@@ -87,8 +88,8 @@
 
                     <!-- Assignment Details -->
                     <div class="card mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0"><i class="fas fa-clipboard-list"></i> Assignment Details</h5>
+                        <div class="card-header bg-light-blue">
+                            <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Assignment Details</h5>
                         </div>
                         <div class="card-body">
                             <dl class="row mb-0">
@@ -101,8 +102,8 @@
                                 <dt class="col-sm-5 text-muted">Type:</dt>
                                 <dd class="col-sm-7">
                                     <span class="badge
-                                        @(Model.Assignment?.AssignmentType == AssignmentType.Quiz ? "bg-info" :
-                                                                                    Model.Assignment?.AssignmentType == AssignmentType.WrittenAssignment ? "bg-warning" : "bg-success")">
+                                        @(Model.Assignment?.AssignmentType.ToString() == "Quiz" ? "bg-info" :
+                                                                                    Model.Assignment?.AssignmentType.ToString() == "WrittenAssignment" ? "bg-primary" : "bg-success")">
                                         @Model.Assignment?.AssignmentType
                                     </span>
                                 </dd>
@@ -125,8 +126,8 @@
                 <div class="col-md-6">
                     <!-- Participant Details -->
                     <div class="card mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0"><i class="fas fa-user"></i> Participant Details</h5>
+                        <div class="card-header bg-light-blue">
+                            <h5 class="mb-0"><i class="fas fa-user me-2"></i>Participant Details</h5>
                         </div>
                         <div class="card-body">
                             <dl class="row mb-0">
@@ -138,19 +139,14 @@
 
                                 <dt class="col-sm-5 text-muted">Submitted:</dt>
                                 <dd class="col-sm-7">@Model.Submission?.DateSubmitted.ToString("dd MMM yyyy 'at' HH:mm")</dd>
-
-                                <dt class="col-sm-5 text-muted">Submission ID:</dt>
-                                <dd class="col-sm-7">
-                                    <span class="font-monospace small">@Model.SubmissionId</span>
-                                </dd>
                             </dl>
                         </div>
                     </div>
 
                     <!-- Feedback Section -->
                     <div class="card mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0"><i class="fas fa-comments"></i> Feedback</h5>
+                        <div class="card-header bg-light-blue">
+                            <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Feedback</h5>
                         </div>
                         <div class="card-body">
                             @if (!string.IsNullOrEmpty(Model.GradesFeedback))
@@ -160,7 +156,7 @@
                                 </div>
                                 <div class="mt-2 text-muted">
                                     <small>
-                                        <i class="fas fa-info-circle"></i>
+                                        <i class="fas fa-info-circle me-1"></i>
                                         @Model.GradesFeedback.Length/500 characters
                                     </small>
                                 </div>
@@ -174,44 +170,24 @@
                             }
                         </div>
                     </div>
-
-                    <!-- Mark Calculation Info -->
-                    <div class="card">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0"><i class="fas fa-calculator"></i> Mark Calculation</h6>
-                        </div>
-                        <div class="card-body">
-                            <p class="small text-muted mb-2">
-                                <strong>Final Mark Formula:</strong><br>
-                                (Assignment Mark / Total Marks) × (Weight × 100)
-                            </p>
-                            <p class="small text-muted mb-0">
-                                (@Model.AssignmentMark / @Model.Assignment?.SetAssignmentMark) × (@((Model.Assignment?.Weight * 100)?.ToString("F0"))% × 100) = @Model.FinalMark.ToString("F1")%
-                            </p>
-                        </div>
-                    </div>
                 </div>
             </div>
-
-            <!-- Action Buttons -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        @if (isLecturerOrAbove)
-                        {
-                            <a href="@Url.Action("Edit", "Grades", new { id = Model.GradeID })" class="btn btn-primary me-md-2">
-                                <i class="fas fa-edit"></i> Edit Grade
-                            </a>
-                            <a href="@Url.Action("ManageSubmissions", "Assignment", new { id = Model.AssignmentId })"
-                               class="btn btn-info me-md-2">
-                                <i class="fas fa-list"></i> View All Submissions
-                            </a>
-                        }
-                        <a href="@Url.Action("ParticipantGrades", "Grades")" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Back to My Grades
-                        </a>
-                    </div>
-                </div>
+        </div>
+        <div class="card-footer text-end">
+            <div class="btn-group">
+                @if (isLecturerOrAbove)
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.GradeID" class="btn btn-primary">
+                        <i class="fas fa-edit me-1"></i>Edit Grade
+                    </a>
+                    <a asp-controller="Assignment" asp-action="ManageSubmissions" asp-route-id="@Model.AssignmentId"
+                       class="btn btn-info">
+                        <i class="fas fa-list me-1"></i>View All Submissions
+                    </a>
+                }
+                <a asp-action="ParticipantGrades" class="btn btn-secondary">
+                    <i class="fas fa-list me-1"></i>Back to My Grades
+                </a>
             </div>
         </div>
     </div>

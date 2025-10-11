@@ -1,30 +1,37 @@
 ﻿@model ITSL_Administration.Models.Donation
 @{
-    ViewData["Title"] = "Payment Failed";
+    ViewData["Title"] = "Payment Failed - ITSL Administration";
     Layout = "~/Views/Shared/_AccountLayout.cshtml";
+}
+
+@section Breadcrumbs {
+    <li class="breadcrumb-item">
+        <a asp-action="Donations">Support Our Mission</a>
+    </li>
+    <li class="breadcrumb-item active">Payment Failed</li>
 }
 
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-8 text-center">
-            <div class="card mt-5">
+        <div class="col-md-8">
+            <div class="card shadow-sm mt-4">
                 <div class="card-header bg-danger text-white">
-                    <h2><i class="fas fa-times-circle me-2"></i>Payment Failed</h2>
+                    <h4 class="mb-0"><i class="fas fa-times-circle me-2"></i>Payment Failed - ITSL Administration</h4>
                 </div>
-                <div class="card-body">
+                <div class="card-body text-center">
                     <div class="mb-4">
                         <i class="fas fa-times-circle fa-5x text-danger mb-3"></i>
-                        <h3>Your donation of R @Model.Amount.ToString("0.00") was not processed</h3>
-                        <p class="lead">No funds have been deducted from your account.</p>
+                        <h3 class="text-danger">Donation Not Processed</h3>
+                        <p class="lead text-muted">Your donation of R @Model.Amount.ToString("0.00") could not be processed.</p>
                     </div>
 
-                    <div class="alert alert-warning">
-                        <h4><i class="fas fa-info-circle me-2"></i>What happened?</h4>
-                        <p>The payment processor reported that your payment could not be completed.</p>
-                        <p>Reference: @Model.StripePaymentIntentId</p>
+                    <div class="alert alert-warning text-start">
+                        <h5 class="alert-heading"><i class="fas fa-info-circle me-2"></i>What happened?</h5>
+                        <p class="mb-2">The payment processor reported that your payment could not be completed.</p>
+                        <p class="mb-0"><strong>Reference:</strong> @Model.StripePaymentIntentId</p>
                     </div>
 
-                    <div class="d-grid gap-3 col-md-6 mx-auto mt-4">
+                    <div class="d-flex justify-content-center gap-3 mt-4 pt-3 border-top">
                         <a asp-controller="Donations" asp-action="Payment" class="btn btn-primary">
                             <i class="fas fa-credit-card me-2"></i>Try Again
                         </a>

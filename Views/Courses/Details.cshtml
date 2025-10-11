@@ -1,84 +1,196 @@
-﻿@model ITSL_Administration.Models.Course
-
+﻿@using Humanizer
+@model ITSL_Administration.Models.Course
 @{
-    ViewData["Title"] = "Course Details";
+    ViewData["Title"] = "Course Details - ITSL Administration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var isStaff = User.IsInRole("Admin") || User.IsInRole("Lecturer") || User.IsInRole("Tutor");
 }
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="form-header">
-            <i class="fas fa-book-open me-2"></i>Course Details
-        </h2>
-        <a asp-action="Index" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Back to List
-        </a>
-    </div>
-    <br>
-    <div class="mt-4">
-        <h4>Course Materials</h4>
-        <!-- Add links to course content files here -->
-        <a asp-controller="Courses" asp-action="ContentList" asp-route-id="@Model.CourseID"
-           class="btn btn-outline-primary">
-            <i class="fas fa-folder-open me-2"></i>View Course Content
-        </a>
-    </div>
+@section Breadcrumbs {
+    <li class="breadcrumb-item">
+        <a asp-controller="Courses" asp-action="Index" class="text-link">Courses</a>
+    </li>
+    <li class="breadcrumb-item active">@Model.CourseName</li>
+}
 
-    <div class="form-card p-4">
-        <div class="row">
-            <div class="col-md-6">
-                <dl class="row details-list">
-
-
-                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.CourseCode)</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.CourseCode)</dd>
-
-                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.CourseName)</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.CourseName)</dd>
-                </dl>
+<div class="container-fluid mt-4">
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-6 text-primary-blue mb-1">
+                    <i class="fas fa-book me-2"></i>@Model.CourseName
+                </h1>
+                <p class="text-muted mb-0">@Model.CourseCode - @Model.CourseCredits Credits</p>
             </div>
-            <div class="col-md-6">
-                <dl class="row details-list">
-                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.CourseCredits)</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.CourseCredits)</dd>
-
-                    <dt class="col-sm-4 text-muted fw-bold">@Html.DisplayNameFor(model => model.CourseDescription)</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.CourseDescription)</dd>
-                </dl>
-            </div>
-        </div>
-
-        <div class="form-actions">
-            <a asp-action="Edit" asp-route-id="@Model.CourseID" class="btn btn-primary">
-                <i class="fas fa-edit me-2"></i>Edit
-            </a>
-            <a class="btn btn-danger" asp-controller="Grades" asp-action="ExportParticipantReport" asp-route-courseId="@Model.CourseID" asp-route-studentId="@User.Identity.Name">
-                <i class="fas fa-file-pdf"></i> Download My Academic Record
-            </a>
-            <a asp-controller="Grades" asp-action="ExportGradebookPdf" asp-route-courseId="@Model.CourseID" class="btn btn-primary">
-                <i class="fas fa-file-pdf"></i> Export Gradebook
-            </a>
-
             <a asp-action="Index" class="btn btn-outline-secondary">
-                <i class="fas fa-list me-2"></i>View All Courses
+                <i class="fas fa-arrow-left me-2"></i>Back to Courses
             </a>
-            @if (User.IsInRole("Admin") || User.IsInRole("Lecturer"))
-            {
-                <a asp-controller="Assignment" asp-action="ManageAssignment" asp-route-courseId="@Model.CourseID" class="btn btn-primary">Manage Assignments</a>
-            }
-            else
-            {
-                <a asp-controller="Assignment" asp-action="ManageAssignment" asp-route-courseId="@Model.CourseID" class="btn btn-primary">View Assignments</a>
-            }
-            -
         </div>
-        @if (User.IsInRole("Lecturer") || User.IsInRole("Admin"))
-        {
-            <div class="mt-3">
-                <a href="@Url.Action("ManageEnrollments", "Enrollment", new { courseId = Model.CourseID })"
-                   class="btn btn-primary">
-                    <i class="fas fa-users"></i> Manage Course Enrollments
-                </a>
+    </div>
+
+    <!-- Success Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Course Information Card -->
+            <div class="form-card mb-4">
+                <h4 class="form-header">
+                    <i class="fas fa-info-circle me-2"></i>Course Information
+                </h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl class="details-list">
+                            <dt>Course Code:</dt>
+                            <dd class="fw-bold">@Model.CourseCode</dd>
+
+                            <dt>Course ID:</dt>
+                            <dd>@Model.CourseID</dd>
+
+                            <dt>Credits:</dt>
+                            <dd><span class="badge bg-secondary">@Model.CourseCredits</span></dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <dl class="details-list">
+                            <dt>Course Name:</dt>
+                            <dd class="fw-bold">@Model.CourseName</dd>
+
+                            <dt>Status:</dt>
+                            <dd><span class="status-badge status-active">Active</span></dd>
+                        </dl>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.CourseDescription))
+                {
+                    <div class="mt-3">
+                        <dt class="text-muted mb-2">Description:</dt>
+                        <dd class="p-3 bg-light rounded">@Model.CourseDescription</dd>
+                    </div>
+                }
             </div>
-        }
+
+            <!-- Quick Actions -->
+            <div class="form-card">
+                <h4 class="form-header">
+                    <i class="fas fa-bolt me-2"></i>Quick Actions
+                </h4>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <a asp-controller="Courses" asp-action="ContentList" asp-route-id="@Model.CourseID"
+                           class="btn btn-outline-primary btn-block text-start p-3">
+                            <i class="fas fa-folder-open me-2 fa-lg"></i>
+                            <div>
+                                <strong>Course Materials</strong>
+                                <br>
+                                <small class="text-muted">Access learning resources</small>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a asp-controller="Assignment" asp-action="ManageAssignment" asp-route-courseId="@Model.CourseID"
+                           class="btn @(isStaff ? "btn-outline-success" : "btn-outline-info") btn-block text-start p-3">
+                            <i class="fas fa-tasks me-2 fa-lg"></i>
+                            <div>
+                                <strong>@(isStaff ? "Manage Assignments" : "View Assignments")</strong>
+                                <br>
+                                <small class="text-muted">@(isStaff ? "Create and manage assignments" : "View course assignments")</small>
+                            </div>
+                        </a>
+                    </div>
+                    @if (isStaff)
+                    {
+                        <div class="col-md-6">
+                            <a asp-controller="Grades" asp-action="ExportGradebookPdf" asp-route-courseId="@Model.CourseID"
+                               class="btn btn-outline-info btn-block text-start p-3">
+                                <i class="fas fa-download me-2 fa-lg"></i>
+                                <div>
+                                    <strong>Export Gradebook</strong>
+                                    <br>
+                                    <small class="text-muted">Download grades as PDF</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a asp-controller="Grades" asp-action="GradingOverview"
+                               class="btn btn-outline-secondary btn-block text-start p-3">
+                                <i class="fas fa-chart-bar me-2 fa-lg"></i>
+                                <div>
+                                    <strong>Grading Overview</strong>
+                                    <br>
+                                    <small class="text-muted">View all course grades</small>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Course Stats -->
+            <div class="form-card mb-4">
+                <h4 class="form-header">
+                    <i class="fas fa-chart-bar me-2"></i>Course Statistics
+                </h4>
+                <div class="dashboard-card border-left-primary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Assignments:</span>
+                            <span class="badge bg-primary">@(Model.Assignments?.Count ?? 0)</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Course Materials:</span>
+                            <span class="badge bg-success">@(Model.Contents?.Count ?? 0)</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Total Credits:</span>
+                            <span class="badge bg-secondary">@Model.CourseCredits</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff Actions -->
+            @if (isStaff)
+            {
+                <div class="form-card">
+                    <h4 class="form-header">
+                        <i class="fas fa-user-shield me-2"></i>Staff Tools
+                    </h4>
+                    <div class="d-grid gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.CourseID" class="btn btn-primary">
+                            <i class="fas fa-edit me-2"></i>Edit Course
+                        </a>
+                        <a asp-controller="Courses" asp-action="ContentList" asp-route-id="@Model.CourseID"
+                           class="btn btn-success">
+                            <i class="fas fa-folder-open me-2"></i>Manage Materials
+                        </a>
+                        <a asp-controller="Assignment" asp-action="ManageAssignment" asp-route-courseId="@Model.CourseID"
+                           class="btn btn-info">
+                            <i class="fas fa-tasks me-2"></i>Manage Assignments
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
     </div>
 </div>

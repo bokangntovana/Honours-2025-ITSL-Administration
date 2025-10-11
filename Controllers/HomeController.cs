@@ -338,7 +338,16 @@ namespace ITSL_Administration.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            if (User.Identity.IsAuthenticated)
+            {
+                // You can pass the user's roles to the view, or let the view check User.IsInRole()
+                return View();
+            }
+            else
+            {
+                // If not authenticated, show public landing page or redirect to login
+                return View();
+            }
         }
     }
 }

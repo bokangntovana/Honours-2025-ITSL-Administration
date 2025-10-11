@@ -2,18 +2,27 @@
 @using ITSL_Administration.Models
 
 @{
-    ViewData["Title"] = "Grading Overview";
+    ViewData["Title"] = "Grading Overview - ITSL Administration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Breadcrumbs {
+    <li class="breadcrumb-item active">Grading Overview</li>
 }
 
 <div class="container mt-4">
-    <h2><i class="fas fa-tachometer-alt"></i> Grading Overview</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary-blue">
+            <i class="fas fa-tachometer-alt me-2"></i>Grading Overview - ITSL Administration
+        </h2>
+    </div>
     <p class="text-muted">Overview of courses you're teaching and their grading status</p>
 
     @if (!Model.Any())
     {
         <div class="alert alert-info">
-            <h4>No courses assigned</h4>
-            <p>You are not currently assigned as a lecturer or tutor for any courses.</p>
+            <h4><i class="fas fa-info-circle me-2"></i>No courses assigned</h4>
+            <p class="mb-0">You are not currently assigned as a lecturer or tutor for any courses.</p>
         </div>
     }
     else
@@ -27,8 +36,8 @@
                 var gradingProgress = totalSubmissions > 0 ? (totalGraded * 100 / totalSubmissions) : 0;
 
                 <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-header bg-primary text-white">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-primary-blue text-white">
                             <h5 class="mb-0">@course.CourseName</h5>
                             <small>@course.CourseCode</small>
                         </div>
@@ -66,7 +75,7 @@
                                     var assignmentTotal = assignment.Submissions.Count;
                                     var assignmentProgress = assignmentTotal > 0 ? (assignmentGraded * 100 / assignmentTotal) : 0;
 
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 border-bottom">
                                         <div>
                                             <small class="fw-bold">@assignment.Title</small>
                                             <br />
@@ -84,13 +93,13 @@
                             </div>
                         </div>
                         <div class="card-footer">
-                            <a href="@Url.Action("ManageGrades", "Grades", new { courseId = course.CourseID })"
-                               class="btn btn-primary btn-sm">
-                                <i class="fas fa-tasks"></i> Manage Grades
+                            <a asp-action="ManageGrades" asp-route-courseId="@course.CourseID"
+                               class="btn btn-primary btn-sm me-2">
+                                <i class="fas fa-tasks me-1"></i>Manage Grades
                             </a>
-                            <a href="@Url.Action("ExportGradebookPdf", "Grades", new { courseId = course.CourseID })"
+                            <a asp-action="ExportGradebookPdf" asp-route-courseId="@course.CourseID"
                                class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-download"></i> Export
+                                <i class="fas fa-download me-1"></i>Export
                             </a>
                         </div>
                     </div>

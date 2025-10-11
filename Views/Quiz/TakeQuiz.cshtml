@@ -1,135 +1,157 @@
 ﻿@model ITSL_Administration.ViewModels.QuizViewModel
-
 @{
-    ViewData["Title"] = "Take Quiz";
+    ViewData["Title"] = "Take Quiz - ITSL Administration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Breadcrumbs {
+    <li class="breadcrumb-item">
+        <a asp-action="AvailableQuiz">Available Quizzes</a>
+    </li>
+    <li class="breadcrumb-item active">Take Quiz</li>
 }
 
 <div class="container mt-4">
-    <h2 class="mb-3">@Model.QuizTitle</h2>
-    <p class="text-muted">Course: @Model.CourseName | Due: @Model.DueDate.ToString("d")</p>
-    
-    <!-- Progress Indicator -->
-    <div class="progress mb-4" style="height: 20px;">
-        <div class="progress-bar" role="progressbar" 
-             style="width: @((Model.CurrentPage * 100) / Model.TotalPages)%"
-             aria-valuenow="@Model.CurrentPage" 
-             aria-valuemin="1" 
-             aria-valuemax="@Model.TotalPages">
-            Page @Model.CurrentPage of @Model.TotalPages
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary-blue text-white">
+            <h4 class="mb-0"><i class="fas fa-play-circle me-2"></i>Take Quiz - ITSL Administration</h4>
         </div>
-    </div>
+        <div class="card-body">
+            <div class="mb-4">
+                <h3 class="text-primary-blue">@Model.QuizTitle</h3>
+                <p class="text-muted mb-2">
+                    <i class="fas fa-book me-2"></i>Course: @Model.CourseName
+                </p>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-calendar me-2"></i>Due: @Model.DueDate.ToString("dd MMM yyyy HH:mm")
+                </p>
+            </div>
 
-    <form asp-action="TakeQuiz" asp-controller="Quiz" method="get">
-        <input type="hidden" name="quizId" value="@Model.QuizId" />
-        
-        <!-- Pagination Controls -->
-        <div class="d-flex justify-content-between mb-4">
-            @if (Model.HasPreviousPage)
-            {
-                <button type="submit" name="page" value="@Model.PreviousPage" 
-                        class="btn btn-outline-primary">
-                    ← Previous Page
-                </button>
-            }
-            else
-            {
-                <span></span> <!-- Spacer for alignment -->
-            }
-            
-            <span class="align-self-center">Page @Model.CurrentPage of @Model.TotalPages</span>
-            
-            @if (Model.HasNextPage)
-            {
-                <button type="submit" name="page" value="@Model.NextPage" 
-                        class="btn btn-outline-primary">
-                    Next Page →
-                </button>
-            }
-            else
-            {
-                <button type="button" class="btn btn-success" 
-                        onclick="document.getElementById('submitQuiz').click()">
-                    Submit Quiz
-                </button>
-            }
-        </div>
-    </form>
-
-    <form asp-action="SubmitQuiz" asp-controller="Quiz" method="post" id="quizForm">
-        <input type="hidden" asp-for="QuizId" />
-        <input type="hidden" asp-for="AssignmentId" />
-        <input type="hidden" asp-for="CurrentPage" />
-
-        @for (int i = 0; i < Model.Questions.Count; i++)
-        {
-            var question = Model.Questions[i];
-            <div class="card mb-3">
-                <div class="card-header">
-                    <strong>Question @(i + 1 + ((Model.CurrentPage - 1) * Model.PageSize))</strong>
+            <!-- Progress Indicator -->
+            <div class="progress mb-4" style="height: 20px;">
+                <div class="progress-bar bg-primary-blue" role="progressbar"
+                     style="width: @((Model.CurrentPage * 100) / Model.TotalPages)%"
+                     aria-valuenow="@Model.CurrentPage"
+                     aria-valuemin="1"
+                     aria-valuemax="@Model.TotalPages">
+                    Page @Model.CurrentPage of @Model.TotalPages
                 </div>
-                <div class="card-body">
-                    <p class="card-text">@question.QuestionText</p>
+            </div>
 
-                    @* Hidden field to bind question id *@
-                    <input type="hidden" name="Questions[@i].QuestionId" value="@question.QuestionId" />
+            <form asp-action="TakeQuiz" asp-controller="Quiz" method="get">
+                <input type="hidden" name="quizId" value="@Model.QuizId" />
 
-                    @for (int j = 0; j < question.Options.Count; j++)
+                <!-- Pagination Controls -->
+                <div class="d-flex justify-content-between mb-4">
+                    @if (Model.HasPreviousPage)
                     {
-                        var option = question.Options[j];
-                        var inputId = "option_" + question.QuestionId + "_" + j;
-                        <div class="form-check">
-                            <input type="radio"
-                                   class="form-check-input"
-                                   name="Questions[@i].UserAnswer"
-                                   value="@option.Value" 
-                                   id="@inputId" />
-                            <label class="form-check-label" for="@inputId">
-                                @option.Text
-                            </label>
-                        </div>
+                        <button type="submit" name="page" value="@Model.PreviousPage"
+                                class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Previous Page
+                        </button>
+                    }
+                    else
+                    {
+                        <span></span>
+                    }
+
+                    <span class="align-self-center fw-bold">Page @Model.CurrentPage of @Model.TotalPages</span>
+
+                    @if (Model.HasNextPage)
+                    {
+                        <button type="submit" name="page" value="@Model.NextPage"
+                                class="btn btn-outline-primary">
+                            Next Page <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-success"
+                                onclick="document.getElementById('submitQuiz').click()">
+                            <i class="fas fa-paper-plane me-2"></i>Submit Quiz
+                        </button>
                     }
                 </div>
-            </div>
-        }
+            </form>
 
-        <!-- Hidden submit button for final submission; set name/value to bind to action parameter -->
-        <button type="submit" id="submitQuiz" name="action" value="submit" class="d-none">Submit Quiz</button>
-    </form>
+            <form asp-action="SubmitQuiz" asp-controller="Quiz" method="post" id="quizForm">
+                <input type="hidden" asp-for="QuizId" />
+                <input type="hidden" asp-for="AssignmentId" />
+                <input type="hidden" asp-for="CurrentPage" />
 
-    <!-- Bottom Pagination Controls -->
-    <div class="mt-4">
-        <form asp-action="TakeQuiz" asp-controller="Quiz" method="get">
-            <input type="hidden" name="quizId" value="@Model.QuizId" />
-            
-            <div class="d-flex justify-content-between">
-                @if (Model.HasPreviousPage)
+                @for (int i = 0; i < Model.Questions.Count; i++)
                 {
-                    <button type="submit" name="page" value="@Model.PreviousPage" 
-                            class="btn btn-outline-primary">
-                        ← Previous Page
-                    </button>
+                    var question = Model.Questions[i];
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-header bg-light-blue">
+                            <h6 class="mb-0">
+                                <strong>Question @(i + 1 + ((Model.CurrentPage - 1) * Model.PageSize))</strong>
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text fw-bold mb-3">@question.QuestionText</p>
+
+                            <input type="hidden" name="Questions[@i].QuestionId" value="@question.QuestionId" />
+
+                            @for (int j = 0; j < question.Options.Count; j++)
+                            {
+                                var option = question.Options[j];
+                                var inputId = "option_" + question.QuestionId + "_" + j;
+                                <div class="form-check mb-2">
+                                    <input type="radio"
+                                           class="form-check-input"
+                                           name="Questions[@i].UserAnswer"
+                                           value="@option.Value"
+                                           id="@inputId" />
+                                    <label class="form-check-label" for="@inputId">
+                                        @option.Text
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 }
-                else
-                {
-                    <span></span>
-                }
-                
-                @if (Model.HasNextPage)
-                {
-                    <button type="submit" name="page" value="@Model.NextPage" 
-                            class="btn btn-outline-primary">
-                        Next Page →
-                    </button>
-                }
-                else
-                {
-                    <button type="button" class="btn btn-success" 
-                            onclick="document.getElementById('submitQuiz').click()">
-                        Submit Quiz
-                    </button>
-                }
+
+                <!-- Hidden submit button for final submission -->
+                <button type="submit" id="submitQuiz" name="action" value="submit" class="d-none">Submit Quiz</button>
+            </form>
+
+            <!-- Bottom Pagination Controls -->
+            <div class="mt-4 pt-3 border-top">
+                <form asp-action="TakeQuiz" asp-controller="Quiz" method="get">
+                    <input type="hidden" name="quizId" value="@Model.QuizId" />
+
+                    <div class="d-flex justify-content-between">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <button type="submit" name="page" value="@Model.PreviousPage"
+                                    class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-left me-2"></i>Previous Page
+                            </button>
+                        }
+                        else
+                        {
+                            <span></span>
+                        }
+
+                        @if (Model.HasNextPage)
+                        {
+                            <button type="submit" name="page" value="@Model.NextPage"
+                                    class="btn btn-outline-primary">
+                                Next Page <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-success"
+                                    onclick="document.getElementById('submitQuiz').click()">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Quiz
+                            </button>
+                        }
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 
@@ -138,7 +160,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Load saved answers from sessionStorage
         const savedAnswers = JSON.parse(sessionStorage.getItem('quizAnswers_@Model.QuizId') || '{}');
-        
+
         // Apply saved answers to radio buttons
         Object.keys(savedAnswers).forEach(questionId => {
             const selector = 'input[name="Questions[' + findQuestionIndex(questionId) + '].UserAnswer"][value="' + savedAnswers[questionId] + '"]';
@@ -147,11 +169,10 @@
                 radioButton.checked = true;
             }
         });
-        
+
         // Save answers when radio buttons change
         document.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', function() {
-                // name example: Questions[0].UserAnswer
                 const name = this.name;
                 const m = name.match(/Questions\[(\d+)\]\.UserAnswer/);
                 if (!m) return;
@@ -167,7 +188,7 @@
             });
         });
 
-        // helper to find question index by id using rendered inputs
+        // Helper to find question index by id using rendered inputs
         function findQuestionIndex(questionId) {
             const inputs = document.querySelectorAll('input[name$=".QuestionId"]');
             for (let i = 0; i < inputs.length; i++) {

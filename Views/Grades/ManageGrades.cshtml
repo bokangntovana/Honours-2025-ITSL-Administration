@@ -2,17 +2,10 @@
 @using ITSL_Administration.Models
 
 @{
-    ViewData["Title"] = "Grade Management - " + Model.CourseName;
+    ViewData["Title"] = "Grade Management - ITSL Administration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
     var assignments = Model.Assignments.OrderBy(a => a.DueDate).ToList();
 
-    // Get participants who have submissions for this course (replaces enrollment-based count)
-    var participantsWithSubmissions = assignments
-        .SelectMany(a => a.Submissions)
-        .Select(s => s.ParticipantId)
-        .Distinct()
-        .ToList();
-
-    // Get all unique participants across all assignments
     var allParticipants = assignments
         .SelectMany(a => a.Submissions)
         .Select(s => s.Participant)
@@ -21,23 +14,30 @@
         .ToList();
 }
 
+@section Breadcrumbs {
+    <li class="breadcrumb-item">
+        <a asp-action="GradingOverview">Grading Overview</a>
+    </li>
+    <li class="breadcrumb-item active">@Model.CourseName</li>
+}
+
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-tasks"></i> Grade Management - @Model.CourseName</h2>
-        <a href="@Url.Action("ExportGradebookPdf", "Grades", new { courseId = Model.CourseID })" class="btn btn-primary">
-            <i class="fas fa-download"></i> Export Gradebook
+        <h2 class="text-primary-blue">
+            <i class="fas fa-tasks me-2"></i>Grade Management - @Model.CourseName
+        </h2>
+        <a asp-action="ExportGradebookPdf" asp-route-courseId="@Model.CourseID" class="btn btn-primary">
+            <i class="fas fa-download me-2"></i>Export Gradebook
         </a>
     </div>
 
     <!-- Course Summary Cards -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="card text-white bg-primary">
+            <div class="card text-white bg-primary-blue">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <!-- REMOVED: Enrollment-based participant count -->
-                            <!-- REPLACED WITH: Count of unique participants with submissions -->
                             <h4>@allParticipants.Count</h4>
                             <p class="mb-0">Participants</p>
                         </div>
@@ -122,31 +122,31 @@
                  id="content-@assignment.AssignmentID" role="tabpanel">
 
                 <!-- Assignment Header -->
-                <div class="card mt-3">
-                    <div class="card-header">
+                <div class="card mt-3 shadow-sm">
+                    <div class="card-header bg-light-blue">
                         <h5 class="mb-0">
                             @assignment.Title
                             <span class="badge
-                                        @(assignment.AssignmentType == AssignmentType.Quiz ? "bg-info" :
-                                                                                                      assignment.AssignmentType == AssignmentType.WrittenAssignment ? "bg-warning" : "bg-success") float-end">
-                            @assignment.AssignmentType
-                        </span>
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>Due Date:</strong> @assignment.DueDate.ToString("dd MMM yyyy")</p>
-                            <p><strong>Weight:</strong> <span class="badge bg-secondary">@((assignment.Weight * 100).ToString("F0"))%</span></p>
-                            <p><strong>Total Marks:</strong> @assignment.SetAssignmentMark</p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>Submissions:</strong> @assignment.Submissions.Count</p>
-                            <p><strong>Graded:</strong> @assignment.Submissions.Count(s => s.Grade != null)</p>
-                            <p><strong>Pending:</strong> @assignment.Submissions.Count(s => s.Grade == null)</p>
-                        </div>
+                                        @(assignment.AssignmentType.ToString() == "Quiz" ? "bg-info" :
+                                          assignment.AssignmentType.ToString() == "WrittenAssignment" ? "bg-primary" : "bg-success") float-end">
+                                @assignment.AssignmentType
+                            </span>
+                        </h5>
                     </div>
-                    @if (!string.IsNullOrEmpty(assignment.Description))
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Due Date:</strong> @assignment.DueDate.ToString("dd MMM yyyy")</p>
+                                <p><strong>Weight:</strong> <span class="badge bg-secondary">@((assignment.Weight * 100).ToString("F0"))%</span></p>
+                                <p><strong>Total Marks:</strong> @assignment.SetAssignmentMark</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Submissions:</strong> @assignment.Submissions.Count</p>
+                                <p><strong>Graded:</strong> @assignment.Submissions.Count(s => s.Grade != null)</p>
+                                <p><strong>Pending:</strong> @assignment.Submissions.Count(s => s.Grade == null)</p>
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(assignment.Description))
                         {
                             <p><strong>Description:</strong> @assignment.Description</p>
                         }
@@ -154,14 +154,14 @@
                 </div>
 
                 <!-- Submissions Table -->
-                <div class="card mt-3">
-                    <div class="card-header">
-                        <h6 class="mb-0">Submissions</h6>
+                <div class="card mt-3 shadow-sm">
+                    <div class="card-header bg-light-blue">
+                        <h6 class="mb-0"><i class="fas fa-list me-2"></i>Submissions</h6>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
                                     <tr>
                                         <th>Participant</th>
                                         <th>Submitted Date</th>
@@ -169,7 +169,7 @@
                                         <th>Mark</th>
                                         <th>Graded By</th>
                                         <th>Feedback</th>
-                                        <th>Actions</th>
+                                        <th class="text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -219,25 +219,27 @@
                                                     <span class="text-muted">-</span>
                                                 }
                                             </td>
-                                            <td>
-                                                @if (submission.Grade == null)
-                                                {
-                                                    <a href="@Url.Action("Create", "Grades", new { submissionId = submission.SubmissionID })"
-                                                       class="btn btn-sm btn-success">
-                                                        <i class="fas fa-pen"></i> Grade
+                                            <td class="text-center">
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    @if (submission.Grade == null)
+                                                    {
+                                                        <a asp-controller="Grades" asp-action="Create" asp-route-submissionId="@submission.SubmissionID"
+                                                           class="btn btn-outline-success" title="Grade Submission">
+                                                            <i class="fas fa-pen"></i>
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a asp-controller="Grades" asp-action="Edit" asp-route-id="@submission.Grade.GradeID"
+                                                           class="btn btn-outline-primary" title="Edit Grade">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                    }
+                                                    <a asp-controller="Assignment" asp-action="ManageSubmissions" asp-route-id="@assignment.AssignmentID"
+                                                       class="btn btn-outline-info" title="View Submissions">
+                                                        <i class="fas fa-list"></i>
                                                     </a>
-                                                }
-                                                else
-                                                {
-                                                    <a href="@Url.Action("Edit", "Grades", new { id = submission.Grade.GradeID })"
-                                                       class="btn btn-sm btn-primary">
-                                                        <i class="fas fa-edit"></i> Edit
-                                                    </a>
-                                                }
-                                                <a href="@Url.Action("ManageSubmissions", "Assignment", new { id = assignment.AssignmentID })"
-                                                   class="btn btn-sm btn-info">
-                                                    <i class="fas fa-list"></i> View
-                                                </a>
+                                                </div>
                                             </td>
                                         </tr>
                                     }
@@ -249,19 +251,17 @@
 
                 <!-- Participants without submissions -->
                 @{
-                    // REMOVED: Enrollment-based participant filtering
-                    // REPLACED WITH: Get participants who have submitted to other assignments but not this one
                     var participantsWithSubmissionsForThisAssignment = assignment.Submissions.Select(s => s.ParticipantId).ToList();
                     var participantsWithoutSubmissionsForThisAssignment = allParticipants
-                    .Where(p => !participantsWithSubmissionsForThisAssignment.Contains(p.Id))
-                    .ToList();
+                        .Where(p => !participantsWithSubmissionsForThisAssignment.Contains(p.Id))
+                        .ToList();
                 }
 
                 @if (participantsWithoutSubmissionsForThisAssignment.Any())
                 {
-                    <div class="card mt-3 border-warning">
+                    <div class="card mt-3 border-warning shadow-sm">
                         <div class="card-header bg-warning text-dark">
-                            <h6 class="mb-0">Participants Without Submissions</h6>
+                            <h6 class="mb-0"><i class="fas fa-user-clock me-2"></i>Participants Without Submissions</h6>
                         </div>
                         <div class="card-body">
                             <div class="row">

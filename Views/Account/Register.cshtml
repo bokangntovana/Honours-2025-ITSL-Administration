@@ -2,88 +2,104 @@
 @model RegisterViewModel;
 
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Register - ITSL Administration";
     Layout = "~/Views/Shared/_AccountLayout.cshtml";
 
-    // Define the roles list here
-    var roles = new List<string> { "Participant", "Lecturer", "Tutor" };
+    var campusOptions = new List<string> { "Bloemfontein", "Thaba Nchu", "Botshabelo", "QwaQwa" };
+}
+
+@section Breadcrumbs {
+    <li class="breadcrumb-item active">Register</li>
 }
 
 <div class="account-container">
     <div class="account-box">
-        <h2 class="text-center mb-4">Register</h2>
+        <div class="text-center mb-4">
+            <h2 class="text-primary-blue">Join ITSL Administration</h2>
+            <p class="text-muted">Create your participant account</p>
+        </div>
+
         <form asp-action="Register" method="post">
             @Html.AntiForgeryToken()
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
             <div class="mb-3">
-                <label asp-for="Name" class="form-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+                <label asp-for="Name" class="form-label fw-bold">Full Name</label>
+                <input asp-for="Name" class="form-control" placeholder="Enter your full name" />
+                <span asp-validation-for="Name" class="text-danger small"></span>
             </div>
+
             <div class="mb-3">
-                <label asp-for="Email" class="form-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
+                <label asp-for="Email" class="form-label fw-bold">Email Address</label>
+                <input asp-for="Email" class="form-control" placeholder="Enter your email address" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
             </div>
+
             <div class="mb-3">
-                <label asp-for="Password" class="form-label"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
+                <label asp-for="Password" class="form-label fw-bold">Password</label>
+                <input asp-for="Password" class="form-control" placeholder="Create a password" />
+                <span asp-validation-for="Password" class="text-danger small"></span>
             </div>
+
             <div class="mb-3">
-                <label asp-for="ConfirmPassword" class="form-label"></label>
-                <input asp-for="ConfirmPassword" class="form-control" />
-                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                <label asp-for="ConfirmPassword" class="form-label fw-bold">Confirm Password</label>
+                <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm your password" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
             </div>
+
+            <!-- Campus Selection -->
             <div class="mb-3">
-                <label asp-for="Role" class="form-label"></label>
-                <select asp-for="Role" class="form-control">
-                    <option value="">Select Role</option>
-                    @foreach (var role in roles)
+                <label asp-for="CampusName" class="form-label fw-bold">Campus Location</label>
+                <select asp-for="CampusName" class="form-control">
+                    <option value="">Select your campus</option>
+                    @foreach (var campus in campusOptions)
                     {
-                        <option value="@role">@role</option>
+                        <option value="@campus">@campus</option>
                     }
                 </select>
-                <span asp-validation-for="Role" class="text-danger"></span>
+                <span asp-validation-for="CampusName" class="text-danger small"></span>
             </div>
 
+            <!-- Optional Fields -->
             <div class="mb-3">
                 <label asp-for="Age" class="form-label">Age (Optional)</label>
-                <input asp-for="Age" class="form-control" />
-                <span asp-validation-for="Age" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="IDNumber" class="form-label">ID Number (Optional)</label>
-                <input asp-for="IDNumber" class="form-control" />
-                <span asp-validation-for="IDNumber" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="City" class="form-label">City (Optional)</label>
-                <input asp-for="City" class="form-control" />
-                <span asp-validation-for="City" class="text-danger"></span>
-            </div>
-            <div class="mb-3 form-check">
-                <input type="checkbox" asp-for="isVolunteer" class="form-check-input" />
-                <label asp-for="isVolunteer" class="form-check-label">Volunteer? (Optional)</label>
-                <span asp-validation-for="isVolunteer" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="CampusName" class="form-label">Campus Name (Optional)</label>
-                <input asp-for="CampusName" class="form-control" />
-                <span asp-validation-for="CampusName" class="text-danger"></span>
+                <input asp-for="Age" class="form-control" placeholder="Enter your age" />
+                <span asp-validation-for="Age" class="text-danger small"></span>
             </div>
 
-            <input type="submit" value="Register" class="btn btn-success w-100 p-2" />
-            <p class="text-center mt-2">
-                Already have an account? <a asp-controller="Account" asp-action="Login" class="text-decoration-none">Login</a>
-            </p>
+            <div class="mb-3">
+                <label asp-for="IDNumber" class="form-label">ID Number (Optional)</label>
+                <input asp-for="IDNumber" class="form-control" placeholder="Enter your ID number" />
+                <span asp-validation-for="IDNumber" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="City" class="form-label">City (Optional)</label>
+                <input asp-for="City" class="form-control" placeholder="Enter your city" />
+                <span asp-validation-for="City" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input asp-for="isVolunteer" class="form-check-input" />
+                <label asp-for="isVolunteer" class="form-check-label">I'm interested in volunteering (Optional)</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                <i class="fas fa-user-plus me-2"></i>Create Account
+            </button>
+
+            <div class="text-center mt-3">
+                <p class="mb-0 text-muted">
+                    Already have an account?
+                    <a asp-controller="Account" asp-action="Login" class="text-primary-blue text-decoration-none fw-bold">Sign in here</a>
+                </p>
+            </div>
         </form>
     </div>
 </div>
 
 @section Scripts {
     @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial.cshtml");
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }

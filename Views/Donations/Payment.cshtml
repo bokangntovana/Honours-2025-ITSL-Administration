@@ -1,57 +1,72 @@
 ﻿@model ITSL_Administration.ViewModels.PaymentViewModel
 @{
-    ViewData["Title"] = "Make a Donation";
+    ViewData["Title"] = "Make a Donation - ITSL Administration";
     Layout = "~/Views/Shared/_AccountLayout.cshtml";
     var publishableKey = ViewBag.StripePublishableKey;
+}
+
+@section Breadcrumbs {
+    <li class="breadcrumb-item">
+        <a asp-action="Donations">Support Our Mission</a>
+    </li>
+    <li class="breadcrumb-item active">Make Donation</li>
 }
 
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card mt-5">
-                <div class="card-header bg-success text-white">
-                    <h2 class="text-center"><i class="fas fa-donate me-2"></i>Make a Donation</h2>
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-primary-blue text-white">
+                    <h4 class="mb-0"><i class="fas fa-donate me-2"></i>Make a Donation - ITSL Administration</h4>
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-4">
-                        <i class="fas fa-heart fa-5x text-danger mb-3"></i>
-                        <h3>Thank you for supporting our cause!</h3>
-                        <p class="lead">Your contribution makes a difference.</p>
+                        <i class="fas fa-heart fa-4x text-primary-blue mb-3"></i>
+                        <h3 class="text-primary-blue">Thank You for Your Support!</h3>
+                        <p class="lead text-muted">Your contribution makes a real difference in our educational mission.</p>
                     </div>
 
                     <form id="payment-form" asp-action="ProcessPayment" method="post">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-                        <div class="form-group mb-3">
-                            <label asp-for="Name" class="form-label">Full Name</label>
-                            <input asp-for="Name" class="form-control" readonly />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Name" class="form-label fw-bold">Full Name</label>
+                                    <input asp-for="Name" class="form-control" readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Email" class="form-label fw-bold">Email Address</label>
+                                    <input asp-for="Email" class="form-control" readonly />
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="form-group mb-3">
-                            <label asp-for="Email" class="form-label">Email</label>
-                            <input asp-for="Email" class="form-control" readonly />
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label asp-for="Amount" class="form-label">Donation Amount (ZAR)</label>
+                        <div class="mb-4">
+                            <label asp-for="Amount" class="form-label fw-bold">Donation Amount (ZAR)</label>
                             <div class="input-group">
                                 <span class="input-group-text">R</span>
                                 <input asp-for="Amount" class="form-control" placeholder="Enter amount" min="1" step="0.01" />
                             </div>
-                            <span asp-validation-for="Amount" class="text-danger"></span>
+                            <span asp-validation-for="Amount" class="text-danger small"></span>
                         </div>
 
                         <input type="hidden" asp-for="Currency" value="zar" />
 
                         <!-- Stripe Card Element -->
-                        <div class="form-group mb-4">
-                            <label class="form-label">Credit Card Details</label>
-                            <div id="card-element" class="form-control p-2"></div>
-                            <div id="card-errors" role="alert" class="text-danger mt-2"></div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Credit Card Details</label>
+                            <div id="card-element" class="form-control p-3 border-2"></div>
+                            <div id="card-errors" role="alert" class="text-danger small mt-2"></div>
                         </div>
 
-                        <div class="d-grid gap-2">
-                            <button id="submit-button" type="submit" class="btn btn-success btn-lg">
+                        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                            <a asp-action="Donations" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button id="submit-button" type="submit" class="btn btn-primary">
                                 <i class="fas fa-credit-card me-2"></i>Donate R<span id="amount-display">@Model.Amount.ToString("0.00")</span>
                             </button>
                         </div>
@@ -60,8 +75,13 @@
                     </form>
                 </div>
                 <div class="card-footer text-center">
-                    <p>Secure credit card payments processed by <img src="https://stripe.com/img/v3/home/social.png" alt="Stripe" width="80" class="align-middle ms-1"></p>
-                    <p class="mt-2">Need help? <a asp-controller="Account" asp-action="About">Contact support</a></p>
+                    <p class="text-muted mb-2">
+                        <i class="fas fa-lock me-2"></i>Secure credit card payments processed by
+                        <img src="https://stripe.com/img/v3/home/social.png" alt="Stripe" width="80" class="align-middle ms-1">
+                    </p>
+                    <p class="mb-0">
+                        <small class="text-muted">Need help? <a asp-controller="Account" asp-action="About" class="text-primary-blue">Contact support</a></small>
+                    </p>
                 </div>
             </div>
         </div>
@@ -92,6 +112,7 @@
         form.addEventListener('submit', async function(event) {
             event.preventDefault();
             submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
 
             const { paymentMethod, error } = await stripe.createPaymentMethod({
                 type: 'card',
@@ -105,6 +126,7 @@
             if (error) {
                 document.getElementById('card-errors').textContent = error.message;
                 submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="fas fa-credit-card me-2"></i>Donate R' + amountDisplay.textContent;
             } else {
                 document.getElementById('StripeToken').value = paymentMethod.id;
                 form.submit();

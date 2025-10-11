@@ -1,61 +1,226 @@
 ﻿@model IEnumerable<ITSL_Administration.Models.Submission>
-
 @{
-    ViewData["Title"] = "Submissions";
+    ViewData["Title"] = "Submissions - ITSL Administration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
     var assignmentId = ViewBag.AssignmentId;
 }
 
-<div class="container mt-4">
-    <h2 class="text-primary mb-3"><i class="fas fa-file-upload"></i> Submissions</h2>
-    <a asp-action="Create" asp-route-assignmentId="@assignmentId" class="btn btn-success mb-3">
-        <i class="fas fa-plus"></i> Submit Assignment
-    </a>
+@section Breadcrumbs {
+    <li class="breadcrumb-item">
+        <a asp-controller="Courses" asp-action="Index">Courses</a>
+    </li>
+    <li class="breadcrumb-item">
+        <a asp-controller="Assignments" asp-action="ManageAssignment" asp-route-courseId="@ViewBag.CourseId">Assignments</a>
+    </li>
+    <li class="breadcrumb-item">
+        <a asp-controller="Assignments" asp-action="Details" asp-route-id="@assignmentId">@ViewBag.AssignmentTitle</a>
+    </li>
+    <li class="breadcrumb-item active">Submissions</li>
+}
 
-    <table class="table table-striped table-bordered">
-        <thead class="bg-light text-dark">
-            <tr>
-                <th>Participant</th>
-                <th>Date Submitted</th>
-                <th>Grade</th>
-                <th>Files</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-primary-blue mb-1">
+                <i class="fas fa-file-upload me-2"></i>Submissions - @ViewBag.AssignmentTitle
+            </h2>
+            <p class="text-muted mb-0">@ViewBag.CourseName</p>
+        </div>
+        <a asp-action="Details" asp-controller="Assignment" asp-route-id="@assignmentId"
+           class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Assignment
+        </a>
+    </div>
+
+    <!-- Submission Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary-blue">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">@Model.Count()</h3>
+                    <p class="mb-0">Total Submissions</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">@Model.Count(s => s.Grade != null)</h3>
+                    <p class="mb-0">Graded</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">@Model.Count(s => s.Grade == null)</h3>
+                    <p class="mb-0">Pending</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">@Model.Sum(s => s.Files?.Count ?? 0)</h3>
+                    <p class="mb-0">Total Files</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submissions Table -->
+    <div class="card">
+        <div class="card-header bg-light-blue d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Student Submissions</h5>
+            <span class="badge bg-primary">@Model.Count() Submissions</span>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
             {
-                <tr>
-                    <td>@item.Participant?.FullName</td>
-                    <td>@item.DateSubmitted.ToString("g")</td>
-                    <td>
-                        @if (item.Grade != null)
-                        {
-                            <span class="badge bg-info text-dark">@item.Grade.AssignmentMark%</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-secondary">Not graded</span>
-                        }
-                    </td>
-                    <td>
-                        @foreach (var file in item.Files)
-                        {
-                            <a href="@Url.Action("Download", "File", new { id = file.FileId })" class="btn btn-link">
-                                <i class="fas fa-download"></i> @file.FileName
-                            </a>
-                    
-                            <br />
-                        }
-                    </td>
-                    <td>
-                        <form asp-action="Delete" asp-route-id="@item.SubmissionID" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-danger btn-sm">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Student Information</th>
+                                <th>Submission Date</th>
+                                <th>Files</th>
+                                <th>Grade Status</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var submission in Model.OrderBy(s => s.Participant?.FullName))
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                                <i class="fas fa-user-circle fa-2x text-primary-blue me-3"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1">@submission.Participant?.FullName</h6>
+                                                <small class="text-muted">@submission.Participant?.Email</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @submission.DateSubmitted.ToString("dd MMM yyyy 'at' HH:mm")
+                                        @if (submission.DateSubmitted > ViewBag.DueDate)
+                                        {
+                                            <br>
+                                            <span class="badge bg-danger mt-1">
+                                                <i class="fas fa-clock me-1"></i>Late
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (submission.Files?.Any() == true)
+                                        {
+                                            <div class="btn-group-vertical">
+                                                @foreach (var file in submission.Files.Take(2))
+                                                {
+                                                    <a href="@Url.Action("Download", "File", new { id = file.FileId })"
+                                                       class="btn btn-sm btn-outline-primary mb-1 text-start"
+                                                       title="Download @file.FileName">
+                                                        <i class="fas fa-download me-1"></i>
+                                                        <span class="text-truncate" style="max-width: 150px; display: inline-block;">
+                                                            @file.FileName
+                                                        </span>
+                                                    </a>
+                                                }
+                                                @if (submission.Files.Count > 2)
+                                                {
+                                                    <small class="text-muted">+@(submission.Files.Count - 2) more files</small>
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No files</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (submission.Grade != null)
+                                        {
+                                            <div class="text-center">
+                                                <h6 class="text-success mb-1">@submission.Grade.AssignmentMark%</h6>
+                                                <span class="badge @(submission.Grade.HasPassed ? "bg-success" : "bg-danger")">
+                                                    @(submission.Grade.HasPassed ? "PASS" : "FAIL")
+                                                </span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="fas fa-clock me-1"></i>Not Graded
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="@Url.Action("Details", "Submission", new { id = submission.SubmissionID })"
+                                               class="btn btn-outline-info" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            @if (submission.Grade == null)
+                                            {
+                                                <a asp-controller="Grades" asp-action="Create" asp-route-submissionId="@submission.SubmissionID"
+                                                   class="btn btn-outline-success" title="Grade Submission">
+                                                    <i class="fas fa-pen"></i>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a asp-controller="Grades" asp-action="Edit" asp-route-id="@submission.Grade.GradeID"
+                                                   class="btn btn-outline-primary" title="Edit Grade">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            }
+                                            <form asp-action="Delete" method="post" class="d-inline">
+                                                <input type="hidden" name="id" value="@submission.SubmissionID" />
+                                                <button type="submit" class="btn btn-outline-danger"
+                                                        onclick="return confirm('Are you sure you want to delete this submission?')"
+                                                        title="Delete Submission">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
-        </tbody>
-    </table>
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">No Submissions Yet</h4>
+                    <p class="text-muted mb-4">Students haven't submitted any work for this assignment.</p>
+                    <a asp-action="Details" asp-controller="Assignment" asp-route-id="@assignmentId"
+                       class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Assignment
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add confirmation for delete actions
+            const deleteForms = document.querySelectorAll('form[asp-action="Delete"]');
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    if (!confirm('Are you sure you want to delete this submission? All associated files will be permanently removed.')) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+    </script>
+}

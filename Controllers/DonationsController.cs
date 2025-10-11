@@ -65,10 +65,10 @@ namespace ITSL_Administration.Controllers
                 NormalizedUserName = model.Email.ToUpper(),
                 Email = model.Email,
                 NormalizedEmail = model.Email.ToUpper(),
-              //  Age = model.Age,
+                //Age = model.Age,
                 IDNumber = model.IDNumber,
                 City = model.City,
-                CampusName = model.CampusName,
+                //CampusName = model.CampusName,
                 isVolunteer = false // Default to false for donors
             };
 

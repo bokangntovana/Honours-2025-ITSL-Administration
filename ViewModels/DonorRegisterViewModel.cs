@@ -33,8 +33,8 @@ namespace ITSL_Administration.ViewModels
         [StringLength(50, ErrorMessage = "City name cannot be longer than 50 characters")]
         public string? City { get; set; }
 
-        [Display(Name = "Campus Name")]
-        [StringLength(100, ErrorMessage = "Campus name cannot be longer than 100 characters")]
-        public string? CampusName { get; set; }
+        //[Display(Name = "Campus Name")]
+        //[StringLength(100, ErrorMessage = "Campus name cannot be longer than 100 characters")]
+        //public string? CampusName { get; set; }
     }
 }

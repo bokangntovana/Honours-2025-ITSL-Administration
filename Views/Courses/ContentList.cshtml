@@ -1,77 +1,195 @@
 ﻿@model ITSL_Administration.Models.Course
-
 @{
-    ViewData["Title"] = "Course Content List- " + Model.CourseName;
+    ViewData["Title"] = "Course Materials - ITSL Administration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var canUpload = User.IsInRole("Lecturer") || User.IsInRole("Admin");
+}
+
+@section Breadcrumbs {
+    <li class="breadcrumb-item">
+        <a asp-controller="Courses" asp-action="Index">Courses</a>
+    </li>
+    <li class="breadcrumb-item">
+        <a asp-controller="Courses" asp-action="Details" asp-route-id="@Model.CourseID">@Model.CourseName</a>
+    </li>
+    <li class="breadcrumb-item active">Course Materials</li>
 }
 
 <div class="container mt-4">
+    <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>@Model.CourseName - Content</h2>
-        <a asp-action="UploadContent" asp-route-id="@Model.CourseID"
-           class="btn btn-primary">
-            <i class="fas fa-upload"></i> Upload New Content
-        </a>
+        <div>
+            <h2 class="text-primary-blue mb-1">
+                <i class="fas fa-folder-open me-2"></i>@Model.CourseName - Course Materials
+            </h2>
+            <p class="text-muted mb-0">Learning resources and materials for @Model.CourseCode</p>
+        </div>
+        <div class="btn-group">
+            <a asp-controller="Courses" asp-action="Details" asp-route-id="@Model.CourseID"
+               class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Course
+            </a>
+            @if (canUpload)
+            {
+                <a asp-action="UploadContent" asp-route-id="@Model.CourseID" class="btn btn-primary">
+                    <i class="fas fa-upload me-2"></i>Upload New Content
+                </a>
+            }
+        </div>
     </div>
 
+    <!-- Success Messages -->
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["SuccessMessage"]
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
 
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["ErrorMessage"]
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
 
-    <table class="table table-striped table-hover">
-        <thead class="table-light">
-            <tr>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Uploaded On</th>
-                <th>File Name</th>
-                <th class="text-end">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
+    <!-- Content List -->
+    <div class="card">
+        <div class="card-header bg-light-blue d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Course Materials</h5>
+            <span class="badge bg-primary">
+                @(Model.Contents?.Count ?? 0) Files
+            </span>
+        </div>
+        <div class="card-body">
             @if (Model.Contents != null && Model.Contents.Any())
             {
-                @foreach (var content in Model.Contents.OrderByDescending(c => c.UploadDate))
-                {
-                    <tr>
-                        <td>@content.Title</td>
-                        <td>@content.Description</td>
-                        <td>@content.UploadDate.ToString("dd MMM yyyy")</td>
-                        <td>@content.File?.FileName</td>
-                        <td class="text-end">
-                            <a asp-action="DownloadContent" asp-route-id="@content.Id"
-                               class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-download"></i> Download
-                            </a>
-                        </td>
-                    </tr>
-                }
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>File Information</th>
+                                <th>Uploaded On</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var content in Model.Contents.OrderByDescending(c => c.UploadDate))
+                            {
+                                <tr>
+                                    <td>
+                                        <h6 class="mb-1">@content.Title</h6>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(content.Description))
+                                        {
+                                            <span class="text-muted">@content.Description</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No description</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (content.File != null)
+                                        {
+                                            <div>
+                                                <i class="fas fa-file @(GetFileIcon(content.File.FileName)) me-2"></i>
+                                                <span class="fw-bold">@content.File.FileName</span>
+                                                <br>
+                                                <small class="text-muted">(@(content.File.FileSize / 1024) KB)</small>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td>
+                                        @content.UploadDate.ToString("dd MMM yyyy")
+                                        <br>
+                                        <small class="text-muted">@content.UploadDate.ToString("HH:mm")</small>
+                                    </td>
+                                    <td class="text-center">
+                                        <a asp-action="DownloadContent" asp-route-id="@content.Id"
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-download me-1"></i>Download
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
             else
             {
-                <tr>
-                    <td colspan="5" class="text-center text-muted">
-                        No content available for this course.
-                    </td>
-                </tr>
+                <div class="text-center py-5">
+                    <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">No Course Materials</h4>
+                    <p class="text-muted mb-4">There are no materials available for this course yet.</p>
+                    @if (canUpload)
+                    {
+                        <a asp-action="UploadContent" asp-route-id="@Model.CourseID" class="btn btn-primary">
+                            <i class="fas fa-upload me-2"></i>Upload First Material
+                        </a>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Please check back later or contact your lecturer.</p>
+                    }
+                </div>
             }
-        </tbody>
-    </table>
-
-    <div class="mt-3">
-        <a asp-action="Index" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back to Courses
-        </a>
+        </div>
     </div>
+
+    <!-- Quick Stats -->
+    @if (Model.Contents != null && Model.Contents.Any())
+    {
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card text-white bg-primary-blue">
+                    <div class="card-body text-center">
+                        <h3 class="mb-0">@Model.Contents.Count</h3>
+                        <p class="mb-0">Total Materials</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-success">
+                    <div class="card-body text-center">
+                        <h3 class="mb-0">@Model.Contents.Count(c => c.File != null)</h3>
+                        <p class="mb-0">Files Available</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-info">
+                    <div class="card-body text-center">
+                        <h3 class="mb-0">@Model.Contents.MaxBy(c => c.UploadDate)?.UploadDate.ToString("dd MMM")</h3>
+                        <p class="mb-0">Last Updated</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </div>
+
+@functions {
+    public string GetFileIcon(string fileName)
+    {
+        var extension = System.IO.Path.GetExtension(fileName).ToLower();
+        return extension switch
+        {
+            ".pdf" => "fa-file-pdf text-danger",
+            ".doc" or ".docx" => "fa-file-word text-primary",
+            ".xls" or ".xlsx" => "fa-file-excel text-success",
+            ".ppt" or ".pptx" => "fa-file-powerpoint text-warning",
+            ".zip" or ".rar" => "fa-file-archive text-secondary",
+            ".mp4" or ".avi" or ".mov" => "fa-file-video text-info",
+            ".mp3" or ".wav" => "fa-file-audio text-info",
+            ".jpg" or ".jpeg" or ".png" or ".gif" => "fa-file-image text-success",
+            _ => "fa-file text-muted"
+        };
+    }
+}

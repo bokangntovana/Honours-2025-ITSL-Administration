@@ -27,7 +27,7 @@ namespace ITSL_Administration.Controllers
         }
 
         // GET: Assignments/Manage?courseId=123
-        [Authorize(Roles = "Lecturer,Tutor,Admin")]
+        [Authorize(Roles = "Lecturer,Tutor,Admin,Participant")]
         public async Task<IActionResult> ManageAssignment(string courseId)
         {
             // Simplified access check - role-based only

@@ -12,11 +12,6 @@ namespace ITSL_Administration.ViewModels
         [EmailAddress]
         public string Email { get; set; }
 
-        //To select the role from the dropdown
-        [Required(ErrorMessage = "Role is required")]
-        [Display(Name = "Select your role")]
-        public string Role { get; set; }
-
         [Required(ErrorMessage = "Password is Required")]
         [StringLength(40, MinimumLength = 8, ErrorMessage = "The {0} must be at least {2} and at maximum {1} characters long")]
         [DataType(DataType.Password)]
@@ -27,6 +22,12 @@ namespace ITSL_Administration.ViewModels
         [DataType(DataType.Password)]
         [Display(Name = "Confirm Password")]
         public string ConfirmPassword { get; set; }
+
+        // Campus is now required with specific options
+        [Required(ErrorMessage = "Please select your campus location")]
+        [Display(Name = "Campus Location")]
+        [StringLength(100, ErrorMessage = "Campus name cannot be longer than 100 characters")]
+        public string CampusName { get; set; }
 
         [Range(18, 120, ErrorMessage = "Age must be between 18 and 120")]
         public int? Age { get; set; }
@@ -40,9 +41,5 @@ namespace ITSL_Administration.ViewModels
 
         [Display(Name = "Volunteer Status")]
         public bool isVolunteer { get; set; }
-
-        [Display(Name = "Campus Name")]
-        [StringLength(100, ErrorMessage = "Campus name cannot be longer than 100 characters")]
-        public string? CampusName { get; set; }
     }
 }

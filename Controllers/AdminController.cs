@@ -91,13 +91,11 @@ namespace ITSL_Administration.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AdminUserViewModel model)
         {
-            // Clear validation for fields we handle manually
             ModelState.Remove("Id");
             ModelState.Remove("UserName");
 
             if (ModelState.IsValid)
             {
-                // Check if email already exists
                 var existingUser = await _userManager.FindByEmailAsync(model.Email);
                 if (existingUser != null)
                 {
@@ -106,7 +104,6 @@ namespace ITSL_Administration.Controllers
                     return View(model);
                 }
 
-                // Create user exactly like in your seed example
                 var user = new User
                 {
                     FullName = model.FullName,
@@ -114,43 +111,37 @@ namespace ITSL_Administration.Controllers
                     NormalizedUserName = model.Email.ToUpper(),
                     Email = model.Email,
                     NormalizedEmail = model.Email.ToUpper(),
-                    EmailConfirmed = true, // Set to true if you don't require email confirmation
+                    EmailConfirmed = true,
                     SecurityStamp = Guid.NewGuid().ToString(),
                     RegistrationDate = DateTime.Now,
-                    // Optional fields from your model
-                    //Age = model.Age,
-                    IDNumber = model.IDNumber,
-                    City = model.City,
-                    CampusName = model.CampusName
+                    Age = model.Age ?? 0,
+                    IDNumber = model.IDNumber ?? string.Empty,
+                    City = model.City ?? string.Empty,
+                    CampusName = model.CampusName ?? string.Empty
                 };
 
-                // Create user with password
                 var result = await _userManager.CreateAsync(user, model.Password);
 
                 if (result.Succeeded)
                 {
-                    // Assign role if specified
                     if (!string.IsNullOrEmpty(model.Role))
                     {
                         var roleResult = await _userManager.AddToRoleAsync(user, model.Role);
                         if (!roleResult.Succeeded)
                         {
-                            // If role assignment fails, log errors but keep the user
                             foreach (var error in roleResult.Errors)
                             {
-                                Console.WriteLine($"Role Error: {error.Code} - {error.Description}");
                                 ModelState.AddModelError(string.Empty, $"Role Error: {error.Description}");
                             }
                         }
                     }
 
+                    TempData["SuccessMessage"] = "User created successfully!";
                     return RedirectToAction(nameof(Index));
                 }
 
-                // Log and display creation errors
                 foreach (var error in result.Errors)
                 {
-                    Console.WriteLine($"Role Error: {error.Code} - {error.Description}");
                     ModelState.AddModelError(string.Empty, GetFriendlyErrorMessage(error));
                 }
             }
@@ -159,28 +150,136 @@ namespace ITSL_Administration.Controllers
             return View(model);
         }
 
-        private string GetFriendlyErrorMessage(IdentityError error)
+        // GET: Admin/Edit/5
+        public async Task<IActionResult> Edit(string id)
         {
-            return error.Code switch
+            if (id == null)
             {
-                "DuplicateUserName" => "This username is already taken",
-                "DuplicateEmail" => "This email is already registered",
-                "PasswordTooShort" => "Password must be at least 8 characters",
-                "PasswordRequiresNonAlphanumeric" => "Password requires at least one special character",
-                "PasswordRequiresDigit" => "Password requires at least one number",
-                "PasswordRequiresUpper" => "Password requires at least one uppercase letter",
-                _ => error.Description
+                return NotFound();
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var model = new AdminUserViewModel
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Email = user.Email,
+                UserName = user.UserName,
+                RegistrationDate = user.RegistrationDate,
+                Role = roles.FirstOrDefault(),
+                Age = user.Age > 0 ? user.Age : null,
+                IDNumber = user.IDNumber,
+                City = user.City,
+                CampusName = user.CampusName
             };
+
+            ViewBag.Roles = await GetNonAdminRoles();
+            return View(model);
         }
 
-        private async Task<List<string>> GetNonAdminRoles()
+        // POST: Admin/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(string id, AdminUserViewModel model)
         {
-            return (await _roleManager.Roles
-                .Where(r => r.Name != "Admin")
-                .ToListAsync())
-                .Select(r => r.Name)
-                .ToList();
+            if (id != model.Id)
+            {
+                return NotFound();
+            }
+
+            ModelState.Remove("Password");
+            ModelState.Remove("ConfirmPassword");
+            ModelState.Remove("UserName");
+
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByIdAsync(id);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                // Check if email is being changed and if it's already taken
+                if (user.Email != model.Email)
+                {
+                    var existingUser = await _userManager.FindByEmailAsync(model.Email);
+                    if (existingUser != null && existingUser.Id != id)
+                    {
+                        ModelState.AddModelError("Email", "This email is already registered to another user");
+                        ViewBag.Roles = await GetNonAdminRoles();
+                        return View(model);
+                    }
+                }
+
+                // Update user properties
+                user.FullName = model.FullName;
+                user.Email = model.Email;
+                user.UserName = model.Email;
+                user.NormalizedUserName = model.Email.ToUpper();
+                user.NormalizedEmail = model.Email.ToUpper();
+                user.Age = model.Age ?? 0;
+                user.IDNumber = model.IDNumber ?? string.Empty;
+                user.City = model.City ?? string.Empty;
+                user.CampusName = model.CampusName ?? string.Empty;
+
+                var updateResult = await _userManager.UpdateAsync(user);
+                if (!updateResult.Succeeded)
+                {
+                    foreach (var error in updateResult.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    ViewBag.Roles = await GetNonAdminRoles();
+                    return View(model);
+                }
+
+                // Update role if changed
+                var currentRoles = await _userManager.GetRolesAsync(user);
+                if (currentRoles.FirstOrDefault() != model.Role)
+                {
+                    // Remove existing roles
+                    var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                    if (!removeResult.Succeeded)
+                    {
+                        foreach (var error in removeResult.Errors)
+                        {
+                            ModelState.AddModelError(string.Empty, error.Description);
+                        }
+                        ViewBag.Roles = await GetNonAdminRoles();
+                        return View(model);
+                    }
+
+                    // Add new role
+                    if (!string.IsNullOrEmpty(model.Role))
+                    {
+                        var addRoleResult = await _userManager.AddToRoleAsync(user, model.Role);
+                        if (!addRoleResult.Succeeded)
+                        {
+                            foreach (var error in addRoleResult.Errors)
+                            {
+                                ModelState.AddModelError(string.Empty, error.Description);
+                            }
+                            ViewBag.Roles = await GetNonAdminRoles();
+                            return View(model);
+                        }
+                    }
+                }
+
+                TempData["SuccessMessage"] = "User updated successfully!";
+                return RedirectToAction(nameof(Index));
+            }
+
+            ViewBag.Roles = await GetNonAdminRoles();
+            return View(model);
         }
+
         // GET: Admin/Details/5
         public async Task<IActionResult> Details(string id)
         {
@@ -205,7 +304,7 @@ namespace ITSL_Administration.Controllers
                 UserName = user.UserName,
                 RegistrationDate = user.RegistrationDate,
                 Role = roles.FirstOrDefault(),
-                Age = user.Age,
+                Age = user.Age > 0 ? user.Age : null,
                 IDNumber = user.IDNumber,
                 City = user.City,
                 CampusName = user.CampusName
@@ -248,8 +347,32 @@ namespace ITSL_Administration.Controllers
             if (user != null)
             {
                 await _userManager.DeleteAsync(user);
+                TempData["SuccessMessage"] = "User deleted successfully!";
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        private string GetFriendlyErrorMessage(IdentityError error)
+        {
+            return error.Code switch
+            {
+                "DuplicateUserName" => "This username is already taken",
+                "DuplicateEmail" => "This email is already registered",
+                "PasswordTooShort" => "Password must be at least 8 characters",
+                "PasswordRequiresNonAlphanumeric" => "Password requires at least one special character",
+                "PasswordRequiresDigit" => "Password requires at least one number",
+                "PasswordRequiresUpper" => "Password requires at least one uppercase letter",
+                _ => error.Description
+            };
+        }
+
+        private async Task<List<string>> GetNonAdminRoles()
+        {
+            return (await _roleManager.Roles
+                .Where(r => r.Name != "Admin")
+                .ToListAsync())
+                .Select(r => r.Name)
+                .ToList();
         }
     }
 }

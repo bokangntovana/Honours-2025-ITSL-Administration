@@ -1,55 +1,156 @@
-﻿<!DOCTYPE html>
-<html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> SignInManager
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width" />
-    <title>@ViewBag.Title</title>
-    <!--favicon-->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title - ITSL Administration</title>
+
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="~/itsl_favicon.png">
-    <!--Existing style sheets-->
+
+    <!-- Core Styles -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/account.css" asp-append-version="true" />
-    <!--Chatbot style-->
+    <link rel="stylesheet" href="~/css/navigation.css" asp-append-version="true" />
+
+    <!-- Chatbot -->
     <link rel="stylesheet" href="~/css/chatbot.css" />
 </head>
-<body>
+<body class="account-layout">
+    <!-- Header with Consistent Branding -->
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-primary-blue border-bottom box-shadow">
             <div class="container">
+                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-university me-2"></i>
+                    ITSL Administration
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                    <!-- Public Navigation Links -->
+                    <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Account" asp-action="About"><i class="fas fa-info-circle me-1"></i>Learn More About ITSL</a>
+                            <a class="nav-link text-white" asp-controller="Account" asp-action="About">
+                                <i class="fas fa-info-circle me-1"></i>About ITSL
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Donations" asp-action="Donations"><i class="fas fa-donate me-1"></i>Donate To Our Cause</a>
+                            <a class="nav-link text-white" asp-controller="Donations" asp-action="Donations">
+                                <i class="fas fa-donate me-1"></i>Support Our Mission
+                            </a>
                         </li>
+                    </ul>
+
+                    <!-- User Controls -->
+                    <ul class="navbar-nav ms-auto align-items-center">
                         <li class="nav-item">
-                            <button id="themeToggle" class="btn btn-link text-decoration-none">
+                            <button id="themeToggle" class="btn btn-link text-white text-decoration-none">
                                 <i id="themeIcon" class="fas fa-moon"></i>
                             </button>
                         </li>
+
+                        <!-- Enhanced Login Partial -->
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-white" href="#" id="accountDropdown" role="button"
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-circle me-1"></i> @User.Identity.Name
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
+                                            <i class="fas fa-user me-2 text-primary-blue"></i>View Profile
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Home" asp-action="Index">
+                                            <i class="fas fa-tachometer-alt me-2 text-primary-blue"></i>Go to Dashboard
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-controller="Account" asp-action="Login">
+                                    <i class="fas fa-sign-in-alt me-1"></i>Login
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-controller="Account" asp-action="Register">
+                                    <i class="fas fa-user-plus me-1"></i>Register
+                                </a>
+                            </li>
+                        }
                     </ul>
-                    <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
 
-    <div class="account-layout">
-        @RenderBody()
-    </div>
-    <partial name="_Chatbot" />
-  @*   <footer class="account-footer">
-        <div class="container-fluid">
-            &copy; @DateTime.Now.Year - ITSL Administration Designed By Bokang Ntovana
-        </div>
-    </footer> *@
+    <!-- Main Content Area -->
+    <div class="account-container">
+        <div class="account-box">
+            <!-- Breadcrumb for Account Pages -->
+            <nav aria-label="breadcrumb" class="breadcrumb-nav mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a asp-controller="Home" asp-action="Index">
+                            <i class="fas fa-home me-1 text-primary-blue"></i>Home
+                        </a>
+                    </li>
+                    @RenderSection("Breadcrumbs", required: false)
+                </ol>
+            </nav>
 
+            <!-- Page Content -->
+            @RenderBody()
+        </div>
+    </div>
+
+    <!-- Chatbot -->
+    <partial name="_Chatbot" />
+
+    <!-- Footer -->
+    <footer class="account-footer">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-md-start text-center">
+                    &copy; @DateTime.Now.Year - ITSL Administration
+                </div>
+                <div class="col-md-6 text-md-end text-center">
+                    Designed By Bokang Ntovana
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/chatbot.js" asp-append-version="true"></script>
+    <script src="~/js/navigation.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

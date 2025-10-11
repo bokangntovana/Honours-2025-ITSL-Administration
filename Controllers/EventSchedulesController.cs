@@ -1,8 +1,9 @@
-﻿using ITSL_Administration.Data;
-using ITSL_Administration.Models;
-using Microsoft.AspNetCore.Authorization;
+﻿// EventSchedulesController.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ITSL_Administration.Data;
+using ITSL_Administration.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ITSL_Administration.Controllers
 {
@@ -16,97 +17,174 @@ namespace ITSL_Administration.Controllers
             _context = context;
         }
 
-        // Default calendar page
-        [Authorize]
-        [HttpGet]
+        // GET: EventSchedules
         public IActionResult Index()
         {
             return View();
         }
 
-        // Fetch all events as JSON for the calendar
+        // GET: EventSchedules/GetEvents
         [HttpGet]
-        public async Task<IActionResult> GetEvents()
+        public async Task<JsonResult> GetEvents()
         {
-            var events = await _context.Events.ToListAsync();
+            var events = await _context.Events
+                .Select(e => new
+                {
+                    id = e.Id,
+                    title = e.Title,
+                    start = e.Start,
+                    end = e.End,
+                    description = e.Description,
+                    backgroundColor = e.BackgroundColor,
+                    allDay = e.IsAllDay
+                })
+                .ToListAsync();
 
-            var eventList = events.Select(e => new
-            {
-                id = e.Id,
-                title = e.Title,
-                start = e.Start.ToString("yyyy-MM-ddTHH:mm:ss"),
-                end = e.End?.ToString("yyyy-MM-ddTHH:mm:ss"),
-                description = e.Description,
-                color = GetEventColor(e)
-            });
-
-            return Json(eventList);
+            return Json(events);
         }
 
-        // Determines color dynamically
-        private string GetEventColor(EventSchedule e)
-        {
-            if (e.End < DateTime.Now) return "#ff4c4c"; // red for past
-            if (e.Start <= DateTime.Now && e.End >= DateTime.Now) return "#4CAF50"; // green for current
-            return "#87CEFA"; // light blue for future
-        }
-
+        // GET: EventSchedules/Create
         [Authorize(Roles = "Admin,Lecturer,Tutor")]
+        public IActionResult Create(string date)
+        {
+            var eventSchedule = new EventSchedule();
+
+            if (!string.IsNullOrEmpty(date) && DateTime.TryParse(date, out DateTime parsedDate))
+            {
+                eventSchedule.Start = parsedDate;
+                eventSchedule.End = parsedDate.AddHours(3); // Default 3-hour duration
+            }
+            else
+            {
+                eventSchedule.Start = DateTime.Today.AddHours(9); // Default to today 9 AM
+                eventSchedule.End = DateTime.Today.AddHours(12); // Default to today 12 PM
+            }
+
+            return View(eventSchedule);
+        }
+
+        // POST: EventSchedules/Create
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] EventSchedule model)
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Lecturer,Tutor")]
+        public async Task<IActionResult> Create(EventSchedule eventSchedule)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(model);
+                _context.Add(eventSchedule);
                 await _context.SaveChangesAsync();
-                return Ok(model);
+                return RedirectToAction(nameof(Index));
             }
-            return BadRequest(ModelState);
+            return View(eventSchedule);
         }
 
+        // GET: EventSchedules/Edit/5
         [Authorize(Roles = "Admin,Lecturer,Tutor")]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] EventSchedule model)
+        public async Task<IActionResult> Edit(int? id)
         {
-            if (id != model.Id)
-                return BadRequest();
-
-            var existing = await _context.Events.FindAsync(id);
-            if (existing == null)
+            if (id == null)
+            {
                 return NotFound();
+            }
 
-            existing.Title = model.Title;
-            existing.Description = model.Description;
-            existing.Start = model.Start;
-            existing.End = model.End;
-            existing.IsAllDay = model.IsAllDay;
-            await _context.SaveChangesAsync();
-
-            return Ok(existing);
+            var eventSchedule = await _context.Events.FindAsync(id);
+            if (eventSchedule == null)
+            {
+                return NotFound();
+            }
+            return View(eventSchedule);
         }
 
+        // POST: EventSchedules/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,Lecturer,Tutor")]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Edit(int id, EventSchedule eventSchedule)
         {
-            var evt = await _context.Events.FindAsync(id);
-            if (evt == null)
+            if (id != eventSchedule.Id)
+            {
                 return NotFound();
+            }
 
-            _context.Events.Remove(evt);
-            await _context.SaveChangesAsync();
-            return Ok();
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(eventSchedule);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!EventScheduleExists(eventSchedule.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(eventSchedule);
         }
 
-        // For modal detail view
-        [HttpGet]
-        public async Task<IActionResult> Details(int id)
+        // GET: EventSchedules/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
-            var evt = await _context.Events.FindAsync(id);
-            if (evt == null)
+            if (id == null)
+            {
                 return NotFound();
+            }
 
-            return PartialView("_EventDetails", evt);
+            var eventSchedule = await _context.Events
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (eventSchedule == null)
+            {
+                return NotFound();
+            }
+
+            return View(eventSchedule);
+        }
+
+        // GET: EventSchedules/Delete/5
+        [Authorize(Roles = "Admin,Lecturer,Tutor")]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var eventSchedule = await _context.Events
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (eventSchedule == null)
+            {
+                return NotFound();
+            }
+
+            return View(eventSchedule);
+        }
+
+        // POST: EventSchedules/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Lecturer,Tutor")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var eventSchedule = await _context.Events.FindAsync(id);
+            if (eventSchedule != null)
+            {
+                _context.Events.Remove(eventSchedule);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool EventScheduleExists(int id)
+        {
+            return _context.Events.Any(e => e.Id == id);
         }
     }
 }

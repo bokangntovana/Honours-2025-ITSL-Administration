@@ -1,27 +1,38 @@
 ﻿@model ITSL_Administration.ViewModels.GradeCreateViewModel
 @{
-    ViewData["Title"] = "Edit Grade";
+    ViewData["Title"] = "Edit Grade - ITSL Administration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
     var currentPercentage = Model.Grade.AssignmentMark / Model.Submission.Assignment.SetAssignmentMark * 100;
 }
 
+@section Breadcrumbs {
+    <li class="breadcrumb-item">
+        <a asp-controller="Grades" asp-action="ParticipantGrades">My Grades</a>
+    </li>
+    <li class="breadcrumb-item">
+        <a asp-action="Details" asp-route-id="@Model.Grade.GradeID">@Model.Submission.Assignment?.Title</a>
+    </li>
+    <li class="breadcrumb-item active">Edit Grade</li>
+}
+
 <div class="container mt-4">
-    <div class="card">
-        <div class="card-header bg-warning text-dark">
-            <h2 class="mb-0"><i class="fas fa-edit"></i> Edit Grade</h2>
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary-blue text-white">
+            <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Grade - ITSL Administration</h4>
         </div>
         <div class="card-body">
             <div class="alert alert-info mb-4">
                 <div class="row">
                     <div class="col-md-4">
-                        <strong><i class="fas fa-user"></i> Participant:</strong><br>
+                        <strong><i class="fas fa-user me-2"></i>Participant:</strong><br>
                         @Model.Submission.Participant?.FullName
                     </div>
                     <div class="col-md-4">
-                        <strong><i class="fas fa-clipboard-list"></i> Assignment:</strong><br>
+                        <strong><i class="fas fa-clipboard-list me-2"></i>Assignment:</strong><br>
                         @Model.Submission.Assignment?.Title
                     </div>
                     <div class="col-md-4">
-                        <strong><i class="fas fa-calendar"></i> Originally Graded:</strong><br>
+                        <strong><i class="fas fa-calendar me-2"></i>Originally Graded:</strong><br>
                         @Model.Grade.DateRecorded.ToString("dd MMM yyyy") by @Model.Grade.MarkedBy
                     </div>
                 </div>
@@ -31,23 +42,25 @@
                 <input type="hidden" asp-for="Grade.GradeID" />
                 <input type="hidden" asp-for="Grade.AssignmentId" />
                 <input type="hidden" asp-for="Grade.SubmissionId" />
-                <input type="hidden" asp-for="Grade.MarkedBy" value="User.Identity?.Name" />
+                <input type="hidden" asp-for="Grade.MarkedBy" value="@User.Identity?.Name" />
+
                 @Html.AntiForgeryToken()
+
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="form-group mb-3">
+                        <div class="mb-3">
                             <label asp-for="Grade.AssignmentMark" class="form-label fw-bold">Assignment Mark *</label>
                             <input asp-for="Grade.AssignmentMark" class="form-control"
                                    min="0" max="@Model.Submission.Assignment?.SetAssignmentMark"
                                    step="0.1" />
-                            <span asp-validation-for="Grade.AssignmentMark" class="text-danger"></span>
+                            <span asp-validation-for="Grade.AssignmentMark" class="text-danger small"></span>
                             <small class="form-text text-muted">
                                 Current: @Model.Grade.AssignmentMark/@Model.Submission.Assignment?.SetAssignmentMark (@currentPercentage.ToString("F1")%)
                             </small>
                         </div>
 
                         <div class="alert alert-warning">
-                            <h6><i class="fas fa-calculator"></i> Current Status</h6>
+                            <h6 class="mb-2"><i class="fas fa-calculator me-2"></i>Current Status</h6>
                             <p class="mb-1">
                                 <strong>Pass/Fail:</strong>
                                 <span class="badge @(Model.Grade.HasPassed ? "bg-success" : "bg-danger")">
@@ -59,11 +72,11 @@
                     </div>
 
                     <div class="col-md-6">
-                        <div class="form-group mb-3">
+                        <div class="mb-3">
                             <label asp-for="Grade.GradesFeedback" class="form-label fw-bold">Feedback</label>
                             <textarea asp-for="Grade.GradesFeedback" class="form-control" rows="5"
                                       placeholder="Provide constructive feedback for the participant..."></textarea>
-                            <span asp-validation-for="Grade.GradesFeedback" class="text-danger"></span>
+                            <span asp-validation-for="Grade.GradesFeedback" class="text-danger small"></span>
                             <small class="form-text text-muted">
                                 <span id="feedbackCount">@(Model.Grade.GradesFeedback?.Length ?? 0)</span>/500 characters
                             </small>
@@ -71,25 +84,27 @@
                     </div>
                 </div>
 
-                <div class="form-group mb-3">
+                <div class="mb-3">
                     <div class="alert alert-warning">
-                        <h6><i class="fas fa-exclamation-triangle"></i> Update Information</h6>
+                        <h6 class="mb-2"><i class="fas fa-exclamation-triangle me-2"></i>Update Information</h6>
                         <p class="mb-1"><strong>Updated by:</strong> @User.Identity?.Name</p>
                         <p class="mb-0"><strong>Update date:</strong> @DateTime.Now.ToString("dd MMM yyyy HH:mm")</p>
                     </div>
                 </div>
 
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="fas fa-save"></i> Update Grade
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                    <div>
+                        <a asp-action="Details" asp-route-id="@Model.Grade.GradeID" class="btn btn-outline-secondary me-2">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <a asp-controller="Assignment" asp-action="ManageSubmissions" asp-route-id="@Model.Grade.AssignmentId"
+                           class="btn btn-outline-primary">
+                            <i class="fas fa-list me-2"></i>Back to Submissions
+                        </a>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Update Grade
                     </button>
-                    <a asp-action="Details" asp-route-id="@Model.Grade.GradeID" class="btn btn-info btn-lg">
-                        <i class="fas fa-eye"></i> View Details
-                    </a>
-                    <a asp-controller="Assignment" asp-action="ManageSubmissions" asp-route-id="@Model.Grade.AssignmentId"
-                       class="btn btn-secondary btn-lg">
-                        <i class="fas fa-arrow-left"></i> Back to Submissions
-                    </a>
                 </div>
             </form>
         </div>
