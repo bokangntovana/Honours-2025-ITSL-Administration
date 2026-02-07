@@ -16,6 +16,9 @@ namespace ITSL_Administration.ViewModels
         // Question Data
         public List<QuestionItem> Questions { get; set; } = new List<QuestionItem>();
 
+        // NEW: Store all user answers across all pages
+        public Dictionary<string, string> AllUserAnswers { get; set; } = new Dictionary<string, string>();
+
         // Pagination properties
         public int CurrentPage { get; set; } = 1;
         public int PageSize { get; set; } = 3;

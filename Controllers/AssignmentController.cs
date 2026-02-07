@@ -1,11 +1,12 @@
 ﻿using ITSL_Administration.Data;
 using ITSL_Administration.Models;
 using ITSL_Administration.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using System.IO;
 
 namespace ITSL_Administration.Controllers
 {
@@ -49,6 +50,31 @@ namespace ITSL_Administration.Controllers
 
             return View(course);
         }
+
+        // GET: Assignments/ViewAssignment?courseId=123
+        [Authorize(Roles = "Lecturer,Tutor,Admin,Participant")]
+        public async Task<IActionResult> ViewAssignment(string courseId)
+        {
+            // Simplified access check - role-based only
+            if (!User.IsInRole("Participant"))
+            {
+                TempData["ErrorMessage"] = "Only participants have permission to submit assignments for this course.";
+                return RedirectToAction("Details", "Courses", new { id = courseId });
+            }
+
+            var course = await _context.Courses
+                .Include(c => c.Assignments)
+                .ThenInclude(a => a.Files)
+                .FirstOrDefaultAsync(c => c.CourseID == courseId);
+
+            if (course == null)
+            {
+                return NotFound();
+            }
+
+            return View(course);
+        }
+
 
         // GET: Assignments/Create?courseId=123
         [Authorize(Roles = "Lecturer,Admin")]
@@ -249,9 +275,9 @@ namespace ITSL_Administration.Controllers
 
             // Simplified access check
             var currentUserId = _userManager.GetUserId(User);
-            var isParticipant = assignment.Submissions?.Any(s => s.ParticipantId == currentUserId) ?? false;
+            //var isParticipant = assignment.Submissions?.Any(s => s.ParticipantId == currentUserId) ?? false;
 
-            if (!User.IsInRole("Admin") && !User.IsInRole("Lecturer") && !User.IsInRole("Tutor") && !isParticipant)
+            if (!User.IsInRole("Admin") && !User.IsInRole("Lecturer") && !User.IsInRole("Tutor") && !User.IsInRole("Participant"))
             {
                 TempData["ErrorMessage"] = "You do not have access to this assignment.";
                 return RedirectToAction("Index", "Courses");
@@ -260,6 +286,8 @@ namespace ITSL_Administration.Controllers
             // Explicitly return the correct view
             return View("Details", assignment);
         }
+
+
 
         // GET: Assignment/ManageSubmissions/5
         [Authorize(Roles = "Lecturer,Tutor,Admin")]

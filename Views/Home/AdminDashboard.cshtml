@@ -5,209 +5,406 @@
 
 <div class="container-fluid">
     <!-- Page Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="h3 mb-0 text-dark">
-                <i class="fas fa-tachometer-alt me-2 text-primary"></i>Admin Dashboard
+    <div class="index-header mb-4">
+        <div>
+            <h1 class="display-6 text-primary-blue mb-1">
+                <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
             </h1>
-            <p class="text-muted">Overview of system statistics and user management</p>
+            <p class="text-muted mb-0">Complete overview of system statistics and user management</p>
+        </div>
+        <div class="btn-group">
+            <a asp-controller="Admin" asp-action="Create" class="btn btn-outline-primary">
+                <i class="fas fa-user-plus me-2"></i>Add User
+            </a>
+            <a asp-controller="Courses" asp-action="Create" class="btn btn-outline-success">
+                <i class="fas fa-plus me-2"></i>Create Course
+            </a>
         </div>
     </div>
 
-    <!-- Statistics Cards -->
+    <!-- Success Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Main Statistics Cards -->
+    <div class="row mb-4">
+        <!-- Total Users -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 dashboard-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="text-primary text-uppercase mb-1">Total Users</h6>
+                            <h2 class="mb-0 text-dark">@Model.TotalUsers</h2>
+                            <small class="text-muted">All system users</small>
+                        </div>
+                        <div class="icon-wrapper bg-primary rounded-circle">
+                            <i class="fas fa-users fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-success">
+                            <i class="fas fa-arrow-up me-1"></i>
+                            @Model.NewUsersThisWeek new this week
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Donors & Funding -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 dashboard-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="text-success text-uppercase mb-1">Donors & Funding</h6>
+                            <h2 class="mb-0 text-dark">@Model.DonorCount</h2>
+                            <small class="text-muted">Active donors</small>
+                        </div>
+                        <div class="icon-wrapper bg-success rounded-circle">
+                            <i class="fas fa-hand-holding-heart fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <h5 class="text-success mb-0">R @Model.TotalDonations.ToString("N2")</h5>
+                        <small class="text-muted">Total donations</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Learning Community -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 dashboard-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="text-info text-uppercase mb-1">Learning Community</h6>
+                            <h2 class="mb-0 text-dark">@Model.ParticipantCount</h2>
+                            <small class="text-muted">Active participants</small>
+                        </div>
+                        <div class="icon-wrapper bg-info rounded-circle">
+                            <i class="fas fa-user-graduate fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <div class="row mt-2 text-center">
+                        <div class="col-6">
+                            <small class="text-muted d-block">Lecturers</small>
+                            <strong class="text-dark">@Model.LecturerCount</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Tutors</small>
+                            <strong class="text-dark">@Model.TutorCount</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Academic Content -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 dashboard-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="text-warning text-uppercase mb-1">Academic Content</h6>
+                            <h2 class="mb-0 text-dark">@Model.TotalCourses</h2>
+                            <small class="text-muted">Active courses</small>
+                        </div>
+                        <div class="icon-wrapper bg-warning rounded-circle">
+                            <i class="fas fa-book fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <h5 class="text-warning mb-0">@Model.TotalAssignments</h5>
+                        <small class="text-muted">Total assignments</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Statistics & Actions -->
     <div class="row">
-        <!-- Total Users Card -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2 dashboard-card">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Users
+        <!-- Left Column - User Management -->
+        <div class="col-lg-8">
+            <!-- User Role Distribution -->
+            <div class="form-card mb-4">
+                <h4 class="form-header">
+                    <i class="fas fa-chart-pie me-2"></i>User Role Distribution
+                </h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="table-responsive">
+                            <table class="table table-hover index-table">
+                                <thead>
+                                    <tr>
+                                        <th>Role</th>
+                                        <th class="text-end">Count</th>
+                                        <th class="text-end">Percentage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        var totalUsers = Model.TotalUsers;
+                                        var roles = new[]
+                                        {
+                                                                        new { Name = "Participants", Count = Model.ParticipantCount, Color = "info" },
+                                                                        new { Name = "Lecturers", Count = Model.LecturerCount, Color = "danger" },
+                                                                        new { Name = "Tutors", Count = Model.TutorCount, Color = "secondary" },
+                                                                        new { Name = "Donors", Count = Model.DonorCount, Color = "success" }
+                                                                        };
+                                    }
+                                    @foreach (var role in roles)
+                                    {
+                                        var percentage = totalUsers > 0 ? (role.Count * 100.0 / totalUsers) : 0;
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-@role.Color me-2">●</span>
+                                                @role.Name
+                                            </td>
+                                            <td class="text-end fw-bold">@role.Count</td>
+                                            <td class="text-end text-muted">@percentage.ToString("F1")%</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-center">
+                            <div class="mb-3">
+                                <h5 class="text-primary">User Growth</h5>
+                                <h3 class="text-success">+@Model.NewUsersThisWeek</h3>
+                                <small class="text-muted">New users this week</small>
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalUsers</div>
+                            <div class="progress" style="height: 20px;">
+                                @{
+                                    var growthPercentage = Math.Min((Model.NewUsersThisWeek * 100.0 / (Model.TotalUsers - Model.NewUsersThisWeek + 1)), 100);
+                                }
+                                <div class="progress-bar bg-success" role="progressbar"
+                                     style="width: @growthPercentage%;"
+                                     aria-valuenow="@growthPercentage" aria-valuemin="0" aria-valuemax="100">
+                                    @growthPercentage.ToString("F1")%
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-auto">
-                            <i class="fas fa-users fa-2x text-gray-300"></i>
-                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Management Actions -->
+            <div class="form-card">
+                <h4 class="form-header">
+                    <i class="fas fa-cogs me-2"></i>System Management
+                </h4>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <a asp-controller="Admin" asp-action="Create" class="btn btn-outline-primary btn-block text-start h-100">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-user-plus fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">Add New User</h6>
+                                    <small class="text-muted">Create user account</small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a asp-controller="Courses" asp-action="Create" class="btn btn-outline-success btn-block text-start h-100">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-plus-circle fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">Create Course</h6>
+                                    <small class="text-muted">Add new course</small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-info btn-block text-start h-100">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-users-cog fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">Manage Users</h6>
+                                    <small class="text-muted">User administration</small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a asp-controller="Courses" asp-action="Index" class="btn btn-outline-warning btn-block text-start h-100">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-book-open fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">Manage Courses</h6>
+                                    <small class="text-muted">Course administration</small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a asp-controller="Donations" asp-action="Donations" class="btn btn-outline-danger btn-block text-start h-100">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-donate fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">View Donations</h6>
+                                    <small class="text-muted">Donation reports</small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a asp-controller="Email" asp-action="SendEmail" class="btn btn-outline-secondary btn-block text-start h-100">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-tasks fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">Send Emails to registered users</h6>
+                                    <small class="text-muted">Send an email to communicate with all users in the system</small>
+                                </div>
+                            </div>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Donors Card -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2 dashboard-card">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Donors
+        <!-- Right Column - System Overview -->
+        <div class="col-lg-4">
+            <!-- System Summary -->
+            <div class="form-card mb-4">
+                <h4 class="form-header">
+                    <i class="fas fa-info-circle me-2"></i>System Summary
+                </h4>
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item px-0 border-0 mb-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 text-dark">Total Users</h6>
+                                <small class="text-muted">All registered users</small>
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.DonorCount</div>
-                            <div class="text-xs text-muted mt-1">Total Donated: R @Model.TotalDonations.ToString("N2")</div>
+                            <span class="badge bg-primary fs-6">@Model.TotalUsers</span>
                         </div>
-                        <div class="col-auto">
-                            <i class="fas fa-hand-holding-heart fa-2x text-gray-300"></i>
+                    </div>
+                    <div class="list-group-item px-0 border-0 mb-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 text-dark">Active Courses</h6>
+                                <small class="text-muted">Available for enrollment</small>
+                            </div>
+                            <span class="badge bg-success fs-6">@Model.TotalCourses</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item px-0 border-0 mb-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 text-dark">Total Assignments</h6>
+                                <small class="text-muted">Across all courses</small>
+                            </div>
+                            <span class="badge bg-info fs-6">@Model.TotalAssignments</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item px-0 border-0 mb-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 text-dark">Total Donations</h6>
+                                <small class="text-muted">Successful payments</small>
+                            </div>
+                            <span class="badge bg-success fs-6">R @Model.TotalDonations.ToString("N2")</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item px-0 border-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 text-dark">Weekly Growth</h6>
+                                <small class="text-muted">New user registrations</small>
+                            </div>
+                            <span class="badge bg-warning fs-6">+@Model.NewUsersThisWeek</span>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Participants Card -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2 dashboard-card">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Participants
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.ParticipantCount</div>
+            <!-- Recent Activity -->
+            <div class="form-card">
+                <h4 class="form-header">
+                    <i class="fas fa-clock me-2"></i>Quick Stats
+                </h4>
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <div class="p-3 bg-light rounded">
+                            <h4 class="text-primary mb-0">@Model.ParticipantCount</h4>
+                            <small class="text-muted">Participants</small>
                         </div>
-                        <div class="col-auto">
-                            <i class="fas fa-user-graduate fa-2x text-gray-300"></i>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="p-3 bg-light rounded">
+                            <h4 class="text-success mb-0">@Model.LecturerCount</h4>
+                            <small class="text-muted">Lecturers</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="p-3 bg-light rounded">
+                            <h4 class="text-info mb-0">@Model.TutorCount</h4>
+                            <small class="text-muted">Tutors</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="p-3 bg-light rounded">
+                            <h4 class="text-warning mb-0">@Model.DonorCount</h4>
+                            <small class="text-muted">Donors</small>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Courses Card -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2 dashboard-card">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Total Courses
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalCourses</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-book fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Second Row - Additional Stats -->
-    <div class="row">
-        <!-- Lecturers Card -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-danger shadow h-100 py-2 dashboard-card">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                Lecturers
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.LecturerCount</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-chalkboard-teacher fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tutors Card -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-secondary shadow h-100 py-2 dashboard-card">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
-                                Tutors
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TutorCount</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-user-tie fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Registrations Card -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2 dashboard-card">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                New This Week
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.NewUsersThisWeek</div>
-                            <div class="text-xs text-muted mt-1">User registrations</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-user-plus fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Assignments Card -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2 dashboard-card">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Total Assignments
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalAssignments</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-tasks fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header bg-white py-3">
-                    <h5 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-bolt me-2"></i>Quick Actions
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <a asp-controller="Admin" asp-action="Create" class="btn btn-primary btn-block">
-                                <i class="fas fa-user-plus me-2"></i>Add New User
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <a asp-controller="Courses" asp-action="Create" class="btn btn-success btn-block">
-                                <i class="fas fa-plus me-2"></i>Create Course
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <a asp-controller="Admin" asp-action="Index" class="btn btn-info btn-block">
-                                <i class="fas fa-cog me-2"></i>Manage Users
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <a asp-controller="Donations" asp-action="Donations" class="btn btn-warning btn-block">
-                                <i class="fas fa-donate me-2"></i>View Donations
-                            </a>
-                        </div>
-                    </div>
+                <div class="text-center mt-3">
+                    <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-chart-bar me-1"></i>View Detailed Reports
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to dashboard cards
+            const cards = document.querySelectorAll('.dashboard-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Add animation to progress bars
+            const progressBars = document.querySelectorAll('.progress-bar');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0';
+                setTimeout(() => {
+                    bar.style.width = width;
+                    bar.style.transition = 'width 1s ease-in-out';
+                }, 100);
+            });
+
+            // Add click tracking for management buttons
+            const managementButtons = document.querySelectorAll('.btn-block');
+            managementButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const action = this.querySelector('h6').textContent;
+                    console.log(`Admin action: ${action}`);
+                });
+            });
+        });
+    </script>
+}

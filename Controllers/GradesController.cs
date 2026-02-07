@@ -72,22 +72,17 @@ namespace ITSL_Administration.Controllers
 
                 if (assignment == null) return NotFound();
 
-                // Simplified role-based access check
-                if (!User.IsInRole("Admin") && !User.IsInRole("Lecturer") && !User.IsInRole("Tutor"))
-                {
-                    TempData["ErrorMessage"] = "You do not have grading permissions for this course.";
-                    return await LoadSubmissionAndReturnView(viewModel);
-                }
+                // REMOVE WEIGHT CALCULATION:
+                // double finalMark = (viewModel.Grade.AssignmentMark / assignment.SetAssignmentMark) * (assignment.Weight * 100);
 
+                // USE SIMPLE PERCENTAGE CALCULATION:
+                double finalMark = (viewModel.Grade.AssignmentMark / assignment.SetAssignmentMark) * 100;
 
-                // Calculate FinalMark based on assignment weight and obtained mark
-                double finalMark = (viewModel.Grade.AssignmentMark / assignment.SetAssignmentMark) * (assignment.Weight * 100);
-                // Pass/Fail logic
-                viewModel.Grade.HasPassed = viewModel.Grade.AssignmentMark >= 50;
+                // Pass/Fail logic (keep as is)
+                viewModel.Grade.HasPassed = finalMark >= 50;
                 viewModel.Grade.DateRecorded = DateTime.Now;
                 viewModel.Grade.FinalMark = finalMark;
                 viewModel.Grade.MarkedBy = User.Identity?.Name;
-
 
                 _context.Grades.Add(viewModel.Grade);
                 await _context.SaveChangesAsync();
@@ -96,7 +91,6 @@ namespace ITSL_Administration.Controllers
                 return RedirectToAction("ManageSubmissions", "Assignment", new { id = viewModel.Grade.AssignmentId });
             }
 
-            // If we got this far, something failed; reload submission data and return to view
             return await LoadSubmissionAndReturnView(viewModel);
         }
 
@@ -146,17 +140,14 @@ namespace ITSL_Administration.Controllers
 
                 if (assignment == null) return NotFound();
 
-                // Simplified role-based access check
-                if (!User.IsInRole("Admin") && !User.IsInRole("Lecturer") && !User.IsInRole("Tutor"))
-                {
-                    TempData["ErrorMessage"] = "You do not have grading permissions for this course.";
-                    return await LoadSubmissionAndReturnView(viewModel);
-                }
-                // Calculate FinalMark based on assignment weight and obtained mark
-                double finalMark = (viewModel.Grade.AssignmentMark / assignment.SetAssignmentMark) * (assignment.Weight * 100);
+                // REMOVE WEIGHT CALCULATION:
+                // double finalMark = (viewModel.Grade.AssignmentMark / assignment.SetAssignmentMark) * (assignment.Weight * 100);
 
-                viewModel.Grade.HasPassed = viewModel.Grade.AssignmentMark >= 50;
-                viewModel.Grade.FinalMark = finalMark; // This was missing!
+                // USE SIMPLE PERCENTAGE CALCULATION:
+                double finalMark = (viewModel.Grade.AssignmentMark / assignment.SetAssignmentMark) * 100;
+
+                viewModel.Grade.HasPassed = finalMark >= 50;
+                viewModel.Grade.FinalMark = finalMark;
                 viewModel.Grade.MarkedBy = User.Identity?.Name;
                 viewModel.Grade.DateRecorded = DateTime.Now;
 
@@ -167,10 +158,8 @@ namespace ITSL_Administration.Controllers
                 return RedirectToAction("ManageSubmissions", "Assignment", new { id = viewModel.Grade.AssignmentId });
             }
 
-            // If we got this far, something failed; reload submission data and return to view
             return await LoadSubmissionAndReturnView(viewModel);
         }
-
         // Helper method to load submission data for the view
         private async Task<IActionResult> LoadSubmissionAndReturnView(GradeCreateViewModel viewModel)
         {

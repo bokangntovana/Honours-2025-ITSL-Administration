@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ITSL_Administration.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateITSLDB : Migration
+    public partial class SeedAndCreateITSLAdminDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -63,7 +63,7 @@ namespace ITSL_Administration.Migrations
                 columns: table => new
                 {
                     CourseID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CourseCode = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: true),
+                    CourseCode = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
                     CourseName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CourseCredits = table.Column<int>(type: "int", nullable: false),
                     CourseDescription = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true)
@@ -81,7 +81,7 @@ namespace ITSL_Administration.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Start = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    End = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    End = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     BackgroundColor = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsAllDay = table.Column<bool>(type: "bit", nullable: false)
@@ -243,33 +243,6 @@ namespace ITSL_Administration.Migrations
                     table.CheckConstraint("CK_Assignment_Weight", "Weight >= 0 AND Weight <= 1");
                     table.ForeignKey(
                         name: "FK_Assignments_Courses_CourseId",
-                        column: x => x.CourseId,
-                        principalTable: "Courses",
-                        principalColumn: "CourseID",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Enrollments",
-                columns: table => new
-                {
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CourseId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Role = table.Column<int>(type: "int", nullable: false),
-                    EnrollmentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Enrollments", x => new { x.UserId, x.CourseId });
-                    table.ForeignKey(
-                        name: "FK_Enrollments_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Enrollments_Courses_CourseId",
                         column: x => x.CourseId,
                         principalTable: "Courses",
                         principalColumn: "CourseID",
@@ -512,11 +485,6 @@ namespace ITSL_Administration.Migrations
                 column: "DonorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Enrollments_CourseId",
-                table: "Enrollments",
-                column: "CourseId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Grades_AssignmentId",
                 table: "Grades",
                 column: "AssignmentId");
@@ -593,9 +561,6 @@ namespace ITSL_Administration.Migrations
 
             migrationBuilder.DropTable(
                 name: "Donations");
-
-            migrationBuilder.DropTable(
-                name: "Enrollments");
 
             migrationBuilder.DropTable(
                 name: "Events");

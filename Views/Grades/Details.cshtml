@@ -103,17 +103,12 @@
                                 <dd class="col-sm-7">
                                     <span class="badge
                                         @(Model.Assignment?.AssignmentType.ToString() == "Quiz" ? "bg-info" :
-                                                                                    Model.Assignment?.AssignmentType.ToString() == "WrittenAssignment" ? "bg-primary" : "bg-success")">
+                                                                                                                              Model.Assignment?.AssignmentType.ToString() == "WrittenAssignment" ? "bg-primary" : "bg-success")">
                                         @Model.Assignment?.AssignmentType
                                     </span>
                                 </dd>
 
-                                <dt class="col-sm-5 text-muted">Weight:</dt>
-                                <dd class="col-sm-7">
-                                    <span class="badge bg-secondary">
-                                        @((Model.Assignment?.Weight * 100)?.ToString("F0"))%
-                                    </span>
-                                </dd>
+                                <!-- REMOVED: Weight display -->
 
                                 <dt class="col-sm-5 text-muted">Due Date:</dt>
                                 <dd class="col-sm-7">@Model.Assignment?.DueDate.ToString("dd MMM yyyy")</dd>

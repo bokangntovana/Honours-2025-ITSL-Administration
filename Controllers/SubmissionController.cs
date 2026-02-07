@@ -215,5 +215,82 @@ namespace ITSL_Administration.Controllers
 
             return RedirectToAction("ManageSubmissions", "Assignment", new { id = submission.AssignmentId });
         }
+
+        // GET: Submission/DownloadFile/{id}
+        [Authorize]
+        public async Task<IActionResult> DownloadFile(string id)
+        {
+            try
+            {
+                // First get the file
+                var file = await _context.UploadedFiles.FindAsync(id);
+                if (file == null)
+                    return NotFound();
+
+                // Find which submission this file belongs to by checking all submissions
+                var submission = await _context.Submissions
+                    .Include(s => s.Participant)
+                    .Include(s => s.Assignment)
+                    .Include(s => s.Files)
+                    .FirstOrDefaultAsync(s => s.Files.Any(f => f.FileId == id));
+
+                if (submission == null)
+                    return NotFound();
+
+                // Access control - same logic as Details action
+                var currentUserId = _userManager.GetUserId(User);
+                var isParticipant = submission.ParticipantId == currentUserId;
+                var isStaff = User.IsInRole("Admin") || User.IsInRole("Lecturer") || User.IsInRole("Tutor");
+
+                if (!isParticipant && !isStaff)
+                {
+                    TempData["ErrorMessage"] = "You do not have permission to download this file.";
+                    return RedirectToAction("Index", "Courses");
+                }
+
+                var stream = await _uploadService.DownloadFileAsync(file.FileId);
+                var contentType = GetContentType(file.FileName);
+                return File(stream, contentType, file.FileName);
+            }
+            catch (FileNotFoundException)
+            {
+                TempData["ErrorMessage"] = "File not found on server.";
+                return RedirectToAction("Index", "Courses");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error downloading file.";
+                return RedirectToAction("Index", "Courses");
+            }
+        }
+
+        private string GetContentType(string fileName)
+        {
+            var extension = Path.GetExtension(fileName).ToLowerInvariant();
+            return extension switch
+            {
+                ".pdf" => "application/pdf",
+                ".doc" => "application/msword",
+                ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                ".xls" => "application/vnd.ms-excel",
+                ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                ".ppt" => "application/vnd.ms-powerpoint",
+                ".pptx" => "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".mp4" => "video/mp4",
+                ".mp3" => "audio/mpeg",
+                ".zip" => "application/zip",
+                ".txt" => "text/plain",
+                ".csv" => "text/csv",
+                ".cpp" => "text/x-c++src",
+                ".java" => "text/x-java-source",
+                ".py" => "text/x-python",
+                ".cs" => "text/x-csharp",
+                ".html" => "text/html",
+                ".js" => "application/javascript",
+                _ => "application/octet-stream"
+            };
+        }
     }
 }

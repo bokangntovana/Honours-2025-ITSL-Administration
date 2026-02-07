@@ -47,7 +47,6 @@
                                     <th>Assignment</th>
                                     <th>Type</th>
                                     <th>Due Date</th>
-                                    <th>Weight</th>
                                     <th>Mark</th>
                                     <th>Status</th>
                                     <th>Feedback</th>
@@ -70,15 +69,12 @@
                                     </td>
                                     <td>
                                         <span class="badge
-                                                        @(grade.Assignment?.AssignmentType.ToString() == "Quiz" ? "bg-info" :
-                                                                                                grade.Assignment?.AssignmentType.ToString() == "WrittenAssignment" ? "bg-primary" : "bg-success")">
+                                                                @(grade.Assignment?.AssignmentType.ToString() == "Quiz" ? "bg-info" :
+                                                                                                                                              grade.Assignment?.AssignmentType.ToString() == "WrittenAssignment" ? "bg-primary" : "bg-success")">
                                     @grade.Assignment?.AssignmentType
                                 </span>
                             </td>
                             <td>@grade.Assignment?.DueDate.ToString("dd MMM yyyy")</td>
-                            <td>
-                                <span class="badge bg-secondary">@((grade.Assignment?.Weight * 100)?.ToString("F0"))%</span>
-                            </td>
                             <td>
                                 <strong>@grade.AssignmentMark.ToString("F1")/@grade.Assignment?.SetAssignmentMark</strong>
                             </td>
@@ -120,19 +116,9 @@
                         var courseGrades = courseGroup.Where(g => g.AssignmentMark > 0).ToList();
                         if (courseGrades.Any())
                         {
-                            double totalWeightedMarks = 0;
-                            double totalWeight = 0;
-
-                            foreach (var grade in courseGrades)
-                            {
-                                if (grade.Assignment != null)
-                                {
-                                    totalWeightedMarks += grade.AssignmentMark * grade.Assignment.Weight;
-                                    totalWeight += grade.Assignment.Weight;
-                                }
-                            }
-
-                            double courseAverage = totalWeight > 0 ? totalWeightedMarks / totalWeight : 0;
+                            // Use simple average instead of weighted average
+                            double totalMarks = courseGrades.Sum(g => g.AssignmentMark);
+                            double courseAverage = courseGrades.Count > 0 ? totalMarks / courseGrades.Count : 0;
                             bool coursePassed = courseAverage >= 50;
 
                             <div class="row mt-3">

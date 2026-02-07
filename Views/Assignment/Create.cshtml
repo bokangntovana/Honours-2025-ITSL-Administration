@@ -54,7 +54,7 @@
                             <span asp-validation-for="SetAssignmentMark" class="text-danger small"></span>
                         </div>
 
-                        <div class="mb-3">
+                      @*   <div class="mb-3">
                             <label asp-for="Weight" class="form-label fw-bold">Weight (%)</label>
                             <div class="input-group">
                                 <input asp-for="Weight" class="form-control" placeholder="0.00" step="0.01" min="0" max="1" />
@@ -62,7 +62,7 @@
                             </div>
                             <small class="form-text text-muted">Enter as decimal (0.15 for 15%)</small>
                             <span asp-validation-for="Weight" class="text-danger small"></span>
-                        </div>
+                        </div> *@
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Instruction Files (Optional)</label>
@@ -106,16 +106,16 @@
                 dueDateInput.min = now.toISOString().slice(0, 16);
             }
 
-            // Auto-format weight input
-            const weightInput = document.querySelector('input[name="Weight"]');
-            if (weightInput) {
-                weightInput.addEventListener('blur', function() {
-                    const value = parseFloat(this.value);
-                    if (value > 1) {
-                        this.value = (value / 100).toFixed(2);
-                    }
-                });
-            }
+            // // Auto-format weight input
+            // const weightInput = document.querySelector('input[name="Weight"]');
+            // if (weightInput) {
+            //     weightInput.addEventListener('blur', function() {
+            //         const value = parseFloat(this.value);
+            //         if (value > 1) {
+            //             this.value = (value / 100).toFixed(2);
+            //         }
+            //     });
+            // }
         });
     </script>
 }

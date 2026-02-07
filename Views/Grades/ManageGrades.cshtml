@@ -107,7 +107,7 @@
                         type="button" role="tab">
                     @assignment.Title
                     <span class="badge
-                                @(assignment.Submissions.Count(s => s.Grade == null) > 0 ? "bg-warning" : "bg-success")">
+                                    @(assignment.Submissions.Count(s => s.Grade == null) > 0 ? "bg-warning" : "bg-success")">
                         @assignment.Submissions.Count(s => s.Grade != null)/@assignment.Submissions.Count
                     </span>
                 </button>
@@ -127,26 +127,25 @@
                         <h5 class="mb-0">
                             @assignment.Title
                             <span class="badge
-                                        @(assignment.AssignmentType.ToString() == "Quiz" ? "bg-info" :
-                                          assignment.AssignmentType.ToString() == "WrittenAssignment" ? "bg-primary" : "bg-success") float-end">
-                                @assignment.AssignmentType
-                            </span>
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p><strong>Due Date:</strong> @assignment.DueDate.ToString("dd MMM yyyy")</p>
-                                <p><strong>Weight:</strong> <span class="badge bg-secondary">@((assignment.Weight * 100).ToString("F0"))%</span></p>
-                                <p><strong>Total Marks:</strong> @assignment.SetAssignmentMark</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>Submissions:</strong> @assignment.Submissions.Count</p>
-                                <p><strong>Graded:</strong> @assignment.Submissions.Count(s => s.Grade != null)</p>
-                                <p><strong>Pending:</strong> @assignment.Submissions.Count(s => s.Grade == null)</p>
-                            </div>
+                                            @(assignment.AssignmentType.ToString() == "Quiz" ? "bg-info" :
+                                                                            assignment.AssignmentType.ToString() == "WrittenAssignment" ? "bg-primary" : "bg-success") float-end">
+                            @assignment.AssignmentType
+                        </span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Due Date:</strong> @assignment.DueDate.ToString("dd MMM yyyy")</p>
+                            <p><strong>Total Marks:</strong> @assignment.SetAssignmentMark</p>
                         </div>
-                        @if (!string.IsNullOrEmpty(assignment.Description))
+                        <div class="col-md-6">
+                            <p><strong>Submissions:</strong> @assignment.Submissions.Count</p>
+                            <p><strong>Graded:</strong> @assignment.Submissions.Count(s => s.Grade != null)</p>
+                            <p><strong>Pending:</strong> @assignment.Submissions.Count(s => s.Grade == null)</p>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(assignment.Description))
                         {
                             <p><strong>Description:</strong> @assignment.Description</p>
                         }
@@ -253,8 +252,8 @@
                 @{
                     var participantsWithSubmissionsForThisAssignment = assignment.Submissions.Select(s => s.ParticipantId).ToList();
                     var participantsWithoutSubmissionsForThisAssignment = allParticipants
-                        .Where(p => !participantsWithSubmissionsForThisAssignment.Contains(p.Id))
-                        .ToList();
+                    .Where(p => !participantsWithSubmissionsForThisAssignment.Contains(p.Id))
+                    .ToList();
                 }
 
                 @if (participantsWithoutSubmissionsForThisAssignment.Any())

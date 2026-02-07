@@ -16,7 +16,7 @@ namespace ITSL_Administration.Services
             ".pdf", ".ppt", ".pptx", ".doc", ".docx",
             ".xls", ".xlsx", ".mp4", ".mp3",".mov", ".jpg",
             ".jpeg", ".png", ".txt", ".zip", ".rar",
-            ".cpp", ".java", ".py"
+            ".cpp", ".java", ".py" ,".cs", ".html", ".csv", ".js"
         };
 
       //  private const long _maxFileSize = 10 * 1024 * 1024;

@@ -368,6 +368,8 @@ namespace ITSL_Administration.Controllers
         // TAKING & SUBMITTING QUIZZES
         // ================================
 
+        // Update the TakeQuiz method to handle POST navigation
+        [HttpGet]
         public async Task<IActionResult> TakeQuiz(string quizId, int page = 1)
         {
             var quiz = await _context.Quizzes
@@ -388,143 +390,158 @@ namespace ITSL_Administration.Controllers
                 DueDate = quiz.Assignment?.DueDate ?? DateTime.MinValue,
                 CurrentPage = page,
                 TotalQuestions = quiz.Questions?.Count ?? 0,
-                PageSize = 3 // Set your desired page size
+                PageSize = 3
             };
 
-            vm.Questions = quiz.Questions?
+            // Get questions for current page
+            var currentPageQuestions = quiz.Questions?
                 .OrderBy(q => q.QuestionText)
                 .Skip((page - 1) * vm.PageSize)
                 .Take(vm.PageSize)
-                .Select(q => new QuestionItem
+                .ToList() ?? new List<QuizQuestion>();
+
+            vm.Questions = currentPageQuestions.Select(q => new QuestionItem
+            {
+                QuestionId = q.QuestionID,
+                QuestionText = q.QuestionText,
+                Options = q.Options?.Select(o => new SelectListItem
                 {
-                    QuestionId = q.QuestionID,
-                    QuestionText = q.QuestionText,
-                    Options = q.Options?.Select(o => new SelectListItem
-                    {
-                        Value = o.OptionID,
-                        Text = o.OptionText ?? ""
-                    }).ToList() ?? new List<SelectListItem>()
-                }).ToList() ?? new List<QuestionItem>();
+                    Value = o.OptionID,
+                    Text = o.OptionText ?? ""
+                }).ToList() ?? new List<SelectListItem>(),
+                UserAnswer = string.Empty // Will be populated from sessionStorage by JavaScript
+            }).ToList();
 
             return View(vm);
         }
 
+        // Add this new method to handle navigation via POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NavigateQuiz(QuizViewModel model, string action)
+        {
+            // Get the quiz to calculate proper pagination
+            var quiz = await _context.Quizzes
+                .Include(q => q.Questions)
+                .FirstOrDefaultAsync(q => q.QuizID == model.QuizId);
+
+            if (quiz == null) return NotFound();
+
+            int totalQuestions = quiz.Questions?.Count ?? 0;
+            int pageSize = 3; // Should match your view model
+            int totalPages = (int)Math.Ceiling(totalQuestions / (double)pageSize);
+
+            // Calculate target page based on action
+            int targetPage = model.CurrentPage;
+
+            if (action == "next" && model.CurrentPage < totalPages)
+            {
+                targetPage = model.CurrentPage + 1;
+            }
+            else if (action == "previous" && model.CurrentPage > 1)
+            {
+                targetPage = model.CurrentPage - 1;
+            }
+
+            // Always redirect to the TakeQuiz GET method
+            return RedirectToAction("TakeQuiz", new
+            {
+                quizId = model.QuizId,
+                page = targetPage
+            });
+        }
+
+        //SubmitQuiz
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SubmitQuiz(QuizViewModel model, string action)
         {
+            if (action != "submit")
+            {
+                // If not a submit action, redirect back (safety fallback)
+                return RedirectToAction("TakeQuiz", new { quizId = model.QuizId, page = model.CurrentPage });
+            }
+
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Get submission if it already exists
-            var submission = await _context.Submissions
+            // Check for existing submission (block retakes)
+            var existingSubmission = await _context.Submissions
                 .Include(s => s.Grade)
                 .FirstOrDefaultAsync(s => s.ParticipantId == userId && s.AssignmentId == model.AssignmentId);
 
-            //  Block retakes when submitting
-            if (submission != null && action == "submit")
+            if (existingSubmission != null)
             {
-                return RedirectToAction("QuizResult", new { submissionId = submission.SubmissionID });
+                return RedirectToAction("QuizResult", new { submissionId = existingSubmission.SubmissionID });
             }
 
-            // Create new submission if none exists
-            if (submission == null)
+            // Create new submission
+            var submission = new Submission
             {
-                submission = new Submission
-                {
-                    SubmissionID = Guid.NewGuid().ToString(),
-                    ParticipantId = userId,
-                    AssignmentId = model.AssignmentId,
-                    DateSubmitted = DateTime.Now
-                };
+                SubmissionID = Guid.NewGuid().ToString(),
+                ParticipantId = userId,
+                AssignmentId = model.AssignmentId,
+                DateSubmitted = DateTime.Now
+            };
 
-                // Create Grade immediately
-                submission.Grade = new Grade
-                {
-                    GradeID = Guid.NewGuid().ToString(),
-                    SubmissionId = submission.SubmissionID,
-                    AssignmentId = model.AssignmentId,
-                    AssignmentMark = 0.0,
-                    FinalMark = 0.0, // unused
-                    HasPassed = false,
-                    MarkedBy = "System",
-                    DateRecorded = DateTime.Now,
-                    GradesFeedback = string.Empty
-                };
+            // Calculate final score
+            var allQuestions = await _context.QuizQuestions
+                .Where(q => q.QuizId == model.QuizId)
+                .Include(q => q.Options)
+                .ToListAsync();
 
-                _context.Submissions.Add(submission);
-                _context.Grades.Add(submission.Grade);
-            }
-            else if (submission.Grade == null)
-            {
-                // Safety: ensure grade exists
-                submission.Grade = new Grade
-                {
-                    GradeID = Guid.NewGuid().ToString(),
-                    SubmissionId = submission.SubmissionID,
-                    AssignmentId = model.AssignmentId,
-                    AssignmentMark = 0.0,
-                    FinalMark = 0.0,
-                    HasPassed = false,
-                    MarkedBy = "System",
-                    DateRecorded = DateTime.Now,
-                    GradesFeedback = string.Empty
-                };
-
-                _context.Grades.Add(submission.Grade);
-            }
-
-            //  Calculate score
             double correctAnswers = 0.0;
-            foreach (var q in model.Questions ?? Enumerable.Empty<QuestionItem>())
-            {
-                if (!string.IsNullOrEmpty(q.UserAnswer))
-                {
-                    var option = await _context.QuizOptions
-                        .FirstOrDefaultAsync(o => o.OptionID == q.UserAnswer);
+            int totalQuestions = allQuestions.Count;
 
-                    if (option?.IsCorrect == true)
+            // Calculate score based on submitted answers
+            // Note: The model.Questions here contains ALL questions from the final submission form
+            // (populated by JavaScript in the view)
+            foreach (var question in allQuestions)
+            {
+                // Find the user's answer for this question
+                var userAnswer = model.Questions?
+                    .FirstOrDefault(q => q.QuestionId == question.QuestionID)?.UserAnswer;
+
+                if (!string.IsNullOrEmpty(userAnswer))
+                {
+                    var selectedOption = question.Options?
+                        .FirstOrDefault(o => o.OptionID == userAnswer);
+
+                    if (selectedOption?.IsCorrect == true)
                     {
                         correctAnswers++;
                     }
                 }
             }
 
-            if (action == "submit")
+            double percentage = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100.0 : 0.0;
+            bool hasPassed = percentage >= 50.0;
+
+            // Create grade
+            var grade = new Grade
             {
-                // Count total questions in this quiz
-                var totalQuestions = await _context.QuizQuestions
-                    .CountAsync(q => q.QuizId == model.QuizId);
-
-                if (totalQuestions > 0)
-                {
-                    submission.Grade.AssignmentMark = (correctAnswers / totalQuestions) * 100.0;
-                }
-                else
-                {
-                    submission.Grade.AssignmentMark = 0.0;
-                }
-
-                // FinalMark left unused
-                submission.Grade.FinalMark = 0.0;
-
-                // Pass/fail logic
-                submission.Grade.HasPassed = submission.Grade.AssignmentMark >= 50.0;
-                submission.Grade.GradesFeedback = submission.Grade.HasPassed
+                GradeID = Guid.NewGuid().ToString(),
+                SubmissionId = submission.SubmissionID,
+                AssignmentId = model.AssignmentId,
+                AssignmentMark = percentage,
+                FinalMark = percentage,
+                HasPassed = hasPassed,
+                MarkedBy = "System",
+                DateRecorded = DateTime.Now,
+                GradesFeedback = hasPassed
                     ? "Well done, you passed!"
-                    : "Unfortunately, you did not pass. Please review and try again.";
+                    : "Unfortunately, you did not pass. Please review and try again."
+            };
 
-                submission.Grade.MarkedBy ??= "System";
-                submission.Grade.DateRecorded = DateTime.Now;
-                submission.DateSubmitted = DateTime.Now;
+            submission.Grade = grade;
 
-                await _context.SaveChangesAsync();
+            _context.Submissions.Add(submission);
+            _context.Grades.Add(grade);
 
-                return RedirectToAction("QuizResult", new { submissionId = submission.SubmissionID });
-            }
+            await _context.SaveChangesAsync();
 
-            // Navigate (next/prev page)
-            return RedirectToAction("TakeQuiz", new { quizId = model.QuizId, page = model.CurrentPage });
+            return RedirectToAction("QuizResult", new { submissionId = submission.SubmissionID });
         }
+
 
         public async Task<IActionResult> QuizResult(string submissionId)
         {
@@ -545,7 +562,7 @@ namespace ITSL_Administration.Controllers
                     SubmissionId = submission.SubmissionID,
                     AssignmentId = submission.AssignmentId,
                     AssignmentMark = 0.0,
-                    FinalMark = 0.0,
+                    FinalMark = 0.0, // REMOVED: Weight calculation
                     HasPassed = false,
                     MarkedBy = "System",
                     DateRecorded = DateTime.Now,

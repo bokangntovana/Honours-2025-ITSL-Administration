@@ -1,0 +1,241 @@
+﻿@using Humanizer
+@model ITSL_Administration.Models.Course
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ITSL_Administration.Models.User> _userManager
+@{
+    ViewData["Title"] = "Course Assignments - ITSL Administration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Breadcrumbs {
+    <li class="breadcrumb-item">
+        <a asp-controller="Courses" asp-action="Index" class="text-link">Courses</a>
+    </li>
+    <li class="breadcrumb-item">
+        <a asp-controller="Courses" asp-action="Details" asp-route-id="@Model.CourseID" class="text-link">@Model.CourseName</a>
+    </li>
+    <li class="breadcrumb-item active">Assignments</li>
+}
+
+<div class="container-fluid mt-4">
+    <!-- Page Header -->
+    <div class="index-header">
+        <div>
+            <h1 class="display-6 text-primary-blue mb-1">
+                <i class="fas fa-tasks me-2"></i>@Model.CourseName - Assignments
+            </h1>
+            <p class="text-muted mb-0">View and submit assignments for @Model.CourseCode</p>
+        </div>
+        <div class="btn-group">
+            <a asp-controller="Courses" asp-action="Details" asp-route-id="@Model.CourseID"
+               class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Course
+            </a>
+        </div>
+    </div>
+
+    <!-- Success Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Statistics Cards (Participant-focused) -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card dashboard-card border-left-primary hover-shadow">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-wrapper bg-primary rounded me-3">
+                            <i class="fas fa-clipboard-list text-white fa-2x"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-0">@(Model.Assignments?.Count ?? 0)</h4>
+                            <p class="text-muted mb-0">Total Assignments</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card dashboard-card border-left-warning hover-shadow">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-wrapper bg-warning rounded me-3">
+                            <i class="fas fa-exclamation-triangle text-white fa-2x"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-0">@(Model.Assignments?.Count(a => a.DueDate < DateTime.Now) ?? 0)</h4>
+                            <p class="text-muted mb-0">Overdue</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card dashboard-card border-left-info hover-shadow">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-wrapper bg-info rounded me-3">
+                            <i class="fas fa-clock text-white fa-2x"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-0">@(Model.Assignments?.Count(a => a.DueDate <= DateTime.Now.AddDays(3) && a.DueDate >= DateTime.Now) ?? 0)</h4>
+                            <p class="text-muted mb-0">Due Soon</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card dashboard-card border-left-success hover-shadow">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-wrapper bg-success rounded me-3">
+                            <i class="fas fa-check-circle text-white fa-2x"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-0">@(Model.Assignments?.Count(a => a.Submissions?.Any(s => s.ParticipantId == _userManager.GetUserId(User)) == true) ?? 0)</h4>
+                            <p class="text-muted mb-0">Submitted</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignments Table -->
+    <div class="card index-card">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Course Assignments</h5>
+            <span class="badge bg-primary">@(Model.Assignments?.Count ?? 0) Total</span>
+        </div>
+        <div class="card-body">
+            @if (Model.Assignments != null && Model.Assignments.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped index-table">
+                        <thead>
+                            <tr>
+                                <th>Title & Description</th>
+                                <th>Type</th>
+                                <th>Due Date</th>
+                                <th>Total Mark</th>
+                                <th>Weight</th>
+                                <th>My Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var assignment in Model.Assignments.OrderByDescending(x => x.CreatedAt))
+                            {
+                                var isOverdue = assignment.DueDate < DateTime.Now;
+                                var isDueSoon = assignment.DueDate <= DateTime.Now.AddDays(3) && assignment.DueDate >= DateTime.Now;
+                                var userSubmission = assignment.Submissions?.FirstOrDefault(s => s.ParticipantId == _userManager.GetUserId(User));
+                                var hasSubmitted = userSubmission != null;
+                                var isGraded = userSubmission?.Grade != null;
+
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-start">
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1">@assignment.Title</h6>
+                                                @if (!string.IsNullOrEmpty(assignment.Description))
+                                                {
+                                                    <p class="text-muted small mb-0">@assignment.Description.Truncate(80)</p>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge @(assignment.AssignmentType.ToString() == "Quiz" ? "bg-info" : "bg-primary")">
+                                            @assignment.AssignmentType
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="@(isOverdue ? "text-danger" : isDueSoon ? "text-warning" : "")">
+                                            @assignment.DueDate.ToString("dd MMM yyyy")
+                                            @if (isOverdue)
+                                            {
+                                                <br>
+                                                <small class="text-danger">
+                                                    <i class="fas fa-exclamation-triangle me-1"></i>Overdue
+                                                </small>
+                                            }
+                                            else if (isDueSoon)
+                                            {
+                                                <br>
+                                                <small class="text-warning">
+                                                    <i class="fas fa-clock me-1"></i>Due soon
+                                                </small>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>@assignment.SetAssignmentMark</td>
+                                    <td>
+                                        <span class="badge bg-secondary">@(assignment.Weight.ToString("P0"))</span>
+                                    </td>
+                                    <td>
+                                        @if (hasSubmitted)
+                                        {
+                                            if (isGraded)
+                                            {
+                                                <span class="badge bg-success">Graded: @userSubmission.Grade.AssignmentMark/@assignment.SetAssignmentMark</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning text-dark">Submitted - Awaiting Grade</span>
+                                            }
+                                        }
+                                        else if (isOverdue)
+                                        {
+                                            <span class="badge bg-danger">Not Submitted - Overdue</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Not Submitted</span>
+                                        }
+                                    </td>
+                                    <td class="text-end action-buttons">
+                                        <div class="btn-group btn-group-sm">
+                                            <a asp-action="Details" asp-route-id="@assignment.AssignmentID"
+                                               class="btn btn-outline-info" title="View Assignment Details">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                            @if (!hasSubmitted && !isOverdue)
+                                            {
+                                                <a asp-controller="Submission" asp-action="Create" asp-route-assignmentId="@assignment.AssignmentID"
+                                                   class="btn btn-success" title="Submit Assignment">
+                                                    <i class="fas fa-upload"></i> Submit
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-clipboard-list fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">No Assignments Available</h4>
+                    <p class="text-muted mb-4">There are no assignments for this course yet.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

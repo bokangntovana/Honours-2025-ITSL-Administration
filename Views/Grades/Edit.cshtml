@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Edit Grade - ITSL Administration";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var currentPercentage = Model.Grade.AssignmentMark / Model.Submission.Assignment.SetAssignmentMark * 100;
+    var currentPercentage = (Model.Grade.AssignmentMark / Model.Submission.Assignment.SetAssignmentMark) * 100;
 }
 
 @section Breadcrumbs {
@@ -115,7 +115,6 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
     <script>
         // Real-time calculations
         const assignmentMarkInput = document.getElementById('Grade_AssignmentMark');

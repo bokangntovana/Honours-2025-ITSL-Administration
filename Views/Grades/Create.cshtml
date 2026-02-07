@@ -28,7 +28,7 @@
                     <h5 class="text-primary-blue"><i class="fas fa-clipboard-list me-2"></i>Assignment Details</h5>
                     <p class="mb-1"><strong>Title:</strong> @Model.Submission.Assignment?.Title</p>
                     <p class="mb-1"><strong>Type:</strong> <span class="badge bg-info">@Model.Submission.Assignment?.AssignmentType</span></p>
-                    <p class="mb-1"><strong>Weight:</strong> <span class="badge bg-secondary">@((Model.Submission.Assignment?.Weight * 100)?.ToString("F0"))%</span></p>
+                    <!-- REMOVED: Weight display -->
                     <p class="mb-0"><strong>Total Marks:</strong> @Model.Submission.Assignment?.SetAssignmentMark</p>
                 </div>
             </div>
@@ -100,8 +100,8 @@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
 
+    }
     <script>
         // Real-time calculations and validation
         const assignmentMarkInput = document.getElementById('Grade_AssignmentMark');

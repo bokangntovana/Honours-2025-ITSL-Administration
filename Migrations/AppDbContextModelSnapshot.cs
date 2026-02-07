@@ -159,30 +159,6 @@ namespace ITSL_Administration.Migrations
                     b.ToTable("Donations");
                 });
 
-            modelBuilder.Entity("ITSL_Administration.Models.Enrollment", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CourseId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("EnrollmentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
-
-                    b.HasKey("UserId", "CourseId");
-
-                    b.HasIndex("CourseId");
-
-                    b.ToTable("Enrollments");
-                });
-
             modelBuilder.Entity("ITSL_Administration.Models.EventSchedule", b =>
                 {
                     b.Property<int>("Id")
@@ -198,7 +174,7 @@ namespace ITSL_Administration.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTime?>("End")
+                    b.Property<DateTime>("End")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsAllDay")
@@ -651,25 +627,6 @@ namespace ITSL_Administration.Migrations
                     b.Navigation("Donor");
                 });
 
-            modelBuilder.Entity("ITSL_Administration.Models.Enrollment", b =>
-                {
-                    b.HasOne("ITSL_Administration.Models.Course", "Course")
-                        .WithMany("Enrollments")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ITSL_Administration.Models.User", "User")
-                        .WithMany("Enrollments")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("ITSL_Administration.Models.Grade", b =>
                 {
                     b.HasOne("ITSL_Administration.Models.Assignment", "Assignment")
@@ -820,8 +777,6 @@ namespace ITSL_Administration.Migrations
                     b.Navigation("Assignments");
 
                     b.Navigation("Contents");
-
-                    b.Navigation("Enrollments");
                 });
 
             modelBuilder.Entity("ITSL_Administration.Models.Quiz", b =>
@@ -839,11 +794,6 @@ namespace ITSL_Administration.Migrations
                     b.Navigation("Files");
 
                     b.Navigation("Grade");
-                });
-
-            modelBuilder.Entity("ITSL_Administration.Models.User", b =>
-                {
-                    b.Navigation("Enrollments");
                 });
 #pragma warning restore 612, 618
         }

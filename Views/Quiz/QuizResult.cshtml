@@ -5,7 +5,7 @@
 
     var safeAssignment = Model?.Assignment;
     var safeGrade = Model?.Grade;
-    var percentage = safeGrade?.AssignmentMark ?? 0.0;
+    var percentage = safeGrade?.FinalMark ?? 0.0;
     var resultClass = (safeGrade?.HasPassed ?? false) ? "success" : "danger";
 }
 

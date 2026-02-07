@@ -28,10 +28,7 @@
             </h1>
             <p class="text-muted mb-0">
                 @assignment?.Title - @assignment?.Course?.CourseName
-                @if (assignment != null)
-                {
-                    <span class="badge bg-secondary ms-2">@(assignment.Weight.ToString("P0")) Weight</span>
-                }
+                <!-- REMOVED: Weight badge display -->
             </p>
         </div>
         <a asp-action="Details" asp-route-id="@assignmentId" class="btn btn-outline-secondary">
@@ -264,8 +261,7 @@
                                 <dd>@assignment?.DueDate.ToString("dd MMM yyyy")</dd>
                                 <dt>Total Marks:</dt>
                                 <dd>@assignment?.SetAssignmentMark</dd>
-                                <dt>Weight:</dt>
-                                <dd>@(assignment?.Weight.ToString("P0"))</dd>
+                                <!-- REMOVED: Weight display -->
                             </dl>
                         </div>
                     </div>

@@ -3,7 +3,7 @@
     ViewData["Title"] = "Submission Details - ITSL Administration";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var isStaff = User.IsInRole("Admin") || User.IsInRole("Lecturer") || User.IsInRole("Tutor");
-    var isParticipant = User.Identity?.Name == Model.Participant?.Email;
+    var isParticipant = User.Identity?.Name == Model.Participant?.Email || User.IsInRole("Participant");
     var canView = isStaff || isParticipant;
 }
 
@@ -167,7 +167,7 @@
                                             <td>@(file.FileSize / 1024) KB</td>
                                             <td>@file.UploadDate.ToString("dd MMM yyyy")</td>
                                             <td class="text-end action-buttons">
-                                                <a href="@Url.Action("Download", "File", new { id = file.FileId })"
+                                                <a href="@Url.Action("DownloadFile", "Submission", new { id = file.FileId })"
                                                    class="btn btn-sm btn-outline-primary"
                                                    target="_blank"
                                                    title="Download @file.FileName">
